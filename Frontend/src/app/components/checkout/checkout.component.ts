@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ShippingAddressDialogComponent } from './shipping-address-dialog.component';
 
 // Leaflet imports
-import { latLng, tileLayer, Marker, marker } from 'leaflet';
+import { latLng, tileLayer, Marker, marker, icon } from 'leaflet';
 
 declare var paypal: any;
 
@@ -353,15 +353,27 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     map.on('click', (event: any) => this.onMapClick(event));
   }
 
+  private getCustomIcon() {
+    return icon({
+      iconUrl: 'assets/my-marker.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+      // Optionally add shadowUrl and shadowSize if you have a shadow image
+    });
+  }
+
   onMapClick(event: any) {
     console.log('Map clicked:', event);
     if (event && event.latlng) {
       this.selectedLat = event.latlng.lat;
       this.selectedLng = event.latlng.lng;
+      const customIcon = this.getCustomIcon();
       if (this.mapMarker) {
         this.mapMarker.setLatLng(event.latlng);
+        this.mapMarker.setIcon(customIcon);
       } else {
-        this.mapMarker = marker(event.latlng).addTo(this.map!);
+        this.mapMarker = marker(event.latlng, { icon: customIcon }).addTo(this.map);
       }
       this.reverseGeocode(event.latlng.lat, event.latlng.lng);
     }
