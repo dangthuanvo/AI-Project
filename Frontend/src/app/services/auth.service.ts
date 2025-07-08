@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PresenceService } from './presence.service';
+import { environment } from '../../environments/environment';
 
 export interface User {
   id: string;
@@ -44,7 +45,7 @@ export interface RegisterRequest {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'https://localhost:7001/api';
+  private readonly API_URL = `${environment.apiUrl}`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
 

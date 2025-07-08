@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface ChatMessage {
   id: number;
@@ -45,7 +46,7 @@ export interface SendMessageRequest {
   providedIn: 'root'
 })
 export class ChatService {
-  private readonly API_URL = 'https://localhost:7001/api';
+  private readonly API_URL = `${environment.apiUrl}`;
   private hubConnection?: HubConnection;
   
   private messagesSubject = new BehaviorSubject<ChatMessage[]>([]);
@@ -64,7 +65,7 @@ export class ChatService {
 
   startConnection(token: string): Promise<void> {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl('https://localhost:7001/hubs/chat', {
+      .withUrl(`${environment.apiUrl.replace('/api', '')}/hubs/chat`, {
         accessTokenFactory: () => token
       })
       .withAutomaticReconnect()

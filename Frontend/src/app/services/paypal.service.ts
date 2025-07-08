@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface PayPalOrderResponse {
   orderId: string;
@@ -26,7 +27,7 @@ export interface PayPalOrderDetails {
   providedIn: 'root'
 })
 export class PayPalService {
-  private readonly API_URL = 'https://localhost:7001/api';
+  private readonly API_URL = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 

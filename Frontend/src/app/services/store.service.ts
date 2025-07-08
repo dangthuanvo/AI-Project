@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Store {
   id: number;
@@ -72,7 +73,7 @@ export interface MonthlyStats {
   providedIn: 'root'
 })
 export class StoreService {
-  private readonly API_URL = 'https://localhost:7001/api';
+  private readonly API_URL = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 

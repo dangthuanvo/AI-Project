@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface CartItem {
   id: number;
@@ -53,7 +54,7 @@ export interface CheckoutResponse {
   providedIn: 'root'
 })
 export class CartService {
-  private readonly API_URL = 'https://localhost:7001/api';
+  private readonly API_URL = `${environment.apiUrl}`;
   private cartItemsSubject = new BehaviorSubject<CartItem[]>([]);
   private cartTotalSubject = new BehaviorSubject<number>(0);
 

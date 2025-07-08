@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface PlayerState {
   userId: string;
@@ -49,7 +50,7 @@ export class PresenceService {
     this.connectionStatusSubject.next('connecting');
     
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7001/hubs/presence', {
+      .withUrl(`${environment.apiUrl.replace('/api', '')}/hubs/presence`, {
         accessTokenFactory: () => token
       })
       .withAutomaticReconnect()
