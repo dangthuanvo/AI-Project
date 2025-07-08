@@ -13,9 +13,6 @@ using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure URLs to use specific ports
-builder.WebHost.UseUrls("http://localhost:7000", "https://localhost:7001");
-
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddSignalR(options =>
