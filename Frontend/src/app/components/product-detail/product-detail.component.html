@@ -1,0 +1,241 @@
+<div class="product-detail-container">
+  <div *ngIf="loading" class="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading product details...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <mat-icon>error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="goToStore()">Go Back to Store</button>
+  </div>
+
+  <div *ngIf="!loading && !error && product" class="product-content">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+      <button mat-button (click)="goBackToVirtualStreet()" aria-label="Back to Virtual Street">
+        <mat-icon>home</mat-icon>
+        Virtual Street
+      </button>
+      <span class="breadcrumb-separator">&gt;</span>
+      <button mat-button (click)="goToStore()" aria-label="Back to Store">
+        <mat-icon>store</mat-icon>
+        Back to Store
+      </button>
+    </div>
+
+    <div class="product-grid">
+      <!-- Product Image Gallery -->
+      <div class="product-image-section">
+        <div class="product-gallery" *ngIf="getGalleryImages().length > 0; else noImageBlock">
+          <div class="main-image">
+            <button mat-icon-button class="nav-arrow left" (click)="selectedImageIndex = (selectedImageIndex - 1 + getGalleryImages().length) % getGalleryImages().length" *ngIf="getGalleryImages().length > 1">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <img 
+              [src]="getImageUrl(getGalleryImages()[selectedImageIndex])" 
+              [alt]="product.name || 'Product image'" 
+              (error)="onImageError(selectedImageIndex)"
+              (click)="openFullScreenViewer()"
+              class="clickable-image"
+              tabindex="0"
+              (keydown.enter)="openFullScreenViewer()"
+              (keydown.space)="openFullScreenViewer()"
+              role="button"
+              aria-label="Click to view full screen"/>
+            <button mat-icon-button class="nav-arrow right" (click)="selectedImageIndex = (selectedImageIndex + 1) % getGalleryImages().length" *ngIf="getGalleryImages().length > 1">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+          <div class="thumbnails">
+            <img *ngFor="let img of getGalleryImages(); let i = index" [src]="getImageUrl(img)" [class.selected]="i === selectedImageIndex" (click)="selectedImageIndex = i" [alt]="'Thumbnail ' + (i+1)"/>
+          </div>
+        </div>
+        <ng-template #noImageBlock>
+          <div class="image-placeholder">
+            <mat-icon>image_not_supported</mat-icon>
+            <span>No Image</span>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Product Details -->
+      <div class="product-info-section">
+        <div class="product-header">
+          <h1>{{ product.name }}</h1>
+          <div class="product-price">
+            <span class="price">${{ product.price | number:'1.2-2' }}</span>
+            <span class="stock" [ngClass]="{'low-stock': product.stockQuantity <= 5, 'out-stock': product.stockQuantity === 0}" [attr.aria-label]="product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock'">
+              <ng-container *ngIf="product.stockQuantity > 0">
+                <mat-icon *ngIf="product.stockQuantity <= 5" color="warn">warning</mat-icon>
+                {{ product.stockQuantity <= 5 ? 'Low Stock' : 'In Stock' }}
+                ({{ product.stockQuantity }} available)
+              </ng-container>
+              <ng-container *ngIf="product.stockQuantity === 0">
+                <mat-icon color="warn">inventory_2</mat-icon>
+                Out of Stock
+              </ng-container>
+            </span>
+          </div>
+        </div>
+
+        <div class="product-description">
+          <h3>Description</h3>
+          <p>{{ product.description || 'No description available.' }}</p>
+        </div>
+
+        <div class="product-details">
+          <div class="detail-item" *ngIf="product.category">
+            <span class="label">Category:</span>
+            <span class="value">{{ product.category }}</span>
+          </div>
+          <div class="detail-item" *ngIf="product.brand">
+            <span class="label">Brand:</span>
+            <span class="value">{{ product.brand }}</span>
+          </div>
+          <div class="detail-item" *ngIf="product.size">
+            <span class="label">Size:</span>
+            <span class="value">{{ product.size }}</span>
+          </div>
+          <div class="detail-item" *ngIf="product.color">
+            <span class="label">Color:</span>
+            <span class="value">{{ product.color }}</span>
+          </div>
+        </div>
+
+        <!-- Add to Cart Section -->
+        <div class="add-to-cart-section" *ngIf="product.stockQuantity > 0 && canAddToCart()">
+          <form [formGroup]="addToCartForm" (ngSubmit)="addToCart()" aria-label="Add to Cart Form">
+            <div class="quantity-selector">
+              <label for="quantity">Quantity:</label>
+              <mat-form-field appearance="outline">
+                <input 
+                  matInput 
+                  type="number" 
+                  id="quantity"
+                  formControlName="quantity" 
+                  min="1" 
+                  [max]="product.stockQuantity"
+                  required
+                  aria-label="Quantity">
+                <mat-error *ngIf="addToCartForm.get('quantity')?.hasError('required')">
+                  Quantity is required
+                </mat-error>
+                <mat-error *ngIf="addToCartForm.get('quantity')?.hasError('min')">
+                  Quantity must be at least 1
+                </mat-error>
+                <mat-error *ngIf="addToCartForm.get('quantity')?.hasError('max')">
+                  Quantity cannot exceed available stock
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="cart-actions">
+              <button 
+                mat-raised-button 
+                color="accent"
+                type="button"
+                (click)="openChatWithSeller()"
+                aria-label="Ask about this product">
+                <mat-icon>chat</mat-icon>
+                Ask about this product
+              </button>
+              <button 
+                mat-raised-button 
+                color="primary" 
+                type="submit"
+                [disabled]="addToCartForm.invalid || product.stockQuantity === 0"
+                aria-label="Add to Cart">
+                <mat-icon>add_shopping_cart</mat-icon>
+                Add to Cart
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Out of Stock Message -->
+        <div class="out-of-stock" *ngIf="product.stockQuantity === 0">
+          <mat-icon>inventory_2</mat-icon>
+          <p>This product is currently out of stock.</p>
+        </div>
+
+        <!-- Cannot Add to Cart Messages -->
+        <div class="cannot-add-to-cart" *ngIf="product.stockQuantity > 0 && !canAddToCart()">
+          <mat-icon>block</mat-icon>
+          <p *ngIf="isAdmin()">Administrators cannot add products to cart.</p>
+          <p *ngIf="isSeller()">Sellers cannot add products to cart.</p>
+          <p *ngIf="!isCustomer() && !isAdmin() && !isSeller()">Please log in as a customer to add products to cart.</p>
+        </div>
+
+        <!-- Seller Actions -->
+        <!-- Removed the Edit Product button for sellers -->
+
+        <!-- Customer Chat Action -->
+        <!-- <div class="customer-actions" *ngIf="!isSeller() && !isAdmin() && product">
+          <button mat-stroked-button color="accent" (click)="openChatWithSeller()" aria-label="Start chatting">
+            <mat-icon>chat</mat-icon>
+            Ask about this product
+          </button>
+        </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Button for Customers -->
+  <app-chat-button 
+    *ngIf="product && !isSeller() && !isAdmin()"
+    [storeId]="product.storeId"
+    [storeName]="'Store'"
+    [sellerId]="''"
+    [sellerName]="'Seller'"
+    (chatInitiated)="onChatInitiated()">
+  </app-chat-button>
+
+  <!-- Full Screen Image Viewer Modal -->
+  <div class="fullscreen-viewer" *ngIf="isFullScreenOpen" (click)="closeFullScreenViewer()" (keydown)="onKeyDown($event)" tabindex="0">
+    <div class="fullscreen-content" (click)="$event.stopPropagation()">
+      <button mat-icon-button class="close-button" (click)="closeFullScreenViewer()" aria-label="Close full screen view">
+        <mat-icon>close</mat-icon>
+      </button>
+      
+      <div class="fullscreen-image-container">
+        <button 
+          mat-icon-button 
+          class="fullscreen-nav-arrow left" 
+          (click)="navigateFullScreen(-1)" 
+          *ngIf="getGalleryImages().length > 1"
+          aria-label="Previous image">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        
+        <img 
+          [src]="getImageUrl(getGalleryImages()[fullScreenImageIndex])" 
+          [alt]="product?.name || 'Product image'" 
+          class="fullscreen-image"
+          (error)="onImageError(fullScreenImageIndex)"/>
+        
+        <button 
+          mat-icon-button 
+          class="fullscreen-nav-arrow right" 
+          (click)="navigateFullScreen(1)" 
+          *ngIf="getGalleryImages().length > 1"
+          aria-label="Next image">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+      
+      <div class="fullscreen-thumbnails" *ngIf="getGalleryImages().length > 1">
+        <img 
+          *ngFor="let img of getGalleryImages(); let i = index" 
+          [src]="getImageUrl(img)" 
+          [class.selected]="i === fullScreenImageIndex" 
+          (click)="fullScreenImageIndex = i" 
+          [alt]="'Thumbnail ' + (i+1)"/>
+      </div>
+      
+      <div class="fullscreen-counter" *ngIf="getGalleryImages().length > 1">
+        {{ fullScreenImageIndex + 1 }} / {{ getGalleryImages().length }}
+      </div>
+    </div>
+  </div>
+</div> 

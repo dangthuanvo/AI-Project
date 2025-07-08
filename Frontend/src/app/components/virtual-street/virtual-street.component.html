@@ -1,0 +1,362 @@
+<div class="game-container" (keydown)="handleKeyPress($event)" tabindex="0">
+  <!-- Mountain background at the bottom -->
+  <div class="mountain-background">
+    <svg viewBox="0 0 1920 250" width="100%" height="250" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="mountain1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#bfc9db"/>
+          <stop offset="100%" stop-color="#8d99ae"/>
+        </linearGradient>
+        <linearGradient id="mountain2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e0e6ef"/>
+          <stop offset="100%" stop-color="#bfc9db"/>
+        </linearGradient>
+        <linearGradient id="mountain3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f5f7fa"/>
+          <stop offset="100%" stop-color="#e0e6ef"/>
+        </linearGradient>
+      </defs>
+      <!-- Farthest mountains -->
+      <polygon points="0,250 200,170 400,210 700,140 1000,220 1300,170 1600,210 1920,180 1920,250" fill="url(#mountain3)" />
+      <!-- Middle mountains -->
+      <polygon points="0,250 300,150 500,210 900,80 1100,220 1400,140 1700,210 1920,120 1920,250" fill="url(#mountain2)" />
+      <!-- Closest and biggest mountain (center) -->
+      <polygon points="0,250 600,180 950,30 1300,200 1920,250" fill="url(#mountain1)" />
+      <!-- Big snow cap on the tallest mountain -->
+      <polygon points="920,60 950,30 980,60 950,70" fill="#fff" opacity="0.85"/>
+      <!-- Other snow caps -->
+      <polygon points="1380,140 1400,140 1405,160 1390,160" fill="#fff" opacity="1"/>
+      <polygon points="300,150 350,150 360,170 300,170" fill="#fff" opacity="1"/>
+    </svg>
+  </div>
+
+  <!-- Debug: Show otherPlayers object -->
+  <!-- (Removed) -->
+
+  <div class="game-world">
+    <!-- Sky Elements -->
+    <div class="sky" [ngClass]="{ night: isNight }">
+      <!-- Sun (day only) -->
+      <div class="sun" *ngIf="!isNight">
+        <div class="sun-core"></div>
+        <div class="sun-rays"></div>
+      </div>
+      <!-- Moon (night only) -->
+      <div class="moon" *ngIf="isNight">
+        <div class="moon-core"></div>
+        <div class="moon-shadow"></div>
+      </div>
+      <!-- Stars (night only) -->
+      <ng-container *ngIf="isNight">
+        <div class="star" *ngFor="let star of starPositions" [style.top.%]="star.top" [style.left.%]="star.left"></div>
+      </ng-container>
+      <!-- Clouds -->
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+      <div class="cloud cloud-4"></div>
+    </div>
+    
+    <div class="street-container" [style.width]="roadLength + 'px'" [style.transform]="'translate(' + cameraX + 'px, ' + cameraY + 'px)'">
+      <!-- Street background -->
+      <div class="street-background"></div>
+      
+      <!-- Stores -->
+      <div 
+        *ngFor="let store of stores" 
+        class="store-building"
+        [class.nearby]="isNearStore(store)"
+        [class.updated]="updatedStoreIds.has(store.id)"
+        [style.left]="store.positionX + 'px'"
+        [style.top]="store.positionY + 'px'"
+        (click)="enterStore(store)"
+      >
+        <!-- Modern Enhanced House Model -->
+        <div class="house" 
+             [ngStyle]="{
+               'background-color': store.secondaryColor || '#FFFFFF',
+               '--roof-color': store.primaryColor || '#000000',
+               '--roof-color-dark': getDarkerColor(store.primaryColor || '#000000'),
+               '--banner-color': store.primaryColor || '#9aa9ff',
+               '--banner-color-dark': getDarkerColor(store.primaryColor || '#9aa9ff')
+             }">
+          <div class="roof"></div>
+          <div class="chimney"></div>
+          <div class="store-banner">
+            {{ store.name }}
+          </div>
+          <div class="window window-left"></div>
+          <div class="window window-right"></div>
+          <div class="door">
+            <div *ngIf="isNearStore(store)" class="entrance-marker">E</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Player character -->
+      <div 
+        class="player-character"
+        [style.left]="player.x + 'px'"
+        [style.top]="player.y + 'px'"
+        [style.zIndex]="9999"
+        [class.walking]="player.isWalking"
+        [ngClass]="'facing-' + player.facing"
+      >
+        <div class="player-name-tag">{{ player.name }}</div>
+        <svg width="48" height="64" viewBox="0 0 48 64" class="player-svg">
+          <!-- Hair (larger and higher for more visibility) -->
+          <ellipse cx="24" cy="4" rx="12" ry="15" fill="#3e2723" stroke="#1b1b1b" stroke-width="2"/>
+          <!-- Head -->
+          <circle cx="24" cy="16" r="12" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
+          <!-- Body -->
+          <rect x="14" y="28" width="20" height="22" rx="8" [attr.fill]="player.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+          <!-- Arms -->
+          <rect x="2" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.arm-left]="true"/>
+          <rect x="34" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.arm-right]="true"/>
+          <!-- Legs -->
+          <rect x="16" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.leg-left]="true"/>
+          <rect x="26" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.leg-right]="true"/>
+          <!-- Face (eyes, smile) -->
+          <ellipse cx="19" cy="16" rx="2" ry="3" fill="#333"/>
+          <ellipse cx="29" cy="16" rx="2" ry="3" fill="#333"/>
+          <path d="M20 22 Q24 26 28 22" stroke="#b8860b" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+
+      <!-- Other players -->
+      <div *ngFor="let other of otherPlayers | keyvalue"
+        class="other-player-character"
+        [class.walking]="other.value.isWalking"
+        [style.left]="other.value.x + 'px'"
+        [style.top]="other.value.y + 'px'"
+        [style.zIndex]="9998"
+        [ngClass]="'facing-' + other.value.facing"
+      >
+        <div class="player-name-tag">{{ other.value.name }}</div>
+        <svg width="48" height="64" viewBox="0 0 48 64" class="player-svg">
+          <!-- Hair -->
+          <ellipse cx="24" cy="4" rx="12" ry="15" fill="#3e2723" stroke="#1b1b1b" stroke-width="2"/>
+          <!-- Head -->
+          <circle cx="24" cy="16" r="12" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
+          <!-- Body -->
+          <rect x="14" y="28" width="20" height="22" rx="8" [attr.fill]="other.value.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+          <!-- Arms -->
+          <rect x="2" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="arm-left"/>
+          <rect x="34" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="arm-right"/>
+          <!-- Legs -->
+          <rect x="16" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="leg-left"/>
+          <rect x="26" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="leg-right"/>
+          <!-- Face (eyes, smile) -->
+          <ellipse cx="19" cy="16" rx="2" ry="3" fill="#333"/>
+          <ellipse cx="29" cy="16" rx="2" ry="3" fill="#333"/>
+          <path d="M20 22 Q24 26 28 22" stroke="#b8860b" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
+      
+      <!-- NPCs -->
+      <div 
+        *ngFor="let npc of npcs" 
+        class="npc-character"
+        [style.left]="npc.x + 'px'"
+        [style.top]="npc.y + 'px'"
+      >
+        <div class="npc-sprite">
+          <div class="hair"></div>
+          <div class="arm-left"></div>
+          <div class="arm-right"></div>
+          <div class="leg-left"></div>
+          <div class="leg-right"></div>
+        </div>
+        <div class="npc-name-tag">{{ npc.name }}</div>
+      </div>
+      
+      <!-- Dynamic Decorations -->
+      <ng-container *ngFor="let decoration of decorations">
+        <div *ngIf="decoration.type === 'tree'" class="tree" [style.left]="decoration.x + 'px'" [style.top]="decoration.y + 'px'">
+          <div class="tree-leaves"></div>
+          <div class="tree-trunk"></div>
+        </div>
+        <div *ngIf="decoration.type === 'street-lamp'" class="street-lamp" [style.left]="decoration.x + 'px'" [style.top]="decoration.y + 'px'">
+          <div class="lamp-pole"></div>
+          <div class="lamp-head"></div>
+          <div class="lamp-light"></div>
+        </div>
+        <div *ngIf="decoration.type === 'bird'" class="bird" [class.left]="decoration.direction === 'left'" [style.left]="decoration.x + 'px'" [style.top]="decoration.y + 'px'">
+          <svg width="48" height="32" viewBox="0 0 48 32">
+            <!-- Body -->
+            <ellipse cx="24" cy="20" rx="14" ry="8"
+              [attr.fill]="decoration.color === 'red' ? '#e57373' : (decoration.color === 'green' ? '#66bb6a' : '#4fc3f7')"
+              [attr.stroke]="decoration.color === 'red' ? '#b71c1c' : (decoration.color === 'green' ? '#1b5e20' : '#1976d2')"
+              stroke-width="2"/>
+            <!-- Head -->
+            <circle cx="36" cy="14" r="6"
+              [attr.fill]="decoration.color === 'red' ? '#e57373' : (decoration.color === 'green' ? '#66bb6a' : '#4fc3f7')"
+              [attr.stroke]="decoration.color === 'red' ? '#b71c1c' : (decoration.color === 'green' ? '#1b5e20' : '#1976d2')"
+              stroke-width="2"/>
+            <!-- Beak -->
+            <polygon points="42,14 48,16 42,18" fill="#ffb300"/>
+            <!-- Eye -->
+            <circle cx="38" cy="14" r="1.2" fill="#222"/>
+            <!-- Wing (animated) -->
+            <g class="bird-wing">
+              <ellipse cx="18" cy="20" rx="8" ry="4"
+                [attr.fill]="decoration.color === 'red' ? '#ff8a65' : (decoration.color === 'green' ? '#a5d6a7' : '#81d4fa')"
+                [attr.stroke]="decoration.color === 'red' ? '#b71c1c' : (decoration.color === 'green' ? '#1b5e20' : '#1976d2')"
+                stroke-width="1.5"/>
+            </g>
+            <!-- Tail -->
+            <polygon points="10,20 4,16 8,22"
+              [attr.fill]="decoration.color === 'red' ? '#b71c1c' : (decoration.color === 'green' ? '#388e3c' : '#1976d2')"/>
+            <!-- Leg -->
+            <rect x="22" y="28" width="2" height="6" fill="#b8860b" stroke="#7a5c13" stroke-width="0.5" rx="1"/>
+          </svg>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="game-ui">
+    <div class="player-info">
+      <div class="player-avatar">
+        <img [src]="imageService.getImageUrl(player.avatar)" [alt]="player.name || 'Avatar'" (error)="onAvatarError()" />
+      </div>
+      <div class="player-details">
+        <h3>{{ player.name }}</h3>
+        <p>Position: {{ player.x }}, {{ player.y }}</p>
+        <p>Near: {{ nearbyStoreName }}</p>
+      </div>
+    </div>
+    
+    <div class="controls-info">
+      <p><strong>Controls:</strong></p>
+      <p>WASD - Move character</p>
+      <p>E - Enter store (when near entrance)</p>
+      <p>Ctrl + F - Global search</p>
+      <p>Ctrl + M - Start chatting</p>
+    </div>
+    
+    <div class="search-button-container">
+      <button class="search-button" (click)="openSearchModal()" title="Global Product Search">
+        <mat-icon>search</mat-icon>
+        <span>Search Products</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Online Users Counter -->
+  <div class="online-users-counter">
+    <mat-icon>group</mat-icon>
+    <span class="counter-text">
+      <span *ngIf="connectionStatus === 'connecting'">Connecting...</span>
+      <span *ngIf="connectionStatus === 'connected'">{{ onlineUsers.length }} online</span>
+      <span *ngIf="connectionStatus === 'disconnected'">Disconnected</span>
+    </span>
+    <button mat-icon-button (click)="toggleNight()" title="Toggle Night Mode">
+      <mat-icon>{{ isNight ? 'dark_mode' : 'light_mode' }}</mat-icon>
+    </button>
+  </div>
+
+  <!-- Reconnection Notification -->
+  <div class="reconnection-notification" *ngIf="connectionStatus === 'connecting'">
+    <mat-icon class="spinning">sync</mat-icon>
+    <span>Reconnecting to multiplayer...</span>
+  </div>
+
+  <!-- Online Users List -->
+  <div class="online-users-list" *ngIf="onlineUsers.length > 0">
+    <mat-icon style="vertical-align: middle; margin-right: 4px;">people</mat-icon>
+    <span style="font-weight: bold;">Online Users:</span>
+    <span *ngFor="let user of onlineUsers; let last = last">
+      {{ user }}<span *ngIf="!last">, </span>
+    </span>
+  </div>
+
+  <!-- Draw all chat buttons above the current player if any user is close -->
+  <div *ngIf="usersCloseToMe.length > 0"
+       class="chat-e-button chat-e-button-stack"
+       [style.left.px]="player.x - 125"
+       [style.top.px]="player.y + 150">
+    <ng-container *ngFor="let userId of usersCloseToMe; let i = index">
+      <button (click)="handleUserChatRequest(userId)" [style.marginTop.px]="i > 0 ? 8 : 0">
+        Chat with {{ otherPlayers[userId]?.name || 'User' }}
+      </button>
+    </ng-container>
+  </div>
+
+  <!-- Global Search Modal -->
+  <div class="search-modal" *ngIf="showSearchModal">
+    <div class="search-modal-content">
+      <div class="search-header">
+        <h2>🔍 Global Product Search</h2>
+        <button class="close-btn" (click)="closeSearchModal()">×</button>
+      </div>
+      
+      <div class="search-input-container">
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          placeholder="Search for products across all stores..."
+          (keyup)="handleSearchKeyPress($event)"
+          (input)="onSearchInput()"
+          (compositionstart)="onCompositionStart()"
+          (compositionend)="onCompositionEnd()"
+          class="search-input"
+          autofocus
+        />
+        <button 
+          class="search-btn" 
+          (click)="searchProducts()"
+          [disabled]="isSearching"
+        >
+          <mat-icon>{{ isSearching ? 'hourglass_empty' : 'search' }}</mat-icon>
+        </button>
+        <button 
+          *ngIf="searchQuery || searchResults.length > 0"
+          class="clear-btn" 
+          (click)="clearSearch()"
+          title="Clear search"
+        >
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+
+      <div class="search-results" *ngIf="searchResults.length > 0">
+        <h3>Found {{ searchResults.length }} product(s):</h3>
+        <div class="results-list">
+          <div 
+            *ngFor="let result of searchResults; let i = index" 
+            class="result-item"
+            [class.active]="i === currentSearchIndex"
+            (click)="navigateToStore(result.store)"
+          >
+            <div class="result-store" [style.background-color]="result.store.primaryColor">
+              {{ result.store.name }}
+            </div>
+            <div class="result-product">
+              <span class="product-name">{{ result.productName }}</span>
+              <span class="product-description">{{ result.productDescription || 'No description available' }}</span>
+            </div>
+            <div class="result-actions">
+              <button class="navigate-btn" (click)="navigateToStore(result.store); $event.stopPropagation()">
+                <mat-icon>location_on</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+
+      </div>
+
+      <div class="no-results" *ngIf="searchQuery && !isSearching && searchResults.length === 0">
+        <mat-icon>search_off</mat-icon>
+        <p>No products found matching "{{ searchQuery }}"</p>
+      </div>
+
+      <div class="search-instructions" *ngIf="!searchQuery && searchResults.length === 0">
+        <mat-icon>search</mat-icon>
+        <p>Type a product name to search across all stores</p>
+        <p>Press <strong>Enter</strong> to search, <strong>Escape</strong> to close</p>
+      </div>
+    </div>
+  </div>
+</div> 

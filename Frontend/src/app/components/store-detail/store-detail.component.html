@@ -1,0 +1,103 @@
+<div class="store-detail-container">
+  <div *ngIf="loading" class="loading">Loading data...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && !error && store">
+    <div class="store-header">
+      <button mat-button class="back-button" (click)="goBackToVirtualStreet()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Virtual Street
+      </button>
+      <img *ngIf="store.bannerUrl" [src]="getImageUrl(store.bannerUrl)" class="store-banner" alt="Banner">
+      <div class="store-info">
+        <img *ngIf="store.logoUrl" [src]="getImageUrl(store.logoUrl)" class="store-logo" alt="Logo">
+        <div>
+          <h2>{{ store.name }}</h2>
+          <p>{{ store.description }}</p>
+          <p>Owner: {{ store.ownerName }}</p>
+          <p>Products: {{ store.productCount }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="products-section">
+      <div class="section-header">
+        <h3>Products in this store</h3>
+        <div class="controls-container">
+          <div class="search-container">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Search by product name...</mat-label>
+              <input 
+                matInput 
+                [(ngModel)]="searchTerm" 
+                (input)="onSearchInput()"
+                placeholder="Search by product name..."
+                aria-label="Search products by name">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+          
+          <div class="sort-container">
+            <mat-form-field appearance="outline" class="sort-field">
+              <mat-label>Sort by price</mat-label>
+              <mat-select [(ngModel)]="sortOrder" (selectionChange)="onSortChange()" aria-label="Sort products by price">
+                <mat-option value="none">No sorting</mat-option>
+                <mat-option value="low-to-high">Price: Low to High</mat-option>
+                <mat-option value="high-to-low">Price: High to Low</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>sort</mat-icon>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-results-info" *ngIf="searchTerm || sortOrder !== 'none'">
+        <p>
+          <mat-icon>search</mat-icon>
+          Showing {{ filteredProducts.length }} of {{ products.length }} products
+          <span *ngIf="searchTerm"> - Filtered by "{{ searchTerm }}"</span>
+          <span *ngIf="sortOrder !== 'none'"> - Sorted by price {{ sortOrder === 'low-to-high' ? '(low to high)' : '(high to low)' }}</span>
+          <span *ngIf="filteredProducts.length === 0"> - No matches found</span>
+        </p>
+      </div>
+
+      <div *ngIf="filteredProducts.length === 0 && !searchTerm && sortOrder === 'none'" class="no-products">No products available yet.</div>
+      <div *ngIf="filteredProducts.length === 0 && (searchTerm || sortOrder !== 'none')" class="no-search-results">
+        <mat-icon>search_off</mat-icon>
+        <p *ngIf="searchTerm">No products found matching "{{ searchTerm }}"</p>
+        <p *ngIf="!searchTerm && sortOrder !== 'none'">No products to sort</p>
+        <button mat-button color="primary" (click)="clearFilters()">Clear filters</button>
+      </div>
+      
+      <div class="product-list" *ngIf="filteredProducts.length > 0">
+        <div class="product-card" *ngFor="let product of filteredProducts" (click)="navigateToProduct(product.id)">
+          <img *ngIf="product.imageUrls && product.imageUrls.length > 0" [src]="getImageUrl(product.imageUrls[0])" alt="{{ product.name }}">
+          <div class="product-info">
+            <h4>{{ product.name }}</h4>
+            <p class="product-price">${{ product.price | number:'1.2-2' }}</p>
+            <div class="product-details">
+              <span class="product-category" *ngIf="product.category">{{ product.category }}</span>
+              <span class="product-brand" *ngIf="product.brand">{{ product.brand }}</span>
+            </div>
+            <div class="product-stock" [ngClass]="{'low-stock': product.stockQuantity <= 5, 'out-stock': product.stockQuantity === 0}">
+              <mat-icon *ngIf="product.stockQuantity <= 5 && product.stockQuantity > 0">warning</mat-icon>
+              <mat-icon *ngIf="product.stockQuantity === 0">inventory_2</mat-icon>
+              <span *ngIf="product.stockQuantity > 0">{{ product.stockQuantity <= 5 ? 'Low Stock' : 'In Stock' }}</span>
+              <span *ngIf="product.stockQuantity === 0">Out of Stock</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  
+  <!-- Chat Button for Customers -->
+  <app-chat-button 
+    *ngIf="store && !hasRole('Seller') && !hasRole('Admin')"
+    [storeId]="store.id"
+    [storeName]="store.name"
+    [sellerId]="store.ownerId"
+    [sellerName]="store.ownerName"
+    (chatInitiated)="onChatInitiated()">
+  </app-chat-button>
+</div> 

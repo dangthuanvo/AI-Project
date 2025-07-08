@@ -1,0 +1,71 @@
+<div class="cart-container">
+  <mat-card class="cart-card">
+    <mat-card-header>
+      <mat-card-title>Shopping Cart</mat-card-title>
+      <mat-card-subtitle *ngIf="cartItems.length > 0">
+        {{ cartItems.length }} item(s) in your cart
+      </mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div *ngIf="cartItems.length === 0" class="empty-cart">
+        <mat-icon>remove_shopping_cart</mat-icon>
+        <h3>Your cart is empty</h3>
+        <p>Start shopping to add items to your cart</p>
+        <button mat-raised-button color="primary" routerLink="/virtual-street">
+          <mat-icon>storefront</mat-icon>
+          Continue Shopping
+        </button>
+      </div>
+      <div class="cart-details" *ngIf="cartItems.length > 0">
+        <div class="info-section">
+          <h3>Cart Items</h3>
+          <div class="items-list">
+            <div class="item" *ngFor="let item of cartItems">
+              <div class="item-image">
+                <img [src]="getImageUrl(item.productImageUrl)" [alt]="item.productName">
+              </div>
+              <div class="item-details">
+                <h4>{{ item.productName }}</h4>
+                <p>Quantity: {{ item.quantity }}</p>
+                <p class="item-price">${{ item.unitPrice | number:'1.2-2' }}</p>
+              </div>
+              <div class="item-total">
+                ${{ item.totalPrice | number:'1.2-2' }}
+              </div>
+              <div class="item-actions">
+                <button mat-icon-button color="warn" (click)="removeItem(item)" matTooltip="Remove">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="cart-summary-section">
+          <div class="total-line">
+            <span>Subtotal:</span>
+            <span>${{ subtotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-line">
+            <span>Tax:</span>
+            <span>${{ tax | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-line total">
+            <span>Total:</span>
+            <span class="total-amount">${{ total | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="action-buttons">
+          <button mat-raised-button color="warn" (click)="clearCart()">
+            <mat-icon>delete_sweep</mat-icon>
+            Clear Cart
+          </button>
+          <button mat-raised-button color="primary" (click)="proceedToCheckout()">
+            <mat-icon>shopping_bag</mat-icon>
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div> 

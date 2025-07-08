@@ -1,0 +1,262 @@
+<div class="checkout-container">
+  <div class="checkout-header">
+    <h2>Checkout</h2>
+    <button mat-icon-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+  </div>
+
+  <div class="checkout-content">
+    <div class="checkout-form">
+
+      <h3>Shipping Information</h3>
+      <div class="shipping-actions-row">
+        <button mat-stroked-button color="primary" type="button" (click)="openShippingAddressDialog()">
+          <mat-icon>location_on</mat-icon> Choose from Saved Addresses
+        </button>
+        <button mat-stroked-button color="primary"
+                *ngIf="formDirty || (shippingInfos.length === 0 && checkoutForm.valid)"
+                (click)="saveShippingInfo()" class="save-shipping-btn">
+          <mat-icon>save</mat-icon> {{ (selectedShippingInfoId && shippingInfos.length > 0) ? 'Update Shipping Info' : 'Save Shipping Info' }}
+        </button>
+      </div>
+      <form [formGroup]="checkoutForm" (ngSubmit)="processPayment()">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required>
+            <mat-error *ngIf="checkoutForm.get('firstName')?.hasError('required')">
+              First name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required>
+            <mat-error *ngIf="checkoutForm.get('lastName')?.hasError('required')">
+              Last name is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" required>
+            <mat-error *ngIf="checkoutForm.get('email')?.hasError('required')">
+              Email is required
+            </mat-error>
+            <mat-error *ngIf="checkoutForm.get('email')?.hasError('email')">
+              Please enter a valid email
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Phone</mat-label>
+            <input matInput formControlName="phone" required>
+            <mat-error *ngIf="checkoutForm.get('phone')?.hasError('required')">
+              Phone is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="address-section">
+          <div class="address-header">
+            <h4>Delivery Address</h4>
+            <button 
+              type="button" 
+              mat-stroked-button 
+              color="primary" 
+              (click)="toggleMap()"
+              class="map-toggle-btn">
+              <mat-icon>{{ showMap ? 'map_off' : 'map' }}</mat-icon>
+              {{ showMap ? 'Hide Map' : 'Pick on Map' }}
+            </button>
+          </div>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Address</mat-label>
+            <input matInput formControlName="address" required>
+            <mat-error *ngIf="checkoutForm.get('address')?.hasError('required')">
+              Address is required
+            </mat-error>
+          </mat-form-field>
+          
+          <div *ngIf="showMap" class="map-container">
+            <div class="map-instructions">
+              <mat-icon>info</mat-icon>
+              <span>Click on the map to select your delivery address</span>
+            </div>
+            
+            <div class="map-search">
+              <div class="search-row">
+                <div class="search-field-wrapper">
+                  <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Search for address</mat-label>
+                    <input matInput 
+                           [(ngModel)]="searchAddress" 
+                           [ngModelOptions]="{standalone: true}"
+                           (input)="onSearchInputChange()"
+                           (keyup.enter)="searchLocation()"
+                           placeholder="Enter address to search...">
+                    <button type="button" mat-icon-button matSuffix (click)="searchLocation()">
+                      <mat-icon>search</mat-icon>
+                    </button>
+                  </mat-form-field>
+                  <div *ngIf="searchSuggestions.length > 0" class="autocomplete-dropdown">
+                    <div class="autocomplete-item" *ngFor="let suggestion of searchSuggestions" (click)="selectSuggestion(suggestion)">
+                      <mat-icon class="autocomplete-icon">location_on</mat-icon>
+                      <span>{{ suggestion.display_name }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="current-location-wrapper">
+                  <button 
+                    type="button" 
+                    mat-stroked-button 
+                    color="accent" 
+                    (click)="getCurrentLocation()"
+                    class="current-location-btn">
+                    <mat-icon>my_location</mat-icon>
+                    Current Location
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <div class="map-wrapper">
+              <div leaflet 
+                   [leafletOptions]="mapOptions"
+                   (leafletMapReady)="onMapReady($event)"
+                   (leafletMapClick)="onMapClick($event)"
+                   class="address-map">
+              </div>
+            </div>
+            <div *ngIf="selectedLat && selectedLng" class="coordinates-info">
+              <div class="coordinates-header">
+                <p>Selected Location: {{ selectedLat | number:'1.6-6' }}, {{ selectedLng | number:'1.6-6' }}</p>
+                <button 
+                  type="button" 
+                  mat-stroked-button 
+                  color="warn" 
+                  (click)="clearAddressFields()"
+                  class="clear-btn">
+                  <mat-icon>clear</mat-icon>
+                  Clear Fields
+                </button>
+              </div>
+              <p *ngIf="selectedAddress">Address: {{ selectedAddress }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" required>
+            <mat-error *ngIf="checkoutForm.get('city')?.hasError('required')">
+              City is required
+            </mat-error>
+            <mat-icon matSuffix *ngIf="checkoutForm.get('city')?.value" class="auto-filled-icon">location_on</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>State</mat-label>
+            <input matInput formControlName="state" required>
+            <mat-error *ngIf="checkoutForm.get('state')?.hasError('required')">
+              State is required
+            </mat-error>
+            <mat-icon matSuffix *ngIf="checkoutForm.get('state')?.value" class="auto-filled-icon">location_on</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>ZIP Code</mat-label>
+            <input matInput formControlName="zipCode" required>
+            <mat-error *ngIf="checkoutForm.get('zipCode')?.hasError('required')">
+              ZIP code is required
+            </mat-error>
+            <mat-icon matSuffix *ngIf="checkoutForm.get('zipCode')?.value" class="auto-filled-icon">location_on</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" required>
+            <mat-error *ngIf="checkoutForm.get('country')?.hasError('required')">
+              Country is required
+            </mat-error>
+            <mat-icon matSuffix *ngIf="checkoutForm.get('country')?.value" class="auto-filled-icon">location_on</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="payment-section">
+          <h3>Payment Method</h3>
+          <div class="payment-options">
+            <mat-radio-group [(ngModel)]="paymentMethod" [ngModelOptions]="{standalone: true}">
+              <mat-radio-button value="paypal" class="payment-option">
+                <div class="payment-option-content">
+                  <img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/PP_logo_h_100x26.png" alt="PayPal">
+                  <span>PayPal</span>
+                </div>
+              </mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <!-- PayPal Buttons Container -->
+          <div id="paypal-button-container" class="paypal-buttons" (click)="onPayPalButtonClick()"></div>
+        </div>
+      </form>
+    </div>
+
+    <div class="order-summary">
+      <h3>Order Summary</h3>
+      
+      <!-- Multiple stores notice -->
+      <div *ngIf="itemsByStore.length > 1" class="multi-store-notice">
+        <mat-icon>info</mat-icon>
+        <span>Your items will be split into {{ itemsByStore.length }} separate orders (one per store)</span>
+      </div>
+
+      <!-- Items grouped by store -->
+      <div class="store-groups">
+        <div class="store-group" *ngFor="let storeGroup of itemsByStore">
+          <div class="store-header">
+            <h4>{{ storeGroup.storeName }}</h4>
+            <span class="store-total">${{ storeGroup.total | number:'1.2-2' }}</span>
+          </div>
+          
+          <div class="cart-items">
+            <div class="cart-item" *ngFor="let item of storeGroup.items">
+              <div class="item-image">
+                <img [src]="getImageUrl(item.productImageUrl)" [alt]="item.productName">
+              </div>
+              <div class="item-details">
+                <h5>{{ item.productName }}</h5>
+                <p class="item-price">${{ item.unitPrice | number:'1.2-2' }} x {{ item.quantity }}</p>
+              </div>
+              <div class="item-total">
+                ${{ item.totalPrice | number:'1.2-2' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>${{ subtotal | number:'1.2-2' }}</span>
+        </div>
+        <div class="total-row">
+          <span>Tax (8%):</span>
+          <span>${{ tax | number:'1.2-2' }}</span>
+        </div>
+        <div class="total-row total">
+          <span>Total:</span>
+          <span>${{ total | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

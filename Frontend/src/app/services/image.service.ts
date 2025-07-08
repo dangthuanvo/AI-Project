@@ -1,0 +1,41 @@
+import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ImageService {
+  private apiUrl = environment.apiUrl;
+
+  /**
+   * Converts a relative image URL to a full URL
+   * @param imageUrl The relative image URL (e.g., /uploads/images/filename.jpg)
+   * @returns The full image URL
+   */
+  getImageUrl(imageUrl: string | null | undefined): string {
+    if (!imageUrl) {
+      return 'assets/placeholder-product.jpg';
+    }
+
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+
+    // If it's a relative path, prepend the API URL
+    if (imageUrl.startsWith('/')) {
+      return `${this.apiUrl}${imageUrl}`;
+    }
+
+    // If it doesn't start with /, assume it's relative to uploads
+    return `${this.apiUrl}/uploads/${imageUrl}`;
+  }
+
+  /**
+   * Gets a placeholder image URL
+   * @returns Placeholder image URL
+   */
+  getPlaceholderUrl(): string {
+    return `${this.apiUrl}/uploads/images/product-default.png`;
+  }
+} 

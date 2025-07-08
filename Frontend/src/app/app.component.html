@@ -1,0 +1,72 @@
+<mat-toolbar color="primary" class="app-toolbar">
+  <span class="app-title" routerLink="/virtual-street">{{ title }}</span>
+  
+  <span class="spacer"></span>
+  
+  <ng-container *ngIf="!isAuthenticated">
+    <button mat-button routerLink="/login">Login</button>
+    <button mat-button routerLink="/register">Register</button>
+  </ng-container>
+  
+  <ng-container *ngIf="isAuthenticated">
+    <button mat-button routerLink="/virtual-street">
+      <mat-icon>explore</mat-icon>
+      Virtual Street
+    </button>
+    <button mat-button *ngIf="hasRole('Admin')" routerLink="/admin-dashboard">
+      <span style="display: flex; align-items: center;">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span style="margin-left: 8px;">Admin Dashboard</span>
+      </span>
+    </button>
+    <button mat-button *ngIf="hasRole('Seller') && !hasRole('Admin')" routerLink="/seller-dashboard">
+      <span style="display: flex; align-items: center;">
+        <mat-icon>store</mat-icon>
+        <span style="margin-left: 8px;">Seller Dashboard</span>
+      </span>
+    </button>
+    <button mat-button *ngIf="isAuthenticated && !hasRole('Admin') && !hasRole('Seller')" routerLink="/cart" [matBadge]="cartItemCount" matBadgeColor="accent">
+      <mat-icon>shopping_cart</mat-icon>
+      Cart
+    </button>
+    <button mat-button *ngIf="isAuthenticated && !hasRole('Admin') && !hasRole('Seller')" routerLink="/order-tracking">
+      <mat-icon>local_shipping</mat-icon>
+      Track Order
+    </button>
+    
+    <button mat-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+      {{ user?.firstName }}
+    </button>
+    
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="openProfileDialog()">
+        <mat-icon>person</mat-icon>
+        Profile
+      </button>
+      
+      <button mat-menu-item *ngIf="hasRole('Seller') && !hasRole('Admin')" routerLink="/seller-dashboard">
+        <mat-icon>store</mat-icon>
+        Seller Dashboard
+      </button>
+      
+      <button mat-menu-item *ngIf="hasRole('Admin')" routerLink="/admin-dashboard">
+        <mat-icon>admin_panel_settings</mat-icon>
+        Admin Dashboard
+      </button>
+      
+      <mat-divider></mat-divider>
+      
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>exit_to_app</mat-icon>
+        Logout
+      </button>
+    </mat-menu>
+  </ng-container>
+</mat-toolbar>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>
+
+<app-chat-button *ngIf="isAuthenticated && !hasRole('Admin')"></app-chat-button> 

@@ -1,0 +1,9 @@
+<div *ngIf="product" class="product-card" [class.not-clickable]="!clickable" (click)="clickable && navigateToProduct()">
+  <img [src]="getImageUrl(product.imageUrls?.[0])" [alt]="product.name">
+  <div class="product-info">
+    <h3>{{ product.name }}</h3>
+    <p>{{ product.description }}</p>
+    <p class="price">${{ product.price | number:'1.2-2' }}</p>
+    <p class="stock">Stock: {{ product.stockQuantity }}</p>
+  </div>
+</div> 

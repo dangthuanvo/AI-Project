@@ -1,0 +1,158 @@
+<div class="order-tracking-container">
+  <div class="header">
+    <h1>Order Tracking</h1>
+    <p>Track your orders and view order history</p>
+  </div>
+
+  <div class="content">
+    <!-- Orders List -->
+    <div class="orders-list">
+      <div class="section-header">
+        <h2>My Orders</h2>
+        <button mat-raised-button color="primary" (click)="loadOrders()" [disabled]="loading">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading orders...</p>
+      </div>
+
+      <div class="no-orders" *ngIf="!loading && orders.length === 0">
+        <mat-icon>shopping_bag</mat-icon>
+        <h3>No orders found</h3>
+        <p>You haven't placed any orders yet.</p>
+        <button mat-raised-button color="primary" routerLink="/virtual-street">
+          Start Shopping
+        </button>
+      </div>
+
+      <div class="orders-grid" *ngIf="!loading && orders.length > 0">
+        <mat-card 
+          *ngFor="let order of orders" 
+          class="order-card"
+          [class.selected]="selectedOrder?.id === order.id"
+          (click)="selectOrder(order)"
+        >
+          <mat-card-header>
+            <mat-card-title>Order #{{ order.orderNumber }}</mat-card-title>
+            <mat-card-subtitle>{{ formatDate(order.orderDate) }}</mat-card-subtitle>
+            <div class="status-badge" [style.background-color]="getStatusColor(order.status)">
+              <mat-icon>{{ getStatusIcon(order.status) }}</mat-icon>
+              {{ order.status }}
+            </div>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="order-summary">
+              <div class="items-count">
+                <mat-icon>inventory_2</mat-icon>
+                {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
+              </div>
+              <div class="total-amount">
+                <strong>{{ formatCurrency(order.totalAmount) }}</strong>
+              </div>
+            </div>
+
+            <div class="progress-container">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="getProgressPercentage(order.status)"
+                [color]="order.status === 'Cancelled' ? 'warn' : 'primary'"
+              ></mat-progress-bar>
+              <div class="progress-labels">
+                <span>Ordered</span>
+                <span>Accepted</span>
+                <span>Shipped</span>
+                <span>Delivered</span>
+              </div>
+            </div>
+
+            <div class="tracking-info" *ngIf="order.trackingNumber">
+              <mat-icon>local_shipping</mat-icon>
+              <span>Tracking: {{ order.trackingNumber }}</span>
+            </div>
+
+            <div class="delivery-info">
+              <mat-icon>event</mat-icon>
+              <span>Est. Delivery: {{ getEstimatedDelivery(order.orderDate) }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Order Details -->
+    <div class="order-details" *ngIf="selectedOrder">
+      <div class="details-header">
+        <h2>Order Details</h2>
+        <button mat-icon-button (click)="selectedOrder = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="order-info">
+        <div class="info-section">
+          <h3>Order Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Order Number:</label>
+              <span>{{ selectedOrder.orderNumber }}</span>
+            </div>
+            <div class="info-item">
+              <label>Order Date:</label>
+              <span>{{ formatDate(selectedOrder.orderDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="status-text" [style.color]="getStatusColor(selectedOrder.status)">
+                {{ selectedOrder.status }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.trackingNumber">
+              <label>Tracking Number:</label>
+              <span>{{ selectedOrder.trackingNumber }}</span>
+            </div>
+            <div class="info-item">
+              <label>Estimated Delivery:</label>
+              <span>{{ getEstimatedDelivery(selectedOrder.orderDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>Shipping Address</h3>
+          <p>{{ selectedOrder.shippingAddress }}</p>
+        </div>
+
+        <div class="info-section">
+          <h3>Order Items</h3>
+                      <div class="items-list">
+              <div class="item" *ngFor="let item of selectedOrder.items">
+                <div class="item-image">
+                  <img [src]="getProductImageUrl(item)" [alt]="item.productName">
+                </div>
+                <div class="item-details">
+                  <h4>{{ item.productName }}</h4>
+                  <p>Quantity: {{ item.quantity }}</p>
+                  <p class="item-price">{{ formatCurrency(item.unitPrice) }}</p>
+                </div>
+                <div class="item-total">
+                  {{ formatCurrency(item.unitPrice * item.quantity) }}
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="order-summary-section">
+          <div class="total-line">
+            <span>Total:</span>
+            <span class="total-amount">{{ formatCurrency(selectedOrder.totalAmount) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

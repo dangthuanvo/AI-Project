@@ -1,0 +1,6 @@
+<!-- Only show current avatar and upload button -->
+<div class="avatar-section">
+  <img [src]="avatarUrl" alt="Avatar" class="avatar-img" />
+  <input type="file" accept="image/*" (change)="onAvatarUpload($event)" />
+</div>
+<!-- ... existing code ... --> 

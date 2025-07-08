@@ -1,0 +1,2200 @@
+  // Sky Elements
+.sky {
+  position: fixed;
+  top: 20;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(to bottom, #87CEEB 0%, #B0E2FF 50%, #E0F6FF 100%);
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sky.night {
+  background: linear-gradient(to bottom, #0a1440 0%, #1a237e 60%, #263159 100%);
+}
+
+// Sun
+.sun {
+  position: absolute;
+  top: 30px;
+  right: 80px;
+  width: 80px;
+  height: 80px;
+  z-index: 2;
+}
+
+.sun-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, #FFD700 0%, #FFA500 50%, #FF8C00 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  animation: sun-pulse 3s ease-in-out infinite;
+}
+
+.sun-rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  animation: sun-rotate 20s linear infinite;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(255, 215, 0, 0.3) 10deg,
+      transparent 20deg,
+      rgba(255, 215, 0, 0.3) 30deg,
+      transparent 40deg,
+      rgba(255, 215, 0, 0.3) 50deg,
+      transparent 60deg,
+      rgba(255, 215, 0, 0.3) 70deg,
+      transparent 80deg,
+      rgba(255, 215, 0, 0.3) 90deg,
+      transparent 100deg,
+      rgba(255, 215, 0, 0.3) 110deg,
+      transparent 120deg,
+      rgba(255, 215, 0, 0.3) 130deg,
+      transparent 140deg,
+      rgba(255, 215, 0, 0.3) 150deg,
+      transparent 160deg,
+      rgba(255, 215, 0, 0.3) 170deg,
+      transparent 180deg,
+      rgba(255, 215, 0, 0.3) 190deg,
+      transparent 200deg,
+      rgba(255, 215, 0, 0.3) 210deg,
+      transparent 220deg,
+      rgba(255, 215, 0, 0.3) 230deg,
+      transparent 240deg,
+      rgba(255, 215, 0, 0.3) 250deg,
+      transparent 260deg,
+      rgba(255, 215, 0, 0.3) 270deg,
+      transparent 280deg,
+      rgba(255, 215, 0, 0.3) 290deg,
+      transparent 300deg,
+      rgba(255, 215, 0, 0.3) 310deg,
+      transparent 320deg,
+      rgba(255, 215, 0, 0.3) 330deg,
+      transparent 340deg,
+      rgba(255, 215, 0, 0.3) 350deg,
+      transparent 360deg
+    );
+    border-radius: 50%;
+  }
+}
+
+// Clouds
+.cloud {
+  position: absolute;
+  background: white;
+  border-radius: 50px;
+  opacity: 0.9;
+  filter: blur(1px);
+  animation: cloud-float linear infinite;
+  
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+  }
+}
+
+.cloud-1 {
+  top: 40px;
+  left: 50px;
+  width: 100px;
+  height: 40px;
+  animation-duration: 25s;
+  
+  &::before {
+    top: -20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  &::after {
+    top: -15px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.cloud-2 {
+  top: 80px;
+  left: 200px;
+  width: 80px;
+  height: 35px;
+  animation-duration: 30s;
+  animation-delay: -5s;
+  
+  &::before {
+    top: -15px;
+    left: 15px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  &::after {
+    top: -10px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+  }
+}
+
+.cloud-3 {
+  top: 60px;
+  left: 400px;
+  width: 120px;
+  height: 45px;
+  animation-duration: 35s;
+  animation-delay: -15s;
+  
+  &::before {
+    top: -25px;
+    left: 25px;
+    width: 60px;
+    height: 60px;
+  }
+  
+  &::after {
+    top: -20px;
+    right: 25px;
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.cloud-4 {
+  top: 100px;
+  left: 600px;
+  width: 90px;
+  height: 38px;
+  animation-duration: 28s;
+  animation-delay: -10s;
+  
+  &::before {
+    top: -18px;
+    left: 18px;
+    width: 45px;
+    height: 45px;
+  }
+  
+  &::after {
+    top: -12px;
+    right: 18px;
+    width: 38px;
+    height: 38px;
+  }
+}
+
+// Animations
+@keyframes sun-pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+  }
+}
+
+@keyframes sun-rotate {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes cloud-float {
+  0% {
+    transform: translateX(-100px);
+  }
+  100% {
+    transform: translateX(calc(100vw + 100px));
+  }
+}
+
+.game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+  font-family: 'Courier New', monospace;
+  cursor: none;
+  
+  &:focus { outline: none; }
+}
+
+.game-ui {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  min-width: 250px;
+  
+  .player-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    
+    .player-avatar {
+      width: 40px;
+      height: 40px;
+      background: #4CAF50;
+      border-radius: 50%;
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+    }
+    
+    .player-details {
+      h3 { margin: 0 0 5px 0; font-size: 16px; }
+      p { margin: 2px 0; font-size: 12px; opacity: 0.8; }
+    }
+  }
+  
+  .controls-info p {
+    margin: 3px 0;
+    font-size: 12px;
+    strong { color: #4CAF50; }
+  }
+  
+  .search-button-container {
+    margin-top: 16px;
+    
+    .search-button {
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      span {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+    }
+  }
+}
+
+.game-world {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.street-container {
+  position: relative;
+  z-index: 2;
+  width: 2000px;
+  height: 400px;
+  transition: transform 0.1s ease-out;
+}
+
+.street-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  // Main background: brown dirt and green grass
+  background: 
+    linear-gradient(to bottom, 
+      #8B4513 0%,      // brown dirt
+      #8B4513 30%,     // brown dirt
+      #228B22 30%,     // green grass starts
+      #228B22 100%     // green grass
+    );
+  z-index: 0;
+}
+
+.street-background::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 68%;
+  background: linear-gradient(to bottom, #555 0%, #222 100%);
+  box-shadow: 0 8px 32px 8px rgba(0,0,0,0.18);
+  z-index: 1;
+  opacity: 1;
+}
+
+.street-background::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 80%;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(
+    to right,
+    #fff 0 30px,
+    transparent 30px 60px
+  );
+  opacity: 0.7;
+  z-index: 2;
+  border-radius: 3px;
+}
+
+.store-building {
+  position: absolute;
+  width: 160px;
+  height: 180px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  &:hover {
+    transform: scale(1.05) translateY(-4px);
+    box-shadow: 
+      0 20px 40px rgba(0,0,0,0.15),
+      0 8px 16px rgba(0,0,0,0.1);
+  }
+  
+  &.nearby {
+    filter: brightness(1.15) drop-shadow(0 0 15px #4CAF50);
+    transform: scale(1.02);
+    
+    .house {
+      box-shadow: 
+        0 16px 40px rgba(0,0,0,0.2),
+        0 6px 12px rgba(0,0,0,0.15),
+        0 0 0 2px rgba(76, 175, 80, 0.3);
+    }
+  }
+  
+  &.updated {
+    animation: storeUpdate 3s ease-in-out;
+    filter: brightness(1.25) drop-shadow(0 0 20px #FFD700);
+    
+    .house {
+      box-shadow: 
+        0 16px 40px rgba(0,0,0,0.2),
+        0 6px 12px rgba(0,0,0,0.15),
+        0 0 0 2px rgba(255, 215, 0, 0.4);
+    }
+  }
+  
+  // Dynamic colored roof
+  .house-roof {
+    position: absolute;
+    top: 0;
+    left: -12px;
+    width: 184px;
+    height: 44px;
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+    z-index: 3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+  
+  // Dynamic colored walls
+  .house-walls {
+    position: absolute;
+    top: 44px; /* Start wall just below the roof */
+    left: 0;
+    width: 100%;
+    height: 126px; /* 170 - 44 */
+    border: 2px solid rgba(0,0,0,0.3);
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 1;
+  }
+  
+  // Subtle banner (store name), just above the windows, not prominent
+  .store-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    background: #ffe89a;
+    border-bottom: 2px solid #b0a14a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #333;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    letter-spacing: 1px;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  // Windows: two square, evenly spaced
+  .house-window {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: #e3f0fa;
+    border: 2px solid #b0c4de;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+    z-index: 4;
+    top: 70px;
+  }
+  .house-window.window-left {
+    left: 28px;
+  }
+  .house-window.window-right {
+    right: 28px;
+  }
+  
+  // Door: bottom flush with house wall
+  .house-door {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 56px;
+    background: #6d4c41;
+    border-radius: 0 0 10px 10px;
+    border: 2px solid #4e342e;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .entrance-marker {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fffbe7;
+    color: #333;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #b0a14a;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.10);
+    z-index: 10;
+    pointer-events: none;
+  }
+}
+
+.player-character, .other-player-character {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  transition: all 0.1s ease-out;
+  
+  .character-sprite {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    
+    // Human body
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 30px;
+      background: #4169E1;
+      border: 2px solid #000;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    // Human head
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 16px;
+      background: #FFE4B5;
+      border: 2px solid #000;
+      border-radius: 50%;
+    }
+    
+    // Hair
+    .hair {
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 8px;
+      background: #8B4513;
+      border: 2px solid #000;
+      border-radius: 50% 50% 0 0;
+    }
+    
+    // Arms
+    .arm-left, .arm-right {
+      position: absolute;
+      width: 8px;
+      height: 20px;
+      background: #FFE4B5;
+      border: 2px solid #000;
+      border-radius: 4px;
+    }
+    
+    .arm-left {
+      top: 8px;
+      left: 2px;
+    }
+    
+    .arm-right {
+      top: 8px;
+      right: 2px;
+    }
+    
+    // Legs
+    .leg-left, .leg-right {
+      position: absolute;
+      bottom: 0;
+      width: 8px;
+      height: 20px;
+      background: #4169E1;
+      border: 2px solid #000;
+      border-radius: 4px;
+    }
+    
+    .leg-left {
+      left: 6px;
+    }
+    
+    .leg-right {
+      right: 6px;
+    }
+  }
+  
+  .player-name-tag {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    border: 1px solid #666;
+    text-align: center;
+    min-width: 40px;
+    pointer-events: none;
+  }
+  
+  &.walking .character-sprite {
+    animation: walk 0.4s infinite;
+  }
+}
+
+.npc-character {
+  position: absolute;
+  width: 28px;
+  height: 42px;
+  
+  .npc-sprite {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    
+    // NPC body
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 18px;
+      height: 26px;
+      background: #9370DB;
+      border: 2px solid #000;
+      border-radius: 8px 8px 0 0;
+    }
+    
+    // NPC head
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
+      background: #FFE4B5;
+      border: 2px solid #000;
+      border-radius: 50%;
+    }
+    
+    // NPC hair
+    .hair {
+      position: absolute;
+      top: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 6px;
+      background: #8B4513;
+      border: 2px solid #000;
+      border-radius: 50% 50% 0 0;
+    }
+    
+    // NPC arms
+    .arm-left, .arm-right {
+      position: absolute;
+      width: 6px;
+      height: 18px;
+      background: #FFE4B5;
+      border: 2px solid #000;
+      border-radius: 3px;
+    }
+    
+    .arm-left {
+      top: 6px;
+      left: 2px;
+    }
+    
+    .arm-right {
+      top: 6px;
+      right: 2px;
+    }
+    
+    // NPC legs
+    .leg-left, .leg-right {
+      position: absolute;
+      bottom: 0;
+      width: 6px;
+      height: 18px;
+      background: #9370DB;
+      border: 2px solid #000;
+      border-radius: 3px;
+    }
+    
+    .leg-left {
+      left: 5px;
+    }
+    
+    .leg-right {
+      right: 5px;
+    }
+  }
+  
+  .npc-name-tag {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    white-space: nowrap;
+    border: 1px solid #666;
+  }
+}
+
+.street-lamp {
+  position: absolute;
+  width: 16px;
+  height: 100px;
+  z-index: 1;
+}
+
+.lamp-pole {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 6px;
+  height: 80px;
+  background: linear-gradient(to top, #90a4ae 0%, #b0bec5 50%, #cfd8dc 100%);
+  border-radius: 3px;
+  transform: translateX(-50%);
+  box-shadow: 
+    0 2px 4px rgba(0,0,0,0.10),
+    0 4px 8px rgba(0,0,0,0.05);
+  
+  // Pole segments for more realistic look
+  &::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 2px;
+    background: #78909c;
+    border-radius: 1px;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 2px;
+    background: #78909c;
+    border-radius: 1px;
+  }
+}
+
+.lamp-head {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  width: 28px;
+  height: 20px;
+  background: linear-gradient(135deg, #fffde7 0%, #fff8e1 100%);
+  border-radius: 14px 14px 10px 10px;
+  border: 2px solid #b0a14a;
+  transform: translateX(-50%);
+  box-shadow: 
+    0 0 16px 6px #fffde7, 
+    0 4px 12px rgba(0,0,0,0.15),
+    inset 0 2px 4px rgba(255,255,255,0.3);
+  
+  // Lamp head details
+  &::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 8px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 8px 8px 4px 4px;
+  }
+}
+
+.lamp-light {
+  position: absolute;
+  bottom: 70px;
+  left: 50%;
+  width: 16px;
+  height: 12px;
+  background: linear-gradient(to bottom, #fffde7 0%, #fff8e1 100%);
+  border-radius: 0 0 10px 10px;
+  opacity: 0.8;
+  transform: translateX(-50%);
+  filter: blur(3px);
+  box-shadow: 0 0 20px 8px rgba(255, 253, 231, 0.6);
+}
+
+.bench {
+  position: absolute;
+  width: 60px;
+  height: 20px;
+  background: #8B4513;
+  border-radius: 5px;
+  border: 2px solid #654321;
+  
+  &::before {
+    content: '🪑';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+  }
+}
+
+.tree {
+  position: absolute;
+  width: 36px;
+  height: 100px;
+  z-index: 1;
+}
+
+.tree-trunk {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 10px;
+  height: 40px;
+  background: #8d5524;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.tree-leaves {
+  z-index: 20;
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle at 60% 40%, #4caf50 70%, #388e3c 100%);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.10);
+  border: 2px solid #388e3c;
+  animation: tree-sway 3s ease-in-out infinite;
+}
+
+.tree-leaves::before,
+.tree-leaves::after {
+  content: '';
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: #4caf50;
+  border-radius: 50%;
+  border: 2px solid #388e3c;
+}
+
+.tree-leaves::before {
+  left: -16px;
+  top: 8px;
+}
+
+.tree-leaves::after {
+  right: -16px;
+  top: 8px;
+}
+
+.flower-bed {
+  position: absolute;
+  width: 40px;
+  height: 20px;
+  background: #228B22;
+  border-radius: 10px;
+  border: 2px solid #006400;
+  
+  &::before {
+    content: '🌸';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+  }
+  
+  &::after {
+    content: '🌺';
+    position: absolute;
+    top: 30%;
+    left: 30%;
+    font-size: 12px;
+  }
+}
+
+.mailbox {
+  position: absolute;
+  width: 20px;
+  height: 30px;
+  background: #4169E1;
+  border: 2px solid #000;
+  border-radius: 3px;
+  
+  &::before {
+    content: '📮';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+  }
+}
+
+.street-sign {
+  position: absolute;
+  width: 15px;
+  height: 40px;
+  background: #333;
+  border: 2px solid #000;
+  
+  &::before {
+    content: '🚦';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+  }
+}
+
+.trash-bin {
+  position: absolute;
+  width: 25px;
+  height: 30px;
+  background: #666;
+  border: 2px solid #333;
+  border-radius: 3px;
+  
+  &::before {
+    content: '🗑️';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+  }
+}
+
+.game-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  
+  .menu-content {
+    background: #333;
+    color: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 300px;
+    border: 3px solid #666;
+    
+    h2 { margin: 0 0 30px 0; color: #4CAF50; }
+    
+    button {
+      display: block;
+      width: 100%;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      
+      &:hover { background: #45a049; }
+      &:last-child {
+        background: #2196F3;
+        &:hover { background: #1976D2; }
+      }
+    }
+  }
+}
+
+@keyframes walk {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes storeUpdate {
+  0% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+  }
+  25% { 
+    transform: scale(1.08) rotate(1deg);
+    filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+  }
+  50% { 
+    transform: scale(1.12) rotate(-1deg);
+    filter: brightness(1.4) drop-shadow(0 0 25px rgba(255, 215, 0, 0.8));
+  }
+  75% { 
+    transform: scale(1.08) rotate(1deg);
+    filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+  }
+  100% { 
+    transform: scale(1) rotate(0deg);
+    filter: brightness(1) drop-shadow(0 0 0 rgba(255, 215, 0, 0));
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@media (max-width: 768px) {
+  .game-ui {
+    top: 10px;
+    left: 10px;
+    min-width: 200px;
+    
+    .player-info .player-details h3 { font-size: 14px; }
+    .controls-info p { font-size: 10px; }
+  }
+  
+  .store-building {
+    width: 120px;
+    height: 90px;
+    
+    .store-banner {
+      min-width: 110px;
+      h3 { font-size: 12px; }
+      p { font-size: 9px; }
+    }
+  }
+}
+
+.store-building .store-banner {
+  background: #ffe082 !important; /* Change to any color you like */
+  color: #333;
+}
+
+.player-svg .arm-left, .player-svg .arm-right, .player-svg .leg-left, .player-svg .leg-right {
+  /* Remove transition to prevent conflicts with animations */
+}
+.player-character.walking .player-svg .arm-left {
+  animation: walk-arm-left 0.5s infinite alternate;
+}
+.player-character.walking .player-svg .arm-right {
+  animation: walk-arm-right 0.5s infinite alternate;
+}
+.player-character.walking .player-svg .leg-left {
+  animation: walk-leg-left 0.5s infinite alternate;
+}
+.player-character.walking .player-svg .leg-right {
+  animation: walk-leg-right 0.5s infinite alternate;
+}
+.player-character:not(.walking) .player-svg {
+  animation: idle-bounce 1.2s infinite alternate;
+}
+
+// Walking animations for other players (separate from current player)
+.other-player-character.walking .player-svg .arm-left {
+  animation: online-walk-arm-left 0.5s infinite alternate;
+}
+.other-player-character.walking .player-svg .arm-right {
+  animation: online-walk-arm-right 0.5s infinite alternate;
+}
+.other-player-character.walking .player-svg .leg-left {
+  animation: online-walk-leg-left 0.5s infinite alternate;
+}
+.other-player-character.walking .player-svg .leg-right {
+  animation: online-walk-leg-right 0.5s infinite alternate;
+}
+.other-player-character:not(.walking) .player-svg {
+  animation: online-idle-bounce 1.2s infinite alternate;
+}
+
+// Separate keyframes for online players
+@keyframes online-walk-arm-left {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-30deg); }
+}
+
+@keyframes online-walk-arm-right {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(30deg); }
+}
+
+@keyframes online-walk-leg-left {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(20deg); }
+}
+
+@keyframes online-walk-leg-right {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-20deg); }
+}
+
+@keyframes online-idle-bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+.player-avatar img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+  margin: 0 auto;
+  border: 2px solid #ccc;
+  background: #fff;
+}
+
+// Modern Enhanced House Model Styles
+.house {
+  position: relative;
+  width: 160px;
+  height: 140px;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 
+    0 12px 32px rgba(0,0,0,0.15),
+    0 4px 8px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.2);
+  margin: 0 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+  
+  // Modern gradient overlay
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255,255,255,0.1) 0%,
+      rgba(255,255,255,0.05) 50%,
+      rgba(0,0,0,0.05) 100%
+    );
+    border-radius: 0 0 20px 20px;
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+
+.roof {
+  position: absolute;
+  top: -50px;
+  left: -8px;
+  width: calc(100% + 16px);
+  height: 50px;
+  background: linear-gradient(135deg, var(--roof-color, #b71c1c) 0%, var(--roof-color-dark, #8e0000) 100%);
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  z-index: 3;
+  box-shadow: 
+    0 6px 16px rgba(0,0,0,0.2),
+    0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.1);
+  
+  // Roof shingles effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(0,0,0,0.1) 8px,
+      rgba(0,0,0,0.1) 16px
+    );
+    clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  }
+  
+  // Roof ridge
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(0,0,0,0.2));
+    border-radius: 2px;
+  }
+}
+
+.chimney {
+  position: absolute;
+  top: -40px;
+  left: 24px;
+  width: 16px;
+  height: 40px;
+  background: linear-gradient(135deg, #666 0%, #444 100%);
+  border-radius: 4px 4px 0 0;
+  z-index: 4;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0,0,0,0.2);
+  
+  // Chimney top
+  &::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -2px;
+    width: 20px;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+}
+
+.window {
+  position: absolute;
+  top: 40px;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #e8f4fd 0%, #b3d9f2 100%);
+  border-radius: 8px;
+  border: 2px solid #90caf9;
+  box-shadow: 
+    0 4px 12px rgba(0,0,0,0.15),
+    inset 0 2px 4px rgba(255,255,255,0.3);
+  z-index: 4;
+  
+  // Window frame
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 100%;
+    background: #90caf9;
+    border-radius: 1px;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 2px;
+    background: #90caf9;
+    border-radius: 1px;
+  }
+}
+
+.window-left { 
+  left: 18px; 
+  transform: perspective(100px) rotateY(-5deg);
+}
+
+.window-right { 
+  right: 18px; 
+  transform: perspective(100px) rotateY(5deg);
+}
+
+.door {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 60px;
+  background: linear-gradient(135deg, #8d6e63 0%, #6d4c41 50%, #5d4037 100%);
+  border-radius: 0 0 12px 12px;
+  border: 2px solid #4e342e;
+  box-shadow: 
+    0 4px 12px rgba(0,0,0,0.2),
+    inset 0 2px 4px rgba(255,255,255,0.1);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  // Door panels
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1px solid rgba(0,0,0,0.3);
+    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+  }
+  
+  // Door handle
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 12px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+}
+
+.entrance-marker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  color: #e65100;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ff9800;
+  box-shadow: 
+    0 4px 12px rgba(255,152,0,0.3),
+    0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+  pointer-events: none;
+  animation: entrance-pulse 2s ease-in-out infinite;
+}
+
+// Modern Store Banner
+.store-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 36px;
+  background: linear-gradient(135deg, var(--banner-color, #9aa9ff) 0%, var(--banner-color-dark, #7b68ee) 100%);
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  color: #ffffff;
+  z-index: 5;
+  box-shadow: 
+    0 4px 12px rgba(0,0,0,0.15),
+    0 2px 4px rgba(0,0,0,0.1);
+  letter-spacing: 0.5px;
+  border-radius: 20px 20px 0 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  
+  // Banner shine effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.2) 0%,
+      transparent 100%
+    );
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+  }
+}
+
+// Entrance marker animation
+@keyframes entrance-pulse {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 4px 12px rgba(255,152,0,0.3);
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(255,152,0,0.5);
+  }
+}
+
+// Global Search Modal Styles - Material Design Consistent
+.search-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modal-fade-in 0.3s ease-out;
+}
+
+.search-modal-content {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 24px;
+  width: 90%;
+  max-width: 500px;
+  height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: modal-slide-in 0.3s ease-out;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+
+  h2 {
+    margin: 0;
+    color: #212121;
+    font-size: 20px;
+    font-weight: 500;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #757575;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f5f5f5;
+      color: #f44336;
+    }
+  }
+}
+
+.search-input-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+
+  .search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 16px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+
+    &:focus {
+      outline: none;
+      border-color: #3f51b5;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+    }
+
+    &::placeholder {
+      color: #9e9e9e;
+    }
+  }
+
+  .search-btn {
+    padding: 12px 16px;
+    background: #3f51b5;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+
+    &:hover:not(:disabled) {
+      background: #303f9f;
+      box-shadow: 0 2px 8px rgba(63, 81, 181, 0.3);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .clear-btn {
+    padding: 12px 16px;
+    background: #f44336;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+
+    &:hover {
+      background: #d32f2f;
+      box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.search-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  h3 {
+    margin: 0 0 16px 0;
+    color: #212121;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+  }
+
+  .results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      border-color: #3f51b5;
+    }
+
+    &.active {
+      border-color: #4caf50;
+      background: #f1f8e9;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+    }
+
+    .result-store {
+      padding: 6px 12px;
+      border-radius: 16px;
+      color: white;
+      font-weight: 500;
+      font-size: 12px;
+      min-width: 100px;
+      text-align: center;
+      font-family: Roboto, "Helvetica Neue", sans-serif;
+    }
+
+    .result-product {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .product-name {
+        font-weight: 500;
+        color: #212121;
+        font-size: 14px;
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+      }
+
+      .product-description {
+        color: #757575;
+        font-size: 12px;
+        line-height: 1.4;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+      }
+    }
+
+    .result-actions {
+      .navigate-btn {
+        background: #4caf50;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Roboto, "Helvetica Neue", sans-serif;
+
+        &:hover {
+          background: #388e3c;
+          box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+
+  .search-navigation {
+    background: #f5f5f5;
+    padding: 16px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+
+    p {
+      margin: 4px 0;
+      color: #757575;
+      font-size: 14px;
+      font-family: Roboto, "Helvetica Neue", sans-serif;
+
+      strong {
+        color: #212121;
+      }
+    }
+  }
+}
+
+.no-results, .search-instructions {
+  text-align: center;
+  padding: 32px 20px;
+  color: #757575;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 8px 0;
+    font-size: 14px;
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+  }
+}
+
+// Modal animations
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-slide-in {
+  from {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+// Responsive design for search modal
+@media (max-width: 768px) {
+  .search-modal-content {
+    width: 95%;
+    max-width: none;
+    height: 85vh;
+    padding: 20px;
+    margin: 20px;
+  }
+  
+  .search-input-container {
+    flex-direction: column;
+    gap: 8px;
+    
+    .search-input {
+      width: 100%;
+    }
+    
+    .search-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .result-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    
+    .result-store {
+      align-self: flex-start;
+    }
+    
+    .result-actions {
+      align-self: flex-end;
+    }
+  }
+}
+
+.other-player-character {
+  position: absolute;
+}
+
+// Online Users Counter
+.online-users-counter {
+  position: absolute;
+  top: 20px;
+  left: 320px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #4CAF50;
+  }
+
+  .counter-text {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    // Connection status styling
+    span:first-child {
+      &.connecting {
+        color: #FFA726;
+      }
+      &.connected {
+        color: #4CAF50;
+      }
+      &.disconnected {
+        color: #F44336;
+      }
+    }
+  }
+}
+
+// Ensure player character and other player character containers have proper width
+.player-character, .other-player-character {
+  position: absolute;
+  width: 48px; // Ensure the container matches the SVG width
+}
+
+.player-name-tag {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  border: 1px solid #666;
+  text-align: center;
+  min-width: 40px;
+  pointer-events: none;
+}
+
+.moon {
+  position: absolute;
+  top: 35px;
+  right: 90px;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
+}
+.moon-core {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, #fffbe7 60%, #e0e0e0 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 30px 10px #fffbe7, 0 0 60px 20px rgba(255, 251, 231, 0.27);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.moon-shadow {
+  width: 40px;
+  height: 40px;
+  background: #263159;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;  
+  left: 25px;
+  opacity: 0.5;
+}
+
+.star {
+  position: absolute;
+  width: 2.5px;
+  height: 2.5px;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  box-shadow: 0 0 6px 2px #fffbe7;
+  animation: star-twinkle 2s infinite ease-in-out;
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.3; }
+}
+
+// Reconnection Notification
+.reconnection-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  z-index: 10001;
+  backdrop-filter: blur(10px);
+  border: 2px solid #FFA726;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: reconnection-pulse 2s ease-in-out infinite;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #FFA726;
+  }
+
+  span {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes reconnection-pulse {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 12px 32px rgba(255, 167, 38, 0.3);
+  }
+}
+
+// Unified walking animations for both current user and other players
+.player-character.walking .player-svg .arm-left,
+.other-player-character.walking .player-svg .arm-left {
+  animation: walk-arm-left 0.3s infinite alternate;
+}
+.player-character.walking .player-svg .arm-right,
+.other-player-character.walking .player-svg .arm-right {
+  animation: walk-arm-right 0.3s infinite alternate;
+}
+.player-character.walking .player-svg .leg-left,
+.other-player-character.walking .player-svg .leg-left {
+  animation: walk-leg-left 0.3s infinite alternate;
+}
+.player-character.walking .player-svg .leg-right,
+.other-player-character.walking .player-svg .leg-right {
+  animation: walk-leg-right 0.3s infinite alternate;
+}
+.player-character:not(.walking) .player-svg,
+.other-player-character:not(.walking) .player-svg {
+  animation: idle-bounce 1.2s infinite alternate;
+}
+
+// Unified keyframes for both current user and other players
+@keyframes walk-arm-left {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-30deg); }
+}
+@keyframes walk-arm-right {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(30deg); }
+}
+@keyframes walk-leg-left {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(20deg); }
+}
+@keyframes walk-leg-right {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-20deg); }
+}
+@keyframes idle-bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+// Player Character Animations
+@keyframes walk-legs {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes walk-arms {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+}
+
+.player-character, .other-player-character {
+  .leg-left {
+    animation: walk-legs 0.1s ease-in-out infinite alternate;
+    animation-play-state: paused;
+    will-change: transform;
+  }
+  .leg-right {
+    animation: walk-legs 0.1s ease-in-out infinite alternate-reverse;
+    animation-play-state: paused;
+    will-change: transform;
+  }
+  .arm-left {
+    animation: walk-arms 0.1s ease-in-out infinite alternate;
+    animation-play-state: paused;
+    will-change: transform;
+  }
+  .arm-right {
+    animation: walk-arms 0.1s ease-in-out infinite alternate-reverse;
+    animation-play-state: paused;
+    will-change: transform;
+  }
+  
+  &.walking {
+    .leg-left,
+    .leg-right,
+    .arm-left,
+    .arm-right {
+      animation-play-state: running;
+    }
+  }
+  
+  // Prevent animation interruption during position updates
+  &.walking .player-svg {
+    transform: translateZ(0); // Force hardware acceleration
+  }
+  
+  // Ensure animations complete their cycle
+  &.walking .leg-left,
+  &.walking .leg-right,
+  &.walking .arm-left,
+  &.walking .arm-right {
+    animation-fill-mode: both;
+    animation-iteration-count: infinite;
+  }
+}
+
+// Keyframes for tree animation
+@keyframes tree-sway {
+  0%   { transform: translateX(-50%) rotate(-10deg); }
+  50%  { transform: translateX(-50%) rotate(10deg); }
+  100% { transform: translateX(-50%) rotate(-10deg); }
+}
+
+@keyframes tree-trunk-sway {
+  0%   { transform: translateX(-50%) rotate(-5deg); }
+  50%  { transform: translateX(-50%) rotate(5deg); }
+  100% { transform: translateX(-50%) rotate(-5deg); }
+}
+
+.bird {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+  transition: left 0.8s linear, top 0.8s linear;
+  width: 40px;
+  height: 24px;
+}
+
+.bird-wing {
+  transform-origin: 18px 20px;
+  animation: bird-flap 0.6s ease-in-out infinite;
+}
+
+@keyframes bird-flap {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-45deg); }
+}
+
+.bird.left {
+  transform: scaleX(-1);
+}
+
+.mountain-background {
+  position: absolute;
+  left: 0;
+  bottom: 10px;
+  width: 100vw;
+  height: 300px;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+.chat-e-button {
+  position: absolute;
+  z-index: -10;
+  pointer-events: auto;
+  button {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 16px;
+    min-width: 120px;
+    height: 32px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0 16px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  button:hover {
+    background: #1565c0;
+  }
+}
+
+.chat-e-button-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+} 

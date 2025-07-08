@@ -1,0 +1,132 @@
+<div class="chat-container">
+  <!-- Sidebar: Conversations -->
+  <div class="conversations-sidebar">
+    <div class="sidebar-header">
+      <h2>
+      <mat-icon>chat</mat-icon>
+        Messages
+      </h2>
+    </div>
+    <div class="conversations-list">
+      <div class="conversation-item" 
+           *ngFor="let conversation of conversations" 
+           [class.active]="selectedConversation?.id === conversation.id" 
+           (click)="selectConversation(conversation)">
+        <div class="conversation-avatar">
+          <img [src]="getOtherUserAvatar(conversation)" 
+               [alt]="getOtherUserName(conversation)"
+               (error)="onImageError($event)">
+          <div class="unread-badge" *ngIf="conversation.unreadCount > 0">
+            {{ conversation.unreadCount > 99 ? '99+' : conversation.unreadCount }}
+          </div>
+        </div>
+        <div class="conversation-content">
+          <div class="conversation-header">
+            <span class="conversation-name">{{ getOtherUserName(conversation) }}</span>
+            <span class="conversation-time">{{ formatConversationTime(conversation.lastMessageAt) }}</span>
+          </div>
+          <div class="conversation-preview">
+            <span class="last-message"
+                  [class.sidebar-latest-blue]="isLatestFromOtherUser(conversation)">
+              {{ getLastMessageForSidebar(conversation)?.content || 'No messages yet' }}
+            </span>
+            <span class="store-name" *ngIf="conversation.storeName">• {{ conversation.storeName }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="no-conversations" *ngIf="conversations.length === 0 && !loading">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>No conversations yet</p>
+        <span>Start chatting with sellers to see your conversations here</span>
+      </div>
+    </div>
+  </div>
+  <div class="chat-divider"></div>
+  <!-- Main Chat Area -->
+  <div class="chat-area">
+    <div class="chat-header" *ngIf="selectedConversation">
+      <div class="chat-user-info">
+        <img [src]="getOtherUserAvatar(selectedConversation)" 
+             [alt]="getOtherUserName(selectedConversation)"
+             (error)="onImageError($event)">
+        <div class="user-details">
+          <h3>{{ getOtherUserName(selectedConversation) }}</h3>
+          <span class="store-name" *ngIf="selectedConversation.storeName">{{ selectedConversation.storeName }}</span>
+        </div>
+      </div>
+      <button class="close-button" (click)="closeChat()" title="Close chat (ESC)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    
+    <div class="no-chat-selected" *ngIf="!selectedConversation">
+      <mat-icon>chat_bubble_outline</mat-icon>
+      <h3>Select a conversation</h3>
+      <p>Choose a conversation from the list to start chatting with sellers</p>
+    </div>
+    
+    <!-- Messages Area -->
+    <div class="messages-container" #messageContainer *ngIf="selectedConversation">
+      <div class="messages-list">
+        <div class="message-item"
+             *ngFor="let message of messages; trackBy: trackByMessageId"
+             [class.my-message]="isMyMessage(message)"
+             [class.other-message]="!isMyMessage(message)">
+          <div class="message-content">
+            <div class="message-bubble">
+              <ng-container *ngIf="isProductMessage(message.content); else normalText">
+                <ng-container *ngIf="extractProductId(message.content) as pid">
+                  <ng-container *ngIf="getProductForMessage(pid) | async as product">
+                    <app-product-card
+                      [product]="product"
+                      [clickable]="false"
+                      (loaded)="onProductCardLoaded()">
+                    </app-product-card>
+                  </ng-container>
+                </ng-container>
+              </ng-container>
+              <ng-template #normalText>
+                <p>{{ message.content }}</p>
+              </ng-template>
+              <div class="message-meta">
+                <span class="message-time">{{ formatMessageTime(message.sentAt) }}</span>
+                <mat-icon *ngIf="isMyMessage(message)" class="read-indicator">
+                  {{ message.isRead ? 'done_all' : 'done' }}
+                </mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="typing-indicator" *ngIf="otherUserTyping">
+          <div class="typing-bubble">
+            <span class="typing-text">{{ getOtherUserName(selectedConversation) }} is typing...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Message Input -->
+    <div class="message-input-container" *ngIf="selectedConversation">
+      <form [formGroup]="chatForm" (ngSubmit)="sendMessage()" class="message-form">
+        <mat-form-field appearance="outline" class="message-input">
+          <textarea matInput 
+                    formControlName="message" 
+                    placeholder="Type your message... (Ctrl+M to focus)" 
+                    rows="1" 
+                    #messageInput 
+                    maxlength="1000"
+                    (keydown)="onKeyPress($event)">
+          </textarea>
+          <mat-hint align="end">{{ chatForm.get('message')?.value?.length || 0 }}/1000</mat-hint>
+        </mat-form-field>
+        <button type="submit" 
+                class="send-button" 
+                [disabled]="!chatForm.valid || !selectedConversation"
+                title="Send message (Enter)">
+          <mat-icon>send</mat-icon>
+        </button>
+      </form>
+    </div>
+  </div>
+</div> 

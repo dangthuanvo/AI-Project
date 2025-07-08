@@ -1,0 +1,681 @@
+<div class="admin-dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome back, {{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
+      </div>
+      <div class="header-right">
+        <button mat-raised-button color="warn" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="setActiveTab($event)" class="dashboard-tabs">
+    
+    <!-- Overview Tab -->
+    <mat-tab label="Overview">
+      <div class="tab-content">
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+          <!-- System Stats -->
+          <mat-card class="stat-card system-stats" *ngIf="systemStats">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>dashboard</mat-icon>
+                System Overview
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="stat-item">
+                <span class="stat-label">Total Users:</span>
+                <span class="stat-value">{{ systemStats.totalUsers }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Stores:</span>
+                <span class="stat-value">{{ systemStats.totalStores }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Products:</span>
+                <span class="stat-value">{{ systemStats.totalProducts }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Orders:</span>
+                <span class="stat-value">{{ systemStats.totalOrders }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Revenue:</span>
+                <span class="stat-value">{{ formatCurrency(systemStats.totalRevenue) }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- User Stats -->
+          <mat-card class="stat-card user-stats" *ngIf="userStats">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>people</mat-icon>
+                User Statistics
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="stat-item">
+                <span class="stat-label">Active Users:</span>
+                <span class="stat-value">{{ userStats.activeUsers }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Customers:</span>
+                <span class="stat-value">{{ userStats.customers }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Sellers:</span>
+                <span class="stat-value">{{ userStats.sellers }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Admins:</span>
+                <span class="stat-value">{{ userStats.admins }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">New This Month:</span>
+                <span class="stat-value">{{ userStats.newUsersThisMonth }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Store Stats -->
+          <mat-card class="stat-card store-stats" *ngIf="storeStats">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>store</mat-icon>
+                Store Statistics
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="stat-item">
+                <span class="stat-label">Active Stores:</span>
+                <span class="stat-value">{{ storeStats.activeStores }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Total Products:</span>
+                <span class="stat-value">{{ storeStats.totalProducts }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Avg Products/Store:</span>
+                <span class="stat-value">{{ storeStats.averageProductsPerStore | number:'1.1-1' }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">New This Month:</span>
+                <span class="stat-value">{{ storeStats.newStoresThisMonth }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Order Stats -->
+          <mat-card class="stat-card order-stats" *ngIf="orderStats">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>shopping_cart</mat-icon>
+                Order Statistics
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="stat-item">
+                <span class="stat-label">Pending Orders:</span>
+                <span class="stat-value">{{ orderStats.pendingOrders }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Shipped Orders:</span>
+                <span class="stat-value">{{ orderStats.shippedOrders }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Delivered Orders:</span>
+                <span class="stat-value">{{ orderStats.deliveredOrders }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Avg Order Value:</span>
+                <span class="stat-value">{{ formatCurrency(orderStats.averageOrderValue) }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Orders This Month:</span>
+                <span class="stat-value">{{ orderStats.ordersThisMonth }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Product Stats -->
+          <mat-card class="stat-card product-stats" *ngIf="productStats">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>inventory</mat-icon>
+                Product Statistics
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="stat-item">
+                <span class="stat-label">Active Products:</span>
+                <span class="stat-value">{{ productStats.activeProducts }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Low Stock:</span>
+                <span class="stat-value">{{ productStats.lowStockProducts }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Out of Stock:</span>
+                <span class="stat-value">{{ productStats.outOfStockProducts }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Avg Price:</span>
+                <span class="stat-value">{{ formatCurrency(productStats.averagePrice) }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">New This Month:</span>
+                <span class="stat-value">{{ productStats.newProductsThisMonth }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Users Tab -->
+    <mat-tab label="Users">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2 style="display: flex; align-items: center; font-weight: bold;">
+            <mat-icon style="margin-right: 8px;">people</mat-icon>
+            User Management
+          </h2>
+          <div class="tab-actions">
+            <mat-form-field appearance="outline">
+              <mat-label>Search Users</mat-label>
+              <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search by name or email">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Filter by Role</mat-label>
+              <mat-select [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
+                <mat-option value="all">All Roles</mat-option>
+                <mat-option value="Customer">Customer</mat-option>
+                <mat-option value="Seller">Seller</mat-option>
+                <mat-option value="Admin">Admin</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="showAddUser = true">
+              <mat-icon>add</mat-icon>
+              Add Admin
+            </button>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <mat-table [dataSource]="filteredUsers" class="data-table">
+          <!-- Avatar Column -->
+          <ng-container matColumnDef="avatar">
+            <mat-header-cell *matHeaderCellDef>Avatar</mat-header-cell>
+            <mat-cell *matCellDef="let user">
+              <img [src]="getImageUrl(user.avatar)" [alt]="user.firstName" class="user-avatar">
+            </mat-cell>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('firstName')" class="sort-header" style="cursor: pointer;">
+                Name
+                <mat-icon>{{ getSortIcon('firstName') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let user">
+              <span class="user-color-swatch" [ngStyle]="{'background': user.color}" *ngIf="user.color"></span>
+              {{ user.firstName }} {{ user.lastName }}
+            </mat-cell>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('email')" class="sort-header" style="cursor: pointer;">
+                Email
+                <mat-icon>{{ getSortIcon('email') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ user.email }}</mat-cell>
+          </ng-container>
+
+          <!-- Roles Column -->
+          <ng-container matColumnDef="roles">
+            <mat-header-cell *matHeaderCellDef>Roles</mat-header-cell>
+            <mat-cell *matCellDef="let user">
+              <div class="role-badges">
+                <span
+                  *ngFor="let role of user.roles"
+                  class="role-badge"
+                  [ngClass]="role.toLowerCase()"
+                >
+                  {{ role }}
+                </span>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('isActive')" class="sort-header" style="cursor: pointer;">
+                Status
+                <mat-icon>{{ getSortIcon('isActive') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let user">
+              <span class="status-badge" [ngClass]="user.isActive ? 'active' : 'inactive'">
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Created Date Column -->
+          <ng-container matColumnDef="createdAt">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('createdAt')" class="sort-header" style="cursor: pointer;">
+                Created
+                <mat-icon>{{ getSortIcon('createdAt') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let user">{{ formatDate(user.createdAt) }}</mat-cell>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-cell *matCellDef="let user">
+              <button mat-icon-button (click)="editUser(user)" matTooltip="Edit User">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button (click)="toggleUserStatus(user)" 
+                      >
+                <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
+              </button>
+              <button mat-icon-button (click)="deleteUser(user)" matTooltip="Delete User" color="warn">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['avatar', 'name', 'email', 'roles', 'status', 'createdAt', 'actions']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['avatar', 'name', 'email', 'roles', 'status', 'createdAt', 'actions'];"></mat-row>
+        </mat-table>
+      </div>
+    </mat-tab>
+
+    <!-- Stores Tab -->
+    <mat-tab label="Stores">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2 style="display: flex; align-items: center; font-weight: bold;">
+            <mat-icon style="margin-right: 8px;">store</mat-icon>
+            Store Management
+          </h2>
+          <div class="tab-actions">
+            <mat-form-field appearance="outline">
+              <mat-label>Search Stores</mat-label>
+              <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search by name">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Filter by Status</mat-label>
+              <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+                <mat-option value="all">All Status</mat-option>
+                <mat-option value="active">Active</mat-option>
+                <mat-option value="inactive">Inactive</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Sort by</mat-label>
+              <mat-select [(ngModel)]="sortField" (ngModelChange)="onSortChange()">
+                <mat-option value="">No Sort</mat-option>
+                <mat-option value="name">Name</mat-option>
+                <mat-option value="createdAt">Created Date</mat-option>
+                <mat-option value="productCount">Product Count</mat-option>
+                <mat-option value="isActive">Status</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-icon-button (click)="toggleSortDirection()" *ngIf="sortField" matTooltip="Toggle Sort Direction">
+              <mat-icon>{{ sortDirection === 'asc' ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stores Grid -->
+        <div class="stores-grid">
+          <mat-card *ngFor="let store of filteredStores" class="store-card">
+            <mat-card-header>
+              <div class="store-info-row">
+                <img *ngIf="store.logoUrl" [src]="getImageUrl(store.logoUrl)" [alt]="store.name" class="store-logo">
+                <div class="store-info-text">
+                  <mat-card-title>{{ store.name }}</mat-card-title>
+                  <mat-card-subtitle>Owner: {{ store.ownerName }}</mat-card-subtitle>
+                </div>
+              </div>
+            </mat-card-header>
+            <mat-card-content>
+              <p>{{ store.description }}</p>
+              <div class="store-stats">
+                <span>Created: {{ formatDate(store.createdAt) }}</span>
+              </div>
+              <mat-chip [color]="store.isActive ? 'accent' : 'warn'" selected>
+                {{ store.isActive ? 'Active' : 'Inactive' }}
+              </mat-chip>
+            </mat-card-content>
+            <mat-card-actions>
+              <button mat-button (click)="toggleStoreStatus(store)">
+                <mat-icon>{{ store.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                {{ store.isActive ? 'Deactivate' : 'Activate' }}
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Products Tab -->
+    <mat-tab label="Products">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2 style="display: flex; align-items: center; font-weight: bold;">
+            <mat-icon style="margin-right: 8px;">inventory_2</mat-icon>
+            Product Management
+          </h2>
+          <div class="tab-actions">
+            <mat-form-field appearance="outline">
+              <mat-label>Search Products</mat-label>
+              <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search by name or category">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Filter by Status</mat-label>
+              <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+                <mat-option value="all">All Status</mat-option>
+                <mat-option value="active">Active</mat-option>
+                <mat-option value="inactive">Inactive</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Products Table -->
+        <mat-table [dataSource]="filteredProducts" class="data-table">
+          <!-- Image Column -->
+          <ng-container matColumnDef="image">
+            <mat-header-cell *matHeaderCellDef>Image</mat-header-cell>
+            <mat-cell *matCellDef="let product">
+              <img *ngIf="product.imageUrls && product.imageUrls.length > 0" 
+                   [src]="getImageUrl(product.imageUrls[0])" 
+                   [alt]="product.name" class="product-image">
+              <mat-icon *ngIf="!product.imageUrls || product.imageUrls.length === 0">image_not_supported</mat-icon>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('name')" class="sort-header" style="cursor: pointer;">
+                Name
+                <mat-icon>{{ getSortIcon('name') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let product">{{ product.name }}</mat-cell>
+          </ng-container>
+
+          <!-- Store Column -->
+          <ng-container matColumnDef="store">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('storeName')" class="sort-header" style="cursor: pointer;">
+                Store
+                <mat-icon>{{ getSortIcon('storeName') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let product">{{ product.storeName }}</mat-cell>
+          </ng-container>
+
+          <!-- Price Column -->
+          <ng-container matColumnDef="price">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('price')" class="sort-header" style="cursor: pointer;">
+                Price
+                <mat-icon>{{ getSortIcon('price') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let product">{{ formatCurrency(product.price) }}</mat-cell>
+          </ng-container>
+
+          <!-- Stock Column -->
+          <ng-container matColumnDef="stock">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('stockQuantity')" class="sort-header" style="cursor: pointer;">
+                Stock
+                <mat-icon>{{ getSortIcon('stockQuantity') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let product">
+              <span [class]="product.stockQuantity <= 5 ? 'low-stock' : ''">
+                {{ product.stockQuantity }}
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('isActive')" class="sort-header" style="cursor: pointer;">
+                Status
+                <mat-icon>{{ getSortIcon('isActive') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let product">
+              <span class="status-badge" [ngClass]="product.isActive ? 'active' : 'inactive'">
+                {{ product.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+            <mat-cell *matCellDef="let product">
+              <button mat-icon-button (click)="toggleProductStatus(product)" 
+                      matTooltip="{{ product.isActive ? 'Deactivate Product' : 'Activate Product' }}">
+                <mat-icon>{{ product.isActive ? 'block' : 'check_circle' }}</mat-icon>
+              </button>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['image', 'name', 'store', 'price', 'stock', 'status', 'actions']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['image', 'name', 'store', 'price', 'stock', 'status', 'actions'];"></mat-row>
+        </mat-table>
+      </div>
+    </mat-tab>
+
+    <!-- Orders Tab -->
+    <mat-tab label="Orders">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2 style="display: flex; align-items: center; font-weight: bold;">
+            <mat-icon style="margin-right: 8px;">shopping_cart</mat-icon>
+            Order Management
+          </h2>
+          <div class="tab-actions">
+            <mat-form-field appearance="outline">
+              <mat-label>Search Orders</mat-label>
+              <input matInput [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" placeholder="Search by order number or customer">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Filter by Status</mat-label>
+              <mat-select [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+                <mat-option value="all">All Status</mat-option>
+                <mat-option value="Pending">Pending</mat-option>
+                <mat-option value="Shipped">Shipped</mat-option>
+                <mat-option value="Delivered">Delivered</mat-option>
+                <mat-option value="Cancelled">Cancelled</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <mat-table [dataSource]="filteredOrders" class="data-table">
+          <!-- Order Number Column -->
+          <ng-container matColumnDef="orderNumber">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('orderNumber')" class="sort-header" style="cursor: pointer;">
+                Order #
+                <mat-icon>{{ getSortIcon('orderNumber') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let order">{{ order.orderNumber }}</mat-cell>
+          </ng-container>
+
+          <!-- Customer Column -->
+          <ng-container matColumnDef="customer">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('customerName')" class="sort-header" style="cursor: pointer;">
+                Customer
+                <mat-icon>{{ getSortIcon('customerName') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let order">
+              <div>
+                <div>{{ order.customerName }}</div>
+                <small>{{ order.customerEmail }}</small>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('orderDate')" class="sort-header" style="cursor: pointer;">
+                Order Date
+                <mat-icon>{{ getSortIcon('orderDate') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let order">{{ formatDate(order.orderDate) }}</mat-cell>
+          </ng-container>
+
+          <!-- Amount Column -->
+          <ng-container matColumnDef="amount">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('totalAmount')" class="sort-header" style="cursor: pointer;">
+                Amount
+                <mat-icon>{{ getSortIcon('totalAmount') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let order">{{ formatCurrency(order.totalAmount) }}</mat-cell>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('status')" class="sort-header" style="cursor: pointer;">
+                Status
+                <mat-icon>{{ getSortIcon('status') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let order">
+              <span class="order-status-badge" [ngClass]="order.status.toLowerCase()">
+                {{ order.status }}
+              </span>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['orderNumber', 'customer', 'date', 'amount', 'status']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['orderNumber', 'customer', 'date', 'amount', 'status'];"></mat-row>
+        </mat-table>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- Edit User Dialog -->
+  <div *ngIf="editingUser" class="edit-dialog-overlay">
+    <mat-card class="edit-dialog">
+      <mat-card-header>
+        <mat-card-title>Edit User</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="userForm">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Role</mat-label>
+            <mat-select formControlName="roles" required>
+              <mat-option value="Customer">Customer</mat-option>
+              <mat-option value="Seller">Seller</mat-option>
+              <mat-option value="Admin">Admin</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-checkbox formControlName="isActive">Active</mat-checkbox>
+        </form>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button (click)="editingUser = null">Cancel</button>
+        <button mat-raised-button color="primary" (click)="updateUser()">Update</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Add Admin Dialog -->
+  <div *ngIf="showAddUser" class="edit-dialog-overlay">
+    <mat-card class="edit-dialog">
+      <mat-card-header>
+        <mat-card-title>Add Admin Account</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="userForm">
+          <mat-form-field appearance="outline">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" required>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Password</mat-label>
+            <input matInput formControlName="password" type="password" required minlength="6">
+          </mat-form-field>
+          <mat-checkbox formControlName="isActive">Active</mat-checkbox>
+        </form>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button (click)="showAddUser = false">Cancel</button>
+        <button mat-raised-button color="primary" (click)="addUser()">Add Admin</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+</div> 
