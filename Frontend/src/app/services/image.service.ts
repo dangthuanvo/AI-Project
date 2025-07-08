@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 })
 export class ImageService {
   private apiUrl = environment.apiUrl;
+  private staticUrl = environment.apiUrl.replace('/api', '');
 
   /**
    * Converts a relative image URL to a full URL
@@ -24,11 +25,11 @@ export class ImageService {
 
     // If it's a relative path, prepend the API URL
     if (imageUrl.startsWith('/')) {
-      return `${this.apiUrl}${imageUrl}`;
+      return `${this.staticUrl}${imageUrl}`;
     }
 
     // If it doesn't start with /, assume it's relative to uploads
-    return `${this.apiUrl}/uploads/${imageUrl}`;
+    return `${this.staticUrl}/uploads/${imageUrl}`;
   }
 
   /**
@@ -36,6 +37,6 @@ export class ImageService {
    * @returns Placeholder image URL
    */
   getPlaceholderUrl(): string {
-    return `${this.apiUrl}/uploads/images/product-default.png`;
+    return `${this.staticUrl}/uploads/images/product-default.png`;
   }
 } 
