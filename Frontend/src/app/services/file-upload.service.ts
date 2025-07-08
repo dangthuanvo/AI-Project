@@ -11,7 +11,7 @@ export interface UploadResponse {
   providedIn: 'root'
 })
 export class FileUploadService {
-  private apiUrl = `${environment.apiUrl}/api/fileupload`;
+  private apiUrl = `${environment.apiUrl}/fileupload`;
 
   constructor(private http: HttpClient) { }
 
