@@ -2,6 +2,7 @@
 FROM node:20 AS build
 WORKDIR /app
 COPY . .
+ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 RUN npm install
 RUN npm run build -- --output-path=dist
 
