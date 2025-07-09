@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChatService } from '../../services/chat.service';
 import { ChatRequestDialogComponent } from '../chat-request-dialog/chat-request-dialog.component';
 import { ChatComponent } from '../chat/chat.component';
+import { MusicService } from '../services/music.service';
 
 interface Player {
   name: string;
@@ -111,6 +112,22 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   private birdInterval: any = null;
   userIdsInChatRange: string[] = [];
   usersCloseToMe: string[] = [];
+  showEnterStoreAnimation = false;
+  private enterStoreTimeout: any = null;
+
+  // --- MUSIC PLAYER STATE ---
+  musicFiles: string[] = [];
+  currentTrackIndex: number = 0;
+  isMusicPlaying: boolean = false;
+  audio: HTMLAudioElement | null = null;
+
+  get currentTrackName(): string {
+    return this.musicFiles[this.currentTrackIndex] || '';
+  }
+
+  isShuffle: boolean = false;
+  isRepeat: boolean = false;
+  waveformBars: number[] = Array(24).fill(40); // Placeholder for waveform heights
 
   constructor(
     private storeService: StoreService,
@@ -121,7 +138,8 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     public imageService: ImageService,
     private presenceService: PresenceService,
     private snackBar: MatSnackBar,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private musicService: MusicService
   ) {}
 
   ngOnInit(): void {
@@ -399,6 +417,61 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         this.snackBar.open('User refused to chat.', 'Close', { duration: 3000 });
       }
     });
+
+    // Music player: get music files from service
+    this.musicFiles = this.musicService.getMusicFiles();
+    this.audio = new Audio(this.getCurrentTrackUrl());
+    this.audio.addEventListener('ended', () => this.onTrackEnded());
+    this.audio.addEventListener('play', () => this.isMusicPlaying = true);
+    this.audio.addEventListener('pause', () => this.isMusicPlaying = false);
+    // Simulate waveform animation
+    setInterval(() => {
+      if (this.isMusicPlaying) {
+        this.waveformBars = this.waveformBars.map(() => 30 + Math.random() * 50);
+      } else {
+        this.waveformBars = this.waveformBars.map(() => 40);
+      }
+    }, 200);
+    // Auto play music when entering the road
+    setTimeout(() => {
+      if (this.audio && !this.isMusicPlaying) {
+        this.audio.src = this.getCurrentTrackUrl();
+        this.audio.play().catch(() => {/* Autoplay blocked, user must interact */});
+      }
+    }, 500);
+  }
+
+  onTrackEnded(): void {
+    if (this.isRepeat) {
+      this.playMusic();
+    } else if (this.isShuffle) {
+      this.shuffleTrack();
+    } else {
+      this.nextTrack();
+    }
+  }
+
+  toggleShuffle(): void {
+    this.isShuffle = !this.isShuffle;
+  }
+
+  toggleRepeat(): void {
+    this.isRepeat = !this.isRepeat;
+  }
+
+  shuffleTrack(): void {
+    let next;
+    do {
+      next = Math.floor(Math.random() * this.musicFiles.length);
+    } while (next === this.currentTrackIndex && this.musicFiles.length > 1);
+    this.selectTrack(next);
+    this.playMusic();
+  }
+
+  onSeek(event: any): void {
+    if (this.audio) {
+      this.audio.currentTime = event.target.value;
+    }
   }
 
   ngOnDestroy(): void {
@@ -420,6 +493,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     this.animationLock = {};
     if (this.birdInterval) {
       clearInterval(this.birdInterval);
+    }
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.src = '';
+      this.audio = null;
     }
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
@@ -470,6 +548,12 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     ].includes(key)) {
       event.preventDefault();
       this.keys[key] = true;
+    }
+    // Play/pause music with spacebar if not typing in an input
+    if (event.code === 'Space' && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) {
+      this.toggleMusic();
+      event.preventDefault();
+      return;
     }
   }
 
@@ -732,14 +816,15 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
 
   enterStore(store: GameStore): void {
     this.savePlayerPosition();
-    // Store the player's current position before entering the store
     this.lastStorePosition = { x: this.player.x, y: this.player.y };
-    
-    // Store this information in sessionStorage for persistence across navigation
     sessionStorage.setItem('lastStorePosition', JSON.stringify(this.lastStorePosition));
     sessionStorage.setItem('lastStoreId', store.id.toString());
-    
-    this.router.navigate(['/store', store.id]);
+    this.showEnterStoreAnimation = true;
+    if (this.enterStoreTimeout) clearTimeout(this.enterStoreTimeout);
+    this.enterStoreTimeout = setTimeout(() => {
+      this.showEnterStoreAnimation = false;
+      this.router.navigate(['/store', store.id]);
+    }, 1000); // 1 second animation
   }
 
   get nearbyStoreName(): string {
@@ -1437,5 +1522,70 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         });
       });
     });
+  }
+
+  getCurrentTrackUrl(): string {
+    return this.musicService.getMusicFileUrl(this.musicFiles[this.currentTrackIndex]);
+  }
+
+  playMusic(): void {
+    if (!this.audio) {
+      this.audio = new Audio(this.getCurrentTrackUrl());
+      this.audio.addEventListener('ended', () => this.onTrackEnded());
+      this.audio.addEventListener('play', () => this.isMusicPlaying = true);
+      this.audio.addEventListener('pause', () => this.isMusicPlaying = false);
+    }
+    // Only set src if it's a new track
+    if (this.audio.src !== this.getCurrentTrackUrl() && this.getCurrentTrackUrl()) {
+      this.audio.src = this.getCurrentTrackUrl();
+    }
+    this.audio.play();
+  }
+
+  pauseMusic(): void {
+    if (this.audio) {
+      this.audio.pause();
+    }
+  }
+
+  toggleMusic(): void {
+    if (this.isMusicPlaying) {
+      this.pauseMusic();
+    } else {
+      if (this.audio) {
+        this.audio.play();
+      } else {
+        this.playMusic();
+      }
+    }
+  }
+
+  selectTrack(index: number): void {
+    if (index < 0 || index >= this.musicFiles.length) return;
+    this.currentTrackIndex = index;
+    if (this.audio) {
+      this.audio.src = this.getCurrentTrackUrl();
+      if (this.isMusicPlaying) {
+        this.audio.play();
+      }
+    }
+  }
+
+  nextTrack(): void {
+    this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicFiles.length;
+    if (this.audio) {
+      this.audio.src = this.getCurrentTrackUrl();
+    }
+    this.playMusic();
+  }
+
+  prevTrack(): void {
+    this.currentTrackIndex = (this.currentTrackIndex - 1 + this.musicFiles.length) % this.musicFiles.length;
+    if (this.audio) {
+      this.audio.src = this.getCurrentTrackUrl();
+      if (this.isMusicPlaying) {
+        this.audio.play();
+      }
+    }
   }
 } 

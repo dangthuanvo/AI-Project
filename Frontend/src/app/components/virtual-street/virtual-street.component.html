@@ -241,6 +241,29 @@
         <span>Search Products</span>
       </button>
     </div>
+
+    <!-- Music Player UI (moved to bottom center overlay) -->
+    <div class="music-player-bar" [class.with-chat-button]="usersCloseToMe.length > 0">
+      <div class="music-progress-container">
+        <input type="range" min="0" [max]="audio?.duration || 0" [value]="audio?.currentTime || 0" (input)="onSeek($event)" class="music-progress" />
+      </div>
+      <div class="music-controls-bar">
+        <button (click)="toggleShuffle()" [class.active]="isShuffle" title="Shuffle"><mat-icon>shuffle</mat-icon></button>
+        <button (click)="prevTrack()" title="Previous Track"><mat-icon>skip_previous</mat-icon></button>
+        <button (click)="toggleMusic()" title="Play/Pause">
+          <mat-icon>{{ isMusicPlaying ? 'pause_circle' : 'play_circle' }}</mat-icon>
+        </button>
+        <button (click)="nextTrack()" title="Next Track"><mat-icon>skip_next</mat-icon></button>
+        <button (click)="toggleRepeat()" [class.active]="isRepeat" title="Repeat"><mat-icon>repeat</mat-icon></button>
+      </div>
+      <div class="music-waveform">
+        <!-- Placeholder for waveform visualization -->
+        <div class="wave-bar" *ngFor="let bar of waveformBars" [style.height.%]="bar"></div>
+      </div>
+      <div class="music-current-track-bar">
+        <span>{{ currentTrackName }}</span>
+      </div>
+    </div>
   </div>
 
   <!-- Online Users Counter -->
@@ -357,6 +380,28 @@
         <p>Type a product name to search across all stores</p>
         <p>Press <strong>Enter</strong> to search, <strong>Escape</strong> to close</p>
       </div>
+    </div>
+  </div>
+
+  <div *ngIf="showEnterStoreAnimation" class="enter-store-overlay">
+    <div class="enter-store-animation">
+      <div class="door-animation">
+        <svg width="60vw" height="80vh" viewBox="0 0 1200 1600" style="display:block;">
+          <!-- Left door group -->
+          <g class="door-left-group">
+            <rect class="door-left" x="0" y="0" width="600" height="1600" rx="40" fill="#fff" stroke="#4a90e2" stroke-width="16"/>
+            <circle class="door-knob" cx="520" cy="800" r="32" fill="#4a90e2"/>
+          </g>
+          <!-- Right door group -->
+          <g class="door-right-group">
+            <rect class="door-right" x="600" y="0" width="600" height="1600" rx="40" fill="#fff" stroke="#4a90e2" stroke-width="16"/>
+            <circle class="door-knob" cx="680" cy="800" r="32" fill="#4a90e2"/>
+          </g>
+          <!-- Door frame -->
+          <rect x="0" y="0" width="1200" height="1600" rx="60" fill="none" stroke="#222" stroke-width="32"/>
+        </svg>
+      </div>
+      <div class="enter-text">Entering Store...</div>
     </div>
   </div>
 </div> 

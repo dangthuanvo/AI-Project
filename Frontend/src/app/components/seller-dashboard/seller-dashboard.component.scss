@@ -122,18 +122,28 @@
     }
     
     .no-store {
-      text-align: center;
-      padding: 40px;
       background: white;
-      border: 2px dashed #dee2e6;
+      border: 2px solid #e9ecef;
       border-radius: 12px;
-      
+      padding: 25px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px; // Match .store-item height or grid cell
+      width: 100%; // Fill grid column like .store-item
+      min-width: 0; // Prevent overflow in grid
+      text-align: center;
+    
       p {
         color: #6c757d;
         margin-bottom: 20px;
         font-size: 16px;
       }
-      
+    
       button {
         background: #28a745;
         color: white;
@@ -142,12 +152,12 @@
         border-radius: 8px;
         font-weight: 500;
         transition: all 0.3s ease;
-        
+    
         &:hover {
           background: #218838;
           transform: translateY(-1px);
         }
-        
+    
         mat-icon {
           margin-right: 8px;
         }

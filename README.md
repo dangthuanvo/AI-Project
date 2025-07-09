@@ -140,6 +140,7 @@ The application includes 3 sample stores with products:
 - Each store has a `PositionX` property that determines its exact position on the virtual street
 - Stores are displayed in order from left to right based on their position
 - Sellers can customize their store's position through the seller dashboard
+- **Real-Time Avatars**: All online users are visible as avatars on the street, moving in real time. You can see who is online and interact with them.
 
 ### Store Customization
 - **Logo & Banner**: Custom images for store branding
@@ -224,6 +225,13 @@ The application includes 3 sample stores with products:
 - `GET /api/order` - Get user orders
 - `GET /api/order/{id}` - Get order details
 
+### Chat
+- `GET /api/chat/conversations` - Get user's conversations
+- `GET /api/chat/messages/{otherUserId}` - Get messages with specific user
+- `POST /api/chat/mark-read` - Mark messages as read
+- `GET /api/chat/unread-count` - Get unread message count
+- `GET /api/chat/store-customers/{storeId}` - Get customers for a store (sellers only)
+
 ## 🚀 Deployment
 
 ### Backend Deployment
@@ -297,3 +305,19 @@ For support and questions:
 ---
 
 For any issues, please contact your instructor or project maintainer. 
+
+## 🗨️ Real-Time Chat & Multiplayer Presence
+
+- **Real-Time Chat**: Customers and sellers can communicate instantly with typing indicators, read receipts, unread message counts, and store-specific conversations. Admins can monitor all conversations.
+- **SignalR-Powered Multiplayer**: The virtual street is a real-time multiplayer environment. Users appear as avatars, can move around, and see other online users live. You can initiate chats with nearby users directly from the street.
+- **Modern Chat UI**: Access chat via the floating button or the chat page. Features include conversation lists, message history, and responsive design.
+- **See [CHAT_FEATURE_README.md](./CHAT_FEATURE_README.md) for technical and developer details.**
+
+## 💬 How to Use Chat
+
+- **Customers**: Click the floating chat button (bottom-right) on any page or open the chat page from the menu. Start a conversation with a seller or respond to messages.
+- **Sellers**: Access the chat page to view and respond to customer inquiries. Manage store-specific conversations.
+- **Admins**: Monitor all conversations via the chat interface.
+- **On the Virtual Street**: See other online users as avatars. Click on nearby users to initiate a chat directly from the street.
+
+For advanced chat features, troubleshooting, and developer details, see [CHAT_FEATURE_README.md](./CHAT_FEATURE_README.md). 

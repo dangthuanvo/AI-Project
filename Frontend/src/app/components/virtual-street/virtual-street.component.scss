@@ -2198,3 +2198,138 @@
   flex-direction: column;
   align-items: center;
 } 
+
+.enter-store-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 34, 90, 0.95);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s;
+}
+
+.enter-store-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.door-animation {
+  width: 60vw;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.door-left-group {
+  transform-origin: left center;
+  animation: doorLeftOpenFull 1.5s forwards;
+}
+.door-right-group {
+  transform-origin: right center;
+  animation: doorRightOpenFull 1.5s forwards;
+}
+
+@keyframes doorLeftOpenFull {
+  to { transform: perspective(1200px) rotateY(-100deg); }
+}
+@keyframes doorRightOpenFull {
+  to { transform: perspective(1200px) rotateY(100deg); }
+} 
+
+.music-player-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 15px;
+  transform: translateX(-50%);
+  z-index: 3000;
+  background: rgba(20, 20, 30, 0.92);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  padding: 10px 22px 12px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 320px;
+  max-width: 90vw;
+  width: 450px;
+  pointer-events: auto;
+}
+.music-player-bar.with-chat-button {
+  bottom: 90px; // Move up if chat button is present
+}
+.music-progress-container {
+  width: 100%;
+  margin-bottom: 4px;
+}
+.music-progress {
+  width: 100%;
+  accent-color: #4caf50;
+  height: 3px;
+  background: transparent;
+  margin: 0;
+}
+.music-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 4px;
+  button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    &:hover, &.active {
+      background: #222;
+      color: #4caf50;
+    }
+    mat-icon {
+      font-size: 22px;
+    }
+  }
+}
+.music-waveform {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 18px;
+  gap: 2px;
+  margin-bottom: 2px;
+  width: 100%;
+}
+.wave-bar {
+  width: 3px;
+  background: #4caf50;
+  border-radius: 2px;
+  transition: height 0.2s;
+  display: inline-block;
+}
+.music-current-track-bar {
+  font-size: 12px;
+  color: #90caf9;
+  text-align: center;
+  margin-top: 2px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+} 
