@@ -15,7 +15,7 @@ export class ImageService {
    */
   getImageUrl(imageUrl: string | null | undefined): string {
     if (!imageUrl) {
-      return 'assets/placeholder-product.jpg';
+      return `${this.staticUrl}/uploads/images/product-default.png`;
     }
 
     // If it's already a full URL, return as is

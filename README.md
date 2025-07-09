@@ -123,6 +123,9 @@ The application comes with pre-seeded users:
 - Email: `customer@silkyroad.com`
 - Password: `Customer123!`
 
+### Paypal account
+- Account: 'sb-najdz28837071@personal.example.com'
+- Password: 'U<.4teA8'
 ## 🏪 Sample Stores
 
 The application includes 3 sample stores with products:

@@ -42,7 +42,7 @@ namespace SilkyRoad.API.Data
         private static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager)
         {
             // Admin user
-            var adminEmail = "admin@silkyroad.com";
+            var adminEmail = "admin@gmail.com";
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
                 var admin = new ApplicationUser
@@ -65,9 +65,9 @@ namespace SilkyRoad.API.Data
             // Seller users
             var sellers = new[]
             {
-                new { Email = "seller1@silkyroad.com", FirstName = "Fashion", LastName = "Boutique", Password = "Seller123!" },
-                new { Email = "seller2@silkyroad.com", FirstName = "Urban", LastName = "Style", Password = "Seller123!" },
-                new { Email = "seller3@silkyroad.com", FirstName = "Elegant", LastName = "Wear", Password = "Seller123!" }
+                new { Email = "seller1@gmail.com", FirstName = "Fashion", LastName = "Boutique", Password = "Seller123!" },
+                new { Email = "seller2@gmail.com", FirstName = "Phone", LastName = "Lover", Password = "Seller123!" },
+                new { Email = "seller3@gmail.com", FirstName = "TCG", LastName = "Collector", Password = "Seller123!" }
             };
 
             foreach (var seller in sellers)
@@ -93,7 +93,7 @@ namespace SilkyRoad.API.Data
             }
 
             // Customer user
-            var customerEmail = "customer@silkyroad.com";
+            var customerEmail = "customer@gmail.com";
             if (await userManager.FindByEmailAsync(customerEmail) == null)
             {
                 var customer = new ApplicationUser
@@ -131,10 +131,10 @@ namespace SilkyRoad.API.Data
                 // Store 1: Fashion Boutique
                 var store1 = new Store
                 {
-                    Name = "Fashion Boutique",
+                    Name = "New Fashion",
                     Description = "Trendy and modern fashion for the contemporary woman",
-                    LogoUrl = "https://via.placeholder.com/150x150/FF6B6B/FFFFFF?text=FB",
-                    BannerUrl = "https://via.placeholder.com/400x200/FF6B6B/FFFFFF?text=Fashion+Boutique",
+                    LogoUrl = "/uploads/images/store1logo.gif",
+                    BannerUrl = "/uploads/images/store1banner.jpg",
                     PrimaryColor = "#FF6B6B",
                     SecondaryColor = "#4ECDC4",
                     PositionX = 0,
@@ -150,20 +150,20 @@ namespace SilkyRoad.API.Data
                 var products1 = new[]
                 {
                     new Product {
-                        Name = "Summer Dress", Description = "Light and breezy summer dress", Price = 89.99m, StockQuantity = 15, Category = "Dresses", Brand = "Fashion Boutique", Size = "M", Color = "Blue", StoreId = store1.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/FF6B6B/FFFFFF?text=Summer+Dress" } },
+                        Name = "Summer Dress", Description = "Light and breezy summer dress", Price = 89.99m, StockQuantity = 15, StoreId = store1.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store1product1.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Denim Jacket", Description = "Classic denim jacket with modern fit", Price = 129.99m, StockQuantity = 8, Category = "Jackets", Brand = "Fashion Boutique", Size = "L", Color = "Blue", StoreId = store1.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/FF6B6B/FFFFFF?text=Denim+Jacket" } },
+                        Name = "Denim Jacket", Description = "Classic denim jacket with modern fit", Price = 129.99m, StockQuantity = 8, StoreId = store1.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store1product2.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Silk Blouse", Description = "Elegant silk blouse for professional wear", Price = 149.99m, StockQuantity = 12, Category = "Tops", Brand = "Fashion Boutique", Size = "S", Color = "White", StoreId = store1.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/FF6B6B/FFFFFF?text=Silk+Blouse" } },
+                        Name = "Silk Blouse", Description = "Elegant silk blouse for professional wear", Price = 149.99m, StockQuantity = 12, StoreId = store1.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store1product3.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     }
@@ -174,10 +174,10 @@ namespace SilkyRoad.API.Data
                 // Store 2: Urban Style
                 var store2 = new Store
                 {
-                    Name = "Urban Style",
-                    Description = "Streetwear and casual fashion for the modern urbanite",
-                    LogoUrl = "https://via.placeholder.com/150x150/4ECDC4/FFFFFF?text=US",
-                    BannerUrl = "https://via.placeholder.com/400x200/4ECDC4/FFFFFF?text=Urban+Style",
+                    Name = "Mobile Store",
+                    Description = "High class phone",
+                    LogoUrl = "/uploads/images/store2logo.gif",
+                    BannerUrl = "/uploads/images/store2banner.jpg",
                     PrimaryColor = "#4ECDC4",
                     SecondaryColor = "#45B7AA",
                     PositionX = 400,
@@ -193,20 +193,20 @@ namespace SilkyRoad.API.Data
                 var products2 = new[]
                 {
                     new Product {
-                        Name = "Hoodie", Description = "Comfortable cotton hoodie", Price = 59.99m, StockQuantity = 20, Category = "Hoodies", Brand = "Urban Style", Size = "M", Color = "Gray", StoreId = store2.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/4ECDC4/FFFFFF?text=Hoodie" } },
+                        Name = "Xiaomi 13 Pro", Description = "High class phone", Price = 59.99m, StockQuantity = 20, StoreId = store2.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store2product1.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Sneakers", Description = "Stylish sneakers for everyday wear", Price = 89.99m, StockQuantity = 10, Category = "Shoes", Brand = "Urban Style", Size = "42", Color = "White", StoreId = store2.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/4ECDC4/FFFFFF?text=Sneakers" } },
+                        Name = "Iphone 15 Pro Max", Description = "High class phone", Price = 89.99m,StockQuantity = 20, StoreId = store2.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store2product2.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Cargo Pants", Description = "Functional cargo pants with multiple pockets", Price = 79.99m, StockQuantity = 14, Category = "Pants", Brand = "Urban Style", Size = "32", Color = "Khaki", StoreId = store2.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/4ECDC4/FFFFFF?text=Cargo+Pants" } },
+                        Name = "Samsung S24 Ultra", Description = "High class phone", Price = 79.99m, StockQuantity = 14, StoreId = store2.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store2product3.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     }
@@ -217,10 +217,10 @@ namespace SilkyRoad.API.Data
                 // Store 3: Elegant Wear
                 var store3 = new Store
                 {
-                    Name = "Elegant Wear",
-                    Description = "Sophisticated and elegant clothing for special occasions",
-                    LogoUrl = "https://via.placeholder.com/150x150/45B7AA/FFFFFF?text=EW",
-                    BannerUrl = "https://via.placeholder.com/400x200/45B7AA/FFFFFF?text=Elegant+Wear",
+                    Name = "TCG Store",
+                    Description = "Pokemon card",
+                    LogoUrl = "/uploads/images/store3logo.gif",
+                    BannerUrl = "/uploads/images/store3banner.jpg",
                     PrimaryColor = "#45B7AA",
                     SecondaryColor = "#96CEB4",
                     PositionX = 800,
@@ -236,26 +236,26 @@ namespace SilkyRoad.API.Data
                 var products3 = new[]
                 {
                     new Product {
-                        Name = "Evening Gown", Description = "Stunning evening gown for formal events", Price = 299.99m, StockQuantity = 5, Category = "Dresses", Brand = "Elegant Wear", Size = "M", Color = "Black", StoreId = store3.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/45B7AA/FFFFFF?text=Evening+Gown" } },
+                        Name = "Bulbasaur card", Description = "Pokemon card", Price = 299.99m, StockQuantity = 5, StoreId = store3.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store3product1.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Business Suit", Description = "Professional business suit", Price = 199.99m, StockQuantity = 8, Category = "Suits", Brand = "Elegant Wear", Size = "L", Color = "Navy", StoreId = store3.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/45B7AA/FFFFFF?text=Business+Suit" } },
+                        Name = "Charmander card", Description = "Pokemon card", Price = 199.99m, StockQuantity = 8, StoreId = store3.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store3product2.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Pearl Necklace", Description = "Elegant pearl necklace", Price = 159.99m, StockQuantity = 12, Category = "Accessories", Brand = "Elegant Wear", Size = "One Size", Color = "White", StoreId = store3.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/45B7AA/FFFFFF?text=Pearl+Necklace" } },
+                        Name = "Squirtle card", Description = "Pokemon card", Price = 159.99m, StockQuantity = 12, StoreId = store3.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store3product3.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     },
                     new Product {
-                        Name = "Cocktail Dress", Description = "Perfect cocktail dress for parties", Price = 179.99m, StockQuantity = 7, Category = "Dresses", Brand = "Elegant Wear", Size = "S", Color = "Red", StoreId = store3.Id,
-                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "https://via.placeholder.com/300x400/45B7AA/FFFFFF?text=Cocktail+Dress" } },
+                        Name = "Pikachu card", Description = "Pokemon card", Price = 179.99m, StockQuantity = 7, StoreId = store3.Id,
+                        ProductImages = new List<ProductImage> { new ProductImage { ImageUrl = "/uploads/images/store3product4.jpg" } },
                         CreatedAt = DateTime.UtcNow.AddHours(7),
                         UpdatedAt = DateTime.UtcNow.AddHours(7)
                     }
