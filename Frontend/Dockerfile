@@ -1,14 +1,13 @@
 # Build stage
-FROM node:20 AS build
+FROM node:18 AS build
 WORKDIR /app
 COPY . .
-ENV NODE_TLS_REJECT_UNAUTHORIZED=0
-RUN npm install
-RUN npm run build -- --output-path=dist
+RUN npm install && npm run build --prod
 
-# Production stage
-FROM nginx:alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+# Runtime stage
+FROM nginx:alpine AS runtime
+WORKDIR /usr/share/nginx/html
+COPY --from=build /app/dist/silky-road .
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

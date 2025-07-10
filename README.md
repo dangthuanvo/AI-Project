@@ -321,3 +321,19 @@ For any issues, please contact your instructor or project maintainer.
 - **On the Virtual Street**: See other online users as avatars. Click on nearby users to initiate a chat directly from the street.
 
 For advanced chat features, troubleshooting, and developer details, see [CHAT_FEATURE_README.md](./CHAT_FEATURE_README.md). 
+
+# SilkyRoad Project
+
+## Local Development
+
+If you want to build and run the frontend locally using the local API URL (from `environment.ts`), make sure to remove `--prod` from the build command in the Dockerfile:
+
+```
+RUN npm install && npm run build
+```
+
+This will ensure the build uses `environment.ts` and points to your local backend (e.g., `http://localhost:5000/api`).
+
+For production builds (deployment), keep `--prod` to use `environment.prod.ts`.
+
+--- 

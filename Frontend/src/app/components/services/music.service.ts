@@ -15,8 +15,8 @@ export class MusicService {
   }
 
   getMusicFileUrl(filename: string): string {
-    // Remove '/api' from apiUrl if present, then append /music/filename
+    // Remove '/api' from apiUrl if present, then append /uploads/images/filename
     let base = environment.apiUrl.replace(/\/api$/, '');
-    return `${base}/music/${filename}`;
+    return `${base}/uploads/musics/${filename}`;
   }
 } 
