@@ -224,7 +224,10 @@
           <ng-container matColumnDef="avatar">
             <mat-header-cell *matHeaderCellDef>Avatar</mat-header-cell>
             <mat-cell *matCellDef="let user">
-              <img [src]="getImageUrl(user.avatar)" [alt]="user.firstName" class="user-avatar">
+              <img [src]="getImageUrl(user.avatar || '/uploads/images/user-avatar.png')" 
+                   [alt]="user.firstName" 
+                   class="user-avatar"
+                   (error)="onImageError($event)">
             </mat-cell>
           </ng-container>
 
@@ -361,7 +364,10 @@
           <mat-card *ngFor="let store of filteredStores" class="store-card">
             <mat-card-header>
               <div class="store-info-row">
-                <img *ngIf="store.logoUrl" [src]="getImageUrl(store.logoUrl)" [alt]="store.name" class="store-logo">
+                <img [src]="getImageUrl(store.logoUrl || '/uploads/images/user-avatar.png')" 
+                     [alt]="store.name" 
+                     class="store-logo"
+                     (error)="onImageError($event)">
                 <div class="store-info-text">
                   <mat-card-title>{{ store.name }}</mat-card-title>
                   <mat-card-subtitle>Owner: {{ store.ownerName }}</mat-card-subtitle>
@@ -419,10 +425,10 @@
           <ng-container matColumnDef="image">
             <mat-header-cell *matHeaderCellDef>Image</mat-header-cell>
             <mat-cell *matCellDef="let product">
-              <img *ngIf="product.imageUrls && product.imageUrls.length > 0" 
-                   [src]="getImageUrl(product.imageUrls[0])" 
-                   [alt]="product.name" class="product-image">
-              <mat-icon *ngIf="!product.imageUrls || product.imageUrls.length === 0">image_not_supported</mat-icon>
+              <img [src]="getImageUrl(product.imageUrls && product.imageUrls.length > 0 ? product.imageUrls[0] : '/uploads/images/product-default.png')" 
+                   [alt]="product.name" 
+                   class="product-image"
+                   (error)="onProductImageError($event)">
             </mat-cell>
           </ng-container>
 

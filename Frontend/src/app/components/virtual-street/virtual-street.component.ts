@@ -844,7 +844,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     this.enterStoreTimeout = setTimeout(() => {
       this.showEnterStoreAnimation = false;
       this.router.navigate(['/store', store.id]);
-    }, 1000); // 1 second animation
+    }, 1500); // 1.5 seconds to match CSS animation duration
   }
 
   get nearbyStoreName(): string {
