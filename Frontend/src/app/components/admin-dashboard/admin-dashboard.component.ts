@@ -548,6 +548,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     return this.imageService.getImageUrl(imageUrl);
   }
 
+  onImageError(event: any): void {
+    // Fallback to user-avatar when image fails to load
+    event.target.src = this.imageService.getImageUrl('/uploads/images/user-avatar.png');
+  }
+
+  onProductImageError(event: any): void {
+    // Fallback to product-default when product image fails to load
+    event.target.src = this.imageService.getImageUrl('/uploads/images/product-default.png');
+  }
+
   private handleError(message: string, error: any): void {
     console.error(message, error);
     this.snackBar.open(message, 'Close', { duration: 3000 });
