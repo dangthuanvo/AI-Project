@@ -267,4 +267,22 @@ export class ChatService {
   isConnected(): boolean {
     return this.hubConnection != null && this.hubConnection.state === HubConnectionState.Connected;
   }
+
+  /**
+   * Selects the conversation with the given user (and store if provided), loads its messages, and sets it as current.
+   */
+  selectConversationWithUser(otherUserId: string, storeId?: number): void {
+    const currentUserId = this.getCurrentUserId();
+    const conversations = this.conversationsSubject.value;
+    // Find the conversation with the other user (and store if provided)
+    const conversation = conversations.find(c => {
+      const isUser = (c.user1Id === currentUserId && c.user2Id === otherUserId) ||
+                     (c.user2Id === currentUserId && c.user1Id === otherUserId);
+      const isStore = storeId ? c.storeId === storeId : true;
+      return isUser && isStore;
+    });
+    if (conversation) {
+      this.loadMessages(otherUserId, conversation.storeId);
+    }
+  }
 } 

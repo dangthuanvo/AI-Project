@@ -33,7 +33,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private destroy$ = new Subject<void>();
   private typingTimeout: any;
   private shouldScrollToBottom = true;
-  private hasAutoSelected = false;
 
   constructor(
     private chatService: ChatService,
@@ -70,17 +69,33 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.chatService.initiateConversation(this.currentUser.id, this.data.sellerId, this.data.storeId)
         .subscribe(conversation => {
           // Auto-select the newly created conversation on first time
-          if (!this.hasAutoSelected) {
           this.selectConversation(conversation);
-            this.hasAutoSelected = true;
-          }
-          this.chatService.loadConversations();
         });
     }
 
     // Subscribe to chat data
     this.chatService.conversations$.pipe(takeUntil(this.destroy$)).subscribe(conversations => {
       this.conversations = conversations;
+      // Always try to auto-select if dialog data is present and no conversation is selected
+      if (this.data && (this.data.sellerId || this.data.userId) && !this.selectedConversation) {
+        const targetUserId = this.data.sellerId || this.data.userId;
+        let found;
+        if (this.data.storeId) {
+          found = conversations.find(c =>
+            ((c.user1Id === this.currentUser?.id && c.user2Id === targetUserId) ||
+             (c.user2Id === this.currentUser?.id && c.user1Id === targetUserId)) &&
+            c.storeId === this.data.storeId
+          );
+        } else {
+          found = conversations.find(c =>
+            (c.user1Id === this.currentUser?.id && c.user2Id === targetUserId) ||
+            (c.user2Id === this.currentUser?.id && c.user1Id === targetUserId)
+          );
+        }
+        if (found) {
+          this.selectConversation(found);
+        }
+      }
       // Fetch the latest message for each conversation
       conversations.forEach(conversation => {
         const otherUserId = conversation.user1Id === this.currentUser?.id ? conversation.user2Id : conversation.user1Id;
@@ -90,8 +105,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         });
       });
-      // Auto-select conversation only on first time if dialog data is present and no conversation is selected yet
-      if (this.data && this.data.sellerId && this.data.storeId && !this.hasAutoSelected && !this.selectedConversation) {
+      // Existing auto-select logic (leave as fallback)
+      if (this.data && this.data.sellerId && this.data.storeId && !this.selectedConversation) {
         const existing = conversations.find(c =>
           ((c.user1Id === this.currentUser?.id && c.user2Id === this.data.sellerId) ||
            (c.user2Id === this.currentUser?.id && c.user1Id === this.data.sellerId)) &&
@@ -99,7 +114,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         );
         if (existing) {
           this.selectConversation(existing);
-          this.hasAutoSelected = true; // Mark as auto-selected so it won't happen again
         }
       }
     });

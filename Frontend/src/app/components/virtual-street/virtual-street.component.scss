@@ -2333,3 +2333,109 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 } 
+
+// Style the online users dropdown to match the online-users-counter
+.online-users-counter + .cdk-overlay-container .mat-menu-panel {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  padding: 8px 0 !important;
+  min-width: 220px;
+}
+
+.mat-menu-item {
+  color: #fff !important;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 12px;
+  margin: 2px 8px;
+  transition: background 0.2s;
+}
+
+.mat-menu-item:hover:not([disabled]) {
+  background: rgba(102, 126, 234, 0.15) !important;
+}
+
+.mat-menu-item[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+// Ensure dropdown menu content and text are consistent
+.online-users-counter + .cdk-overlay-container .mat-mdc-menu-panel,
+.online-users-counter + .cdk-overlay-container .mat-mdc-menu-content {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+}
+
+.online-users-counter + .cdk-overlay-container .mat-mdc-menu-item-text,
+.online-users-counter + .cdk-overlay-container .ng-star-inserted {
+  color: #fff !important;
+}
+
+// Ensure dropdown menu content and text are consistent, including dynamic Angular classes
+.online-users-counter + .cdk-overlay-container .mat-mdc-menu-panel,
+.online-users-counter + .cdk-overlay-container .mat-mdc-menu-panel * {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+}
+
+// GLOBAL: Style all Angular Material menus to match online-users-counter
+.cdk-overlay-container .mat-mdc-menu-panel,
+.cdk-overlay-container .mat-mdc-menu-panel * {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: #fff !important;
+}
+
+.wind-effect {
+  position: absolute;
+  top: 16px;
+  width: 32px;
+  height: 32px;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(180,220,255,0.25) 0%, rgba(180,220,255,0.12) 60%, transparent 100%);
+  border-radius: 50% 0 0 50%;
+  filter: blur(2px);
+  animation: wind-move 0.4s linear infinite;
+  /* Remove left: -32px from here! */
+}
+.wind-effect.wind-left {
+  transform: scaleX(-1);
+  /* No left/right here, handled by ngStyle */
+}
+
+@keyframes wind-move {
+  0% { opacity: 0.7; left: -32px; }
+  50% { opacity: 0.4; left: -36px; }
+  100% { opacity: 0.7; left: -32px; }
+}
+
+.wind-effect.wind-left {
+  transform: scaleX(-1);
+  /* Removed left: auto; and right: -32px; to let ngStyle handle positioning */
+}
+
+.wind-effect-svg {
+  position: absolute;
+  top: 18px;
+  width: 40px;
+  height: 32px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.85;
+  filter: blur(0.5px) drop-shadow(0 0 4px #b3e5fc);
+  transition: opacity 0.2s;
+}
+.wind-effect-svg.wind-left {
+  right: -38px;
+  left: auto;
+  transform: scaleX(-1);
+}
+.wind-effect-svg.wind-right {
+  left: -38px;
+  right: auto;
+  transform: none;
+}

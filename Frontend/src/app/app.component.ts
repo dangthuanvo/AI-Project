@@ -104,13 +104,20 @@ export class AppComponent implements OnInit {
   handleGlobalKeydown(event: KeyboardEvent) {
     if (event.ctrlKey && (event.key === 'm' || event.key === 'M')) {
       if (this.isAuthenticated && !this.hasRole('Admin')) {
-        this.dialog.open(ChatComponent, {
-          width: '90vw',
-          height: '100vh',
-          maxWidth: '1200px',
-          maxHeight: '100vh',
-          disableClose: false
+        // Prevent opening multiple chat dialogs
+        const isChatDialogOpen = this.dialog.openDialogs.some(dialogRef => {
+          // Check if the componentInstance is a ChatComponent
+          return dialogRef.componentInstance instanceof ChatComponent;
         });
+        if (!isChatDialogOpen) {
+          this.dialog.open(ChatComponent, {
+            width: '90vw',
+            height: '100vh',
+            maxWidth: '1200px',
+            maxHeight: '100vh',
+            disableClose: false
+          });
+        }
         event.preventDefault();
       }
     }

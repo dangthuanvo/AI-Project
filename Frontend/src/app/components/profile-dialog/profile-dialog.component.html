@@ -39,21 +39,21 @@
       <mat-form-field appearance="outline">
         <mat-label>New Password</mat-label>
         <input matInput type="password" formControlName="newPassword" required minlength="6">
-        <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('required') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty); else minlengthErr">
+        <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('required') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
           Password is required
         </mat-error>
         <ng-template #minlengthErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('minlength') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty); else upperErr">
+          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('minlength') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must be at least 6 characters
           </mat-error>
         </ng-template>
         <ng-template #upperErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresUpper') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty); else lowerErr">
+          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresUpper') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must contain at least one uppercase letter
           </mat-error>
         </ng-template>
         <ng-template #lowerErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresLower') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty); else nonAlphaErr">
+          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresLower') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must contain at least one lowercase letter
           </mat-error>
         </ng-template>
@@ -74,7 +74,7 @@
         </mat-error>
       </mat-form-field>
       <div class="change-password-actions">
-        <button mat-raised-button color="accent" type="submit" [disabled]="isChangingPassword">Change Password</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isChangingPassword">Change Password</button>
       </div>
       <div *ngIf="passwordChangeSuccess" class="success-message">{{ passwordChangeSuccess }}</div>
       <div *ngIf="passwordChangeError" class="error-message">{{ passwordChangeError }}</div>
