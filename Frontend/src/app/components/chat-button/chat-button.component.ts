@@ -18,7 +18,7 @@ export class ChatButtonComponent {
 
   openChat(): void {
     this.chatInitiated.emit();
-    
+    const savedScrollY = window.scrollY;
     // Open chat in a dialog
     const dialogRef = this.dialog.open(ChatComponent, {
       width: '90vw',
@@ -35,6 +35,7 @@ export class ChatButtonComponent {
     });
 
     dialogRef.afterClosed().subscribe(() => {
+      window.scrollTo(0, savedScrollY);
       // Handle dialog close if needed
     });
   }

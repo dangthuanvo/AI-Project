@@ -1,0 +1,213 @@
+.minigame-dialog {
+  min-width: 600px;
+  max-width: 800px;
+  overflow: hidden;
+  max-height: 95vh;
+  
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    margin: 0;
+    border-radius: 8px 8px 0 0;
+    
+    h2 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    
+    .close-button {
+      color: #fff;
+    }
+  }
+  
+  mat-dialog-content {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  .minigames-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  
+  .game-card {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      border-color: #667eea;
+      
+      &::before {
+        left: 100%;
+      }
+      
+      .game-action mat-icon {
+        transform: scale(1.2);
+        color: #667eea;
+      }
+    }
+    
+    &.disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      
+      &:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: #e0e0e0;
+      }
+    }
+  }
+  
+  .game-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    flex-shrink: 0;
+    
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      color: white;
+    }
+  }
+  
+  .game-info {
+    flex: 1;
+    min-width: 0;
+    
+    .game-name {
+      margin: 0 0 8px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .game-description {
+      margin: 0 0 12px 0;
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.4;
+    }
+    
+    .game-meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      
+      .difficulty {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .time {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.8rem;
+        color: #666;
+        
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+  }
+  
+  .game-action {
+    margin-left: 12px;
+    
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      color: #667eea;
+      transition: all 0.3s ease;
+    }
+  }
+  
+  mat-dialog-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    margin: 0 -24px -24px -24px;
+    
+    button {
+      min-width: 100px;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .minigame-dialog {
+    min-width: 90vw;
+    max-width: 90vw;
+    
+    .minigames-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .game-card {
+      flex-direction: column;
+      text-align: center;
+      
+      .game-icon {
+        margin-right: 0;
+        margin-bottom: 12px;
+      }
+      
+      .game-action {
+        margin-left: 0;
+        margin-top: 12px;
+      }
+    }
+  }
+} 

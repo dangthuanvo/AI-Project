@@ -11,6 +11,11 @@ import { ChatService } from '../../services/chat.service';
 import { ChatRequestDialogComponent } from '../chat-request-dialog/chat-request-dialog.component';
 import { ChatComponent } from '../chat/chat.component';
 import { MusicService } from '../services/music.service';
+import { MinigameDialogComponent, Minigame } from '../minigame-dialog/minigame-dialog.component';
+import { MemoryMatchComponent } from '../memory-match/memory-match.component';
+import { ColorRushComponent } from '../color-rush/color-rush.component';
+import { NumberPuzzleComponent } from '../number-puzzle/number-puzzle.component';
+import { WordScrambleComponent } from '../word-scramble/word-scramble.component';
 
 interface Player {
   name: string;
@@ -106,9 +111,14 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   // Global search properties
   showSearchModal = false;
   searchQuery = '';
-  searchResults: Array<{store: GameStore, productName: string, productId: number, productDescription: string}> = [];
+  searchStoreMode = false; // false = products, true = stores
+  productSearchResults: Array<{store: GameStore, productName: string, productId: number, productDescription: string}> = [];
+  storeSearchResults: GameStore[] = [];
   currentSearchIndex = 0;
   isSearching = false;
+
+  // Minigame properties
+  showMinigameDialog = false;
   private birdInterval: any = null;
   userIdsInChatRange: string[] = [];
   usersCloseToMe: string[] = [];
@@ -134,6 +144,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     if (!this.myUserId) return this.onlineUsers;
     const others = this.onlineUsers.filter(id => id !== this.myUserId);
     return [this.myUserId, ...others];
+  }
+
+  // Getter for search results based on current mode
+  get searchResults(): Array<{store: GameStore, productName: string, productId: number, productDescription: string} | GameStore> {
+    return this.searchStoreMode ? this.storeSearchResults : this.productSearchResults;
   }
 
   isRunning: boolean = false;
@@ -534,6 +549,13 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     if (event.ctrlKey && key === 'f') {
       event.preventDefault();
       this.openSearchModal();
+      return;
+    }
+
+    // Handle minigame shortcut (Ctrl+G)
+    if (event.ctrlKey && key === 'g') {
+      event.preventDefault();
+      this.openMinigameDialog();
       return;
     }
     
@@ -1110,22 +1132,27 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   private isComposing = false;
 
   openSearchModal(): void {
+    const savedScrollY = window.scrollY;
     this.showSearchModal = true;
-    this.isSearching = false;
-    this.isComposing = false;
-    
-    // Auto-focus the search input after modal opens
     setTimeout(() => {
-      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+      const searchInput = document.querySelector('.search-modal input');
       if (searchInput) {
-        searchInput.focus();
+        (searchInput as HTMLInputElement).focus();
       }
-    }, 100); // Small delay to ensure modal is rendered
+    }, 100);
+
+    const closeHandler = () => {
+      this.showSearchModal = false;
+      window.scrollTo(0, savedScrollY);
+      document.removeEventListener('closeSearchModal', closeHandler);
+    };
+    document.addEventListener('closeSearchModal', closeHandler);
   }
 
   clearSearch(): void {
     this.searchQuery = '';
-    this.searchResults = [];
+    this.productSearchResults = [];
+    this.storeSearchResults = [];
     this.currentSearchIndex = 0;
     this.isSearching = false;
   }
@@ -1145,12 +1172,10 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     if (this.searchDebounceTimer) {
       clearTimeout(this.searchDebounceTimer);
     }
-    
     // Don't search if currently composing (for unicode/IME input)
     if (this.isComposing) {
       return;
     }
-    
     // Debounce the search to prevent rapid successive calls
     this.searchDebounceTimer = setTimeout(() => {
       this.searchProducts();
@@ -1169,7 +1194,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
 
   async searchProducts(): Promise<void> {
     if (!this.searchQuery.trim()) {
-      this.searchResults = [];
+      if (this.searchStoreMode) {
+        this.storeSearchResults = [];
+      } else {
+        this.productSearchResults = [];
+      }
       return;
     }
 
@@ -1179,10 +1208,15 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     }
 
     this.isSearching = true;
-    this.searchResults = []; // Clear results before searching
-
-    try {
-      // Search through all stores
+    this.currentSearchIndex = 0;
+    if (this.searchStoreMode) {
+      // Store name search
+      const query = this.searchQuery.trim().toLowerCase();
+      this.storeSearchResults = this.stores.filter(store =>
+        store.name.toLowerCase().includes(query)
+      );
+    } else {
+      // Product search (existing logic)
       for (const store of this.stores) {
         try {
           // Get products for this store
@@ -1207,11 +1241,8 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
           console.error(`Error searching products in store ${store.name}:`, error);
         }
       }
-    } catch (error) {
-      console.error('Error during global search:', error);
-    } finally {
-      this.isSearching = false;
     }
+    this.isSearching = false;
   }
 
   navigateToStore(store: GameStore): void {
@@ -1242,7 +1273,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     
     this.currentSearchIndex = (this.currentSearchIndex + 1) % this.searchResults.length;
     const result = this.searchResults[this.currentSearchIndex];
-    this.navigateToStore(result.store);
+    if (this.searchStoreMode) {
+      this.navigateToStore(result as GameStore);
+    } else {
+      this.navigateToStore((result as {store: GameStore, productName: string, productId: number, productDescription: string}).store);
+    }
   }
 
   handleSearchKeyPress(event: KeyboardEvent): void {
@@ -1619,6 +1654,170 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     } else {
       // Fallback: if user is the userId itself
       this.openChatWithUser(user);
+    }
+  }
+
+  openMinigameDialog(): void {
+    const savedScrollY = window.scrollY;
+    const dialogRef = this.dialog.open(MinigameDialogComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      disableClose: false,
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((selectedGame: Minigame | undefined) => {
+      window.scrollTo(0, savedScrollY);
+      if (selectedGame) {
+        this.startMinigame(selectedGame);
+      }
+    });
+  }
+
+  startMinigame(game: Minigame): void {
+    switch (game.id) {
+      case 'memory-match':
+        this.startMemoryMatch();
+        break;
+      case 'color-rush':
+        this.startColorRush();
+        break;
+      case 'number-puzzle':
+        this.startNumberPuzzle();
+        break;
+      case 'word-scramble':
+        this.startWordScramble();
+        break;
+      default:
+        console.log('Game not implemented yet:', game.name);
+        this.snackBar.open(`Coming soon: ${game.name}`, 'Close', { duration: 3000 });
+    }
+  }
+
+  startMemoryMatch(): void {
+    const dialogRef = this.dialog.open(MemoryMatchComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: false,
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const message = result.completed 
+          ? `Congratulations! You completed Memory Match with ${result.score} points in ${result.moves} moves!`
+          : `Game ended with ${result.score} points in ${result.moves} moves.`;
+        this.snackBar.open(message, 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  startColorRush(): void {
+    const dialogRef = this.dialog.open(ColorRushComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      disableClose: false,
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const accuracy = result.correctAnswers + result.wrongAnswers > 0 
+          ? ((result.correctAnswers / (result.correctAnswers + result.wrongAnswers)) * 100).toFixed(1)
+          : '0';
+        const message = `Color Rush completed! Score: ${result.score}, Accuracy: ${accuracy}%, Avg Reaction: ${result.averageReactionTime}ms`;
+        this.snackBar.open(message, 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  startNumberPuzzle(): void {
+    const dialogRef = this.dialog.open(NumberPuzzleComponent, {
+      width: '90vw',
+      maxWidth: '800px',
+      height: '90vh',
+      maxHeight: '800px',
+      disableClose: true,
+      panelClass: 'game-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const message = result.completed 
+          ? `Puzzle solved! Score: ${result.score}, Moves: ${result.moves}, Time: ${result.time}s`
+          : `Game ended with ${result.score} points in ${result.moves} moves.`;
+        this.snackBar.open(message, 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  startWordScramble(): void {
+    const dialogRef = this.dialog.open(WordScrambleComponent, {
+      width: '90vw',
+      maxWidth: '800px',
+      height: '90vh',
+      maxHeight: '800px',
+      disableClose: true,
+      panelClass: 'game-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        const accuracy = result.correctAnswers + result.wrongAnswers > 0 
+          ? ((result.correctAnswers / (result.correctAnswers + result.wrongAnswers)) * 100).toFixed(1)
+          : '0';
+        const message = `Word Scramble completed! Score: ${result.score}, Accuracy: ${accuracy}%, Hints used: ${result.hintsUsed}`;
+        this.snackBar.open(message, 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+
+
+  showGameResult(result: any): void {
+    let message = '';
+    
+    if (result.completed) {
+      switch (result.gameType) {
+        case 'memory-match':
+          message = `Memory Match completed! Score: ${result.score}, Moves: ${result.moves}`;
+          break;
+        case 'color-rush':
+          const accuracy = result.correctAnswers + result.wrongAnswers > 0 
+            ? ((result.correctAnswers / (result.correctAnswers + result.wrongAnswers)) * 100).toFixed(1)
+            : '0';
+          message = `Color Rush completed! Score: ${result.score}, Accuracy: ${accuracy}%`;
+          break;
+        case 'number-puzzle':
+          message = `Puzzle solved! Score: ${result.score}, Moves: ${result.moves}, Time: ${result.time}s`;
+          break;
+        case 'word-scramble':
+          const wordAccuracy = result.correctAnswers + result.wrongAnswers > 0 
+            ? ((result.correctAnswers / (result.correctAnswers + result.wrongAnswers)) * 100).toFixed(1)
+            : '0';
+          message = `Word Scramble completed! Score: ${result.score}, Accuracy: ${wordAccuracy}%`;
+          break;
+        default:
+          message = `Game completed! Score: ${result.score}`;
+      }
+    } else {
+      message = `Game ended with ${result.score} points.`;
+    }
+    
+    this.snackBar.open(message, 'Close', { duration: 5000 });
+  }
+
+  setSearchMode(storeMode: boolean): void {
+    this.searchStoreMode = storeMode;
+    this.searchQuery = '';
+    this.productSearchResults = [];
+    this.storeSearchResults = [];
+    this.currentSearchIndex = 0;
+    // Dynamic refresh: trigger search if there is a query
+    if (this.searchQuery) {
+      this.onSearchInput();
     }
   }
 } 

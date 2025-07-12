@@ -110,12 +110,16 @@ export class AppComponent implements OnInit {
           return dialogRef.componentInstance instanceof ChatComponent;
         });
         if (!isChatDialogOpen) {
-          this.dialog.open(ChatComponent, {
+          const savedScrollY = window.scrollY;
+          const dialogRef = this.dialog.open(ChatComponent, {
             width: '90vw',
             height: '100vh',
             maxWidth: '1200px',
             maxHeight: '100vh',
             disableClose: false
+          });
+          dialogRef.afterClosed().subscribe(() => {
+            window.scrollTo(0, savedScrollY);
           });
         }
         event.preventDefault();

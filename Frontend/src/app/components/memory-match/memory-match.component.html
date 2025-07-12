@@ -1,0 +1,82 @@
+<div class="memory-match-game">
+  <div class="game-header">
+    <h2>Memory Match</h2>
+    <div class="game-stats">
+      <div class="stat">
+        <mat-icon>timer</mat-icon>
+        <span>{{ formatTime(timeElapsed) }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>score</mat-icon>
+        <span>{{ score }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>swap_horiz</mat-icon>
+        <span>{{ moves }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-content">
+    <div class="cards-grid">
+      <div 
+        *ngFor="let card of cards; trackBy: trackByCardId"
+        class="card"
+        [class.flipped]="card.isFlipped"
+        [class.matched]="card.isMatched"
+        (click)="flipCard(card)"
+      >
+        <div class="card-inner">
+          <div class="card-front">
+            <mat-icon>help</mat-icon>
+          </div>
+          <div class="card-back">
+            <span class="card-value">{{ card.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="game-actions">
+    <button mat-raised-button color="primary" (click)="restartGame()">
+      <mat-icon>refresh</mat-icon>
+      Restart
+    </button>
+    <button mat-raised-button color="warn" (click)="closeGame()">
+      <mat-icon>close</mat-icon>
+      Exit Game
+    </button>
+  </div>
+
+  <!-- Game completion overlay -->
+  <div *ngIf="gameCompleted" class="completion-overlay">
+    <div class="completion-card">
+      <mat-icon class="completion-icon">celebration</mat-icon>
+      <h3>Congratulations!</h3>
+      <p>You completed the game!</p>
+      <div class="final-stats">
+        <div class="final-stat">
+          <span class="label">Final Score:</span>
+          <span class="value">{{ score }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Moves:</span>
+          <span class="value">{{ moves }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Time:</span>
+          <span class="value">{{ formatTime(timeElapsed) }}</span>
+        </div>
+      </div>
+      <div class="completion-actions">
+        <button mat-raised-button color="primary" (click)="restartGame()">
+          Play Again
+        </button>
+        <button mat-raised-button (click)="closeGame()">
+          Exit
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

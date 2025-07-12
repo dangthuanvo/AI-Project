@@ -1,0 +1,124 @@
+<div class="number-puzzle-game">
+  <!-- Game Header -->
+  <div class="game-header">
+    <h2>Number Puzzle</h2>
+    <div class="game-stats">
+      <div class="stat">
+        <mat-icon>timer</mat-icon>
+        <span>{{ formatTime(timeElapsed) }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>score</mat-icon>
+        <span>{{ calculateScore() }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>swap_horiz</mat-icon>
+        <span>{{ moves }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Instructions -->
+  <div *ngIf="!gameActive && !gameCompleted" class="game-instructions">
+    <div class="instruction-card">
+      <mat-icon class="instruction-icon">grid_on</mat-icon>
+      <h3>How to Play</h3>
+      <p>Arrange the numbers in the correct order!</p>
+      <ul>
+        <li>Click tiles adjacent to the empty space to move them</li>
+        <li>Arrange numbers 1-8 in order from top-left to bottom-right</li>
+        <li>Fewer moves and faster time = higher score</li>
+        <li>The empty space should be in the bottom-right corner</li>
+      </ul>
+      <div class="target-layout">
+        <h4>Target Layout:</h4>
+        <div class="target-grid">
+          <div class="target-tile">1</div>
+          <div class="target-tile">2</div>
+          <div class="target-tile">3</div>
+          <div class="target-tile">4</div>
+          <div class="target-tile">5</div>
+          <div class="target-tile">6</div>
+          <div class="target-tile">7</div>
+          <div class="target-tile">8</div>
+          <div class="target-tile empty">•</div>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" (click)="startGame()" class="start-button">
+        <mat-icon>play_arrow</mat-icon>
+        Start Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Game -->
+  <div *ngIf="gameActive && !gameCompleted" class="game-content">
+    <div class="puzzle-container">
+      <div class="puzzle-grid" [style.grid-template-columns]="'repeat(' + size + ', 1fr)'">
+        <div 
+          *ngFor="let position of [0,1,2,3,4,5,6,7,8]; trackBy: trackByPosition"
+          class="puzzle-cell"
+          [class]="getTileClass(position)"
+          (click)="moveTile(position)"
+        >
+          <div *ngIf="!isPositionEmpty(position)" class="tile-content">
+            {{ getTileAtPosition(position)?.value }}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="game-hint">
+      <p>Click tiles adjacent to the empty space to move them</p>
+    </div>
+  </div>
+
+  <!-- Game Actions -->
+  <div class="game-actions">
+    <button mat-raised-button color="primary" (click)="restartGame()" *ngIf="!gameActive">
+      <mat-icon>refresh</mat-icon>
+      Restart
+    </button>
+    <button mat-raised-button color="warn" (click)="closeGame()">
+      <mat-icon>close</mat-icon>
+      Exit Game
+    </button>
+  </div>
+
+  <!-- Game Completion Overlay -->
+  <div *ngIf="gameCompleted" class="completion-overlay">
+    <div class="completion-card">
+      <mat-icon class="completion-icon">celebration</mat-icon>
+      <h3>Puzzle Solved!</h3>
+      <p>Congratulations! You completed the puzzle!</p>
+      
+      <div class="final-stats">
+        <div class="final-stat">
+          <span class="label">Final Score:</span>
+          <span class="value">{{ calculateScore() }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Moves:</span>
+          <span class="value">{{ moves }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Time:</span>
+          <span class="value">{{ formatTime(timeElapsed) }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Efficiency:</span>
+          <span class="value">{{ moves > 0 ? (timeElapsed / moves).toFixed(1) : 0 }}s/move</span>
+        </div>
+      </div>
+      
+      <div class="completion-actions">
+        <button mat-raised-button color="primary" (click)="restartGame()">
+          Play Again
+        </button>
+        <button mat-raised-button (click)="closeGame()">
+          Exit
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

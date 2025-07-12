@@ -25,10 +25,8 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if user is already authenticated
-    if (this.authService.getCurrentUser()) {
-      this.router.navigate(['/virtual-street']);
-    }
+    this.authService.logout(); // Always log out when visiting login page
+    // No redirect here! Always show the login form.
   }
 
   onSubmit(): void {
@@ -47,7 +45,7 @@ export class LoginComponent implements OnInit {
           } else if (roles.includes('Seller')) {
             this.router.navigate(['/seller-dashboard']);
           } else {
-            this.router.navigate(['/virtual-street']);
+            this.router.navigate(['/splash']);
           }
         },
         error: (error: any) => {

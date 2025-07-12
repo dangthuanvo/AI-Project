@@ -81,7 +81,11 @@
                '--banner-color-dark': getDarkerColor(store.primaryColor || '#9aa9ff')
              }">
           <div class="roof"></div>
-          <div class="chimney"></div>
+          <div class="chimney">
+            <div class="smoke"></div>
+            <div class="smoke smoke2"></div>
+            <div class="smoke smoke3"></div>
+          </div>
           <div class="store-banner">
             {{ store.name }}
           </div>
@@ -139,7 +143,7 @@
         <div class="player-name-tag">{{ player.name }}</div>
         <svg width="48" height="64" viewBox="0 0 48 64" class="player-svg">
           <!-- Hair (larger and higher for more visibility) -->
-          <ellipse cx="24" cy="4" rx="12" ry="15" fill="#3e2723" stroke="#1b1b1b" stroke-width="2"/>
+          <ellipse cx="24" cy="4" rx="12" ry="15" [attr.fill]="player.color || '#3e2723'" stroke="#1b1b1b" stroke-width="2"/>
           <!-- Head -->
           <circle cx="24" cy="16" r="12" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
           <!-- Body -->
@@ -147,9 +151,35 @@
           <!-- Arms -->
           <rect x="2" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.arm-left]="true"/>
           <rect x="34" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.arm-right]="true"/>
-          <!-- Legs -->
-          <rect x="16" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.leg-left]="true"/>
-          <rect x="26" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" [class.leg-right]="true"/>
+          <!-- Legs with Modern Boots -->
+          <g [class.leg-left]="true">
+            <!-- Left Leg -->
+            <rect x="16" y="50" width="6" height="4" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
+            <!-- Left Boot - Modern Design (moved left) -->
+            <ellipse cx="17" cy="64" rx="6" ry="3" [attr.fill]="player.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="11" y="58" width="12" height="8" rx="2" [attr.fill]="player.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="12" y="60" width="10" height="4" rx="1" [attr.fill]="getDarkerColor(player.color || '#1976d2')"/>
+            <!-- Boot Laces -->
+            <line x1="13" y1="61" x2="21" y2="61" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="13" y1="62.5" x2="21" y2="62.5" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="13" y1="63.5" x2="21" y2="63.5" stroke="#ecf0f1" stroke-width="1"/>
+            <!-- Boot Sole -->
+            <rect x="11" y="65" width="12" height="2" rx="1" fill="#333"/>
+          </g>
+          <g [class.leg-right]="true">
+            <!-- Right Leg -->
+            <rect x="26" y="50" width="6" height="4" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
+            <!-- Right Boot - Modern Design (moved right) -->
+            <ellipse cx="31" cy="64" rx="6" ry="3" [attr.fill]="player.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="25" y="58" width="12" height="8" rx="2" [attr.fill]="player.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="26" y="60" width="10" height="4" rx="1" [attr.fill]="getDarkerColor(player.color || '#1976d2')"/>
+            <!-- Boot Laces -->
+            <line x1="27" y1="61" x2="35" y2="61" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="27" y1="62.5" x2="35" y2="62.5" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="27" y1="63.5" x2="35" y2="63.5" stroke="#ecf0f1" stroke-width="1"/>
+            <!-- Boot Sole -->
+            <rect x="25" y="65" width="12" height="2" rx="1" fill="#333"/>
+          </g>
           <!-- Face (eyes, smile) -->
           <ellipse cx="19" cy="16" rx="2" ry="3" fill="#333"/>
           <ellipse cx="29" cy="16" rx="2" ry="3" fill="#333"/>
@@ -169,7 +199,7 @@
         <div class="player-name-tag">{{ other.value.name }}</div>
         <svg width="48" height="64" viewBox="0 0 48 64" class="player-svg">
           <!-- Hair -->
-          <ellipse cx="24" cy="4" rx="12" ry="15" fill="#3e2723" stroke="#1b1b1b" stroke-width="2"/>
+          <ellipse cx="24" cy="4" rx="12" ry="15" [attr.fill]="other.value.color || '#3e2723'" stroke="#1b1b1b" stroke-width="2"/>
           <!-- Head -->
           <circle cx="24" cy="16" r="12" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
           <!-- Body -->
@@ -177,9 +207,35 @@
           <!-- Arms -->
           <rect x="2" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="arm-left"/>
           <rect x="34" y="32" width="12" height="8" rx="4" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="arm-right"/>
-          <!-- Legs -->
-          <rect x="16" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="leg-left"/>
-          <rect x="26" y="50" width="6" height="12" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2" class="leg-right"/>
+          <!-- Legs with Modern Boots -->
+          <g class="leg-left">
+            <!-- Left Leg -->
+            <rect x="16" y="50" width="6" height="4" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
+            <!-- Left Boot - Modern Design (moved left) -->
+            <ellipse cx="17" cy="64" rx="6" ry="3" [attr.fill]="other.value.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="11" y="58" width="12" height="8" rx="2" [attr.fill]="other.value.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="12" y="60" width="10" height="4" rx="1" [attr.fill]="getDarkerColor(other.value.color || '#1976d2')"/>
+            <!-- Boot Laces -->
+            <line x1="13" y1="61" x2="21" y2="61" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="13" y1="62.5" x2="21" y2="62.5" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="13" y1="63.5" x2="21" y2="63.5" stroke="#ecf0f1" stroke-width="1"/>
+            <!-- Boot Sole -->
+            <rect x="11" y="65" width="12" height="2" rx="1" fill="#333"/>
+          </g>
+          <g class="leg-right">
+            <!-- Right Leg -->
+            <rect x="26" y="50" width="6" height="4" rx="3" fill="#ffe0b2" stroke="#b8860b" stroke-width="2"/>
+            <!-- Right Boot - Modern Design (moved right) -->
+            <ellipse cx="31" cy="64" rx="6" ry="3" [attr.fill]="other.value.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="25" y="58" width="12" height="8" rx="2" [attr.fill]="other.value.color || '#1976d2'" stroke="#333" stroke-width="2"/>
+            <rect x="26" y="60" width="10" height="4" rx="1" [attr.fill]="getDarkerColor(other.value.color || '#1976d2')"/>
+            <!-- Boot Laces -->
+            <line x1="27" y1="61" x2="35" y2="61" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="27" y1="62.5" x2="35" y2="62.5" stroke="#ecf0f1" stroke-width="1"/>
+            <line x1="27" y1="63.5" x2="35" y2="63.5" stroke="#ecf0f1" stroke-width="1"/>
+            <!-- Boot Sole -->
+            <rect x="25" y="65" width="12" height="2" rx="1" fill="#333"/>
+          </g>
           <!-- Face (eyes, smile) -->
           <ellipse cx="19" cy="16" rx="2" ry="3" fill="#333"/>
           <ellipse cx="29" cy="16" rx="2" ry="3" fill="#333"/>
@@ -266,13 +322,18 @@
       <p>WASD - Move character, Shift to run</p>
       <p>E - Enter store (when near entrance)</p>
       <p>Ctrl + F - Global search</p>
+      <p>Ctrl + G - Minigames</p>
       <p>Ctrl + M - Start chatting</p>
     </div>
     
     <div class="search-button-container">
       <button class="search-button" (click)="openSearchModal()" title="Global Product Search">
         <mat-icon>search</mat-icon>
-        <span>Search Products</span>
+        <span>Global Search</span>
+      </button>
+      <button class="minigame-button" (click)="openMinigameDialog()" title="Play Minigames (Ctrl+G)">
+        <mat-icon>sports_esports</mat-icon>
+        <span>Minigames</span>
       </button>
     </div>
 
@@ -354,15 +415,37 @@
   <div class="search-modal" *ngIf="showSearchModal">
     <div class="search-modal-content">
       <div class="search-header">
-        <h2>🔍 Global Product Search</h2>
-        <button class="close-btn" (click)="closeSearchModal()">×</button>
+        <h2><mat-icon>search</mat-icon> Global Search</h2>
+        <button class="close-btn" (click)="closeSearchModal()" title="Close search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+      <!-- Search Type Toggle -->
+      <div class="search-type-toggle">
+        <button 
+          class="toggle-btn" 
+          [class.active]="!searchStoreMode"
+          (click)="setSearchMode(false)"
+        >
+          <mat-icon>inventory_2</mat-icon>
+          <span>Products</span>
+        </button>
+        <button 
+          class="toggle-btn" 
+          [class.active]="searchStoreMode"
+          (click)="setSearchMode(true)"
+        >
+          <mat-icon>store</mat-icon>
+          <span>Stores</span>
+        </button>
       </div>
       
       <div class="search-input-container">
         <input 
           type="text" 
           [(ngModel)]="searchQuery" 
-          placeholder="Search for products across all stores..."
+          [placeholder]="searchStoreMode ? 'Search for store names...' : 'Search for products across all stores...'"
           (keyup)="handleSearchKeyPress($event)"
           (input)="onSearchInput()"
           (compositionstart)="onCompositionStart()"
@@ -388,40 +471,67 @@
       </div>
 
       <div class="search-results" *ngIf="searchResults.length > 0">
-        <h3>Found {{ searchResults.length }} product(s):</h3>
+        <h3>Found {{ searchResults.length }} {{ searchStoreMode ? 'store(s)' : 'product(s)' }}:</h3>
         <div class="results-list">
-          <div 
-            *ngFor="let result of searchResults; let i = index" 
-            class="result-item"
-            [class.active]="i === currentSearchIndex"
-            (click)="navigateToStore(result.store)"
-          >
-            <div class="result-store" [style.background-color]="result.store.primaryColor">
-              {{ result.store.name }}
+          <!-- Product Results -->
+          <ng-container *ngIf="!searchStoreMode">
+            <div 
+              *ngFor="let result of productSearchResults; let i = index" 
+              class="result-item"
+              [class.active]="i === currentSearchIndex"
+              (click)="navigateToStore(result.store)"
+            >
+              <div class="result-store" [style.background-color]="result.store.primaryColor">
+                {{ result.store.name }}
+              </div>
+              <div class="result-product">
+                <span class="product-name">{{ result.productName }}</span>
+                <span class="product-description">{{ result.productDescription || 'No description available' }}</span>
+              </div>
+              <div class="result-actions">
+                <button class="navigate-btn" (click)="navigateToStore(result.store); $event.stopPropagation()">
+                  <mat-icon>location_on</mat-icon>
+                </button>
+              </div>
             </div>
-            <div class="result-product">
-              <span class="product-name">{{ result.productName }}</span>
-              <span class="product-description">{{ result.productDescription || 'No description available' }}</span>
+          </ng-container>
+          
+          <!-- Store Results -->
+          <ng-container *ngIf="searchStoreMode">
+            <div 
+              *ngFor="let store of storeSearchResults; let i = index" 
+              class="result-item store-result"
+              [class.active]="i === currentSearchIndex"
+              (click)="navigateToStore(store)"
+            >
+              <div class="result-store-info">
+                <div class="store-name" [style.background-color]="store.primaryColor">
+                  {{ store.name }}
+                </div>
+                <div class="store-details">
+                  <span class="store-owner">Owner: {{ store.ownerName }}</span>
+                  <span class="store-products">{{ store.productCount }} products</span>
+                  <span class="store-description">{{ store.description || 'No description available' }}</span>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="navigate-btn" (click)="navigateToStore(store); $event.stopPropagation()">
+                  <mat-icon>location_on</mat-icon>
+                </button>
+              </div>
             </div>
-            <div class="result-actions">
-              <button class="navigate-btn" (click)="navigateToStore(result.store); $event.stopPropagation()">
-                <mat-icon>location_on</mat-icon>
-              </button>
-            </div>
-          </div>
+          </ng-container>
         </div>
-        
-
       </div>
 
       <div class="no-results" *ngIf="searchQuery && !isSearching && searchResults.length === 0">
         <mat-icon>search_off</mat-icon>
-        <p>No products found matching "{{ searchQuery }}"</p>
+        <p>No {{ searchStoreMode ? 'stores' : 'products' }} found matching "{{ searchQuery }}"</p>
       </div>
 
       <div class="search-instructions" *ngIf="!searchQuery && searchResults.length === 0">
         <mat-icon>search</mat-icon>
-        <p>Type a product name to search across all stores</p>
+        <p>Type a {{ searchStoreMode ? 'store name' : 'product name' }} to search</p>
         <p>Press <strong>Enter</strong> to search, <strong>Escape</strong> to close</p>
       </div>
     </div>

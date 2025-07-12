@@ -1,0 +1,110 @@
+<div class="splash-container">
+  <!-- Background with animated elements -->
+  <div class="splash-background">
+    <div class="floating-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+      <div class="shape shape-4"></div>
+      <div class="shape shape-5"></div>
+    </div>
+    
+    <!-- Animated store buildings in background -->
+    <div class="background-stores">
+      <div class="store-building bg-store-1"></div>
+      <div class="store-building bg-store-2"></div>
+      <div class="store-building bg-store-3"></div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="splash-content">
+    <!-- Welcome Section -->
+    <div class="welcome-section" [class.show]="showWelcome">
+      <div class="logo-container">
+        <div class="logo">
+          <mat-icon class="logo-icon">storefront</mat-icon>
+          <span class="logo-text">SilkyRoad</span>
+        </div>
+      </div>
+      
+      <div class="welcome-text">
+        <h1 class="welcome-title">
+          Welcome to <span class="highlight">SilkyRoad</span>
+        </h1>
+        <p class="welcome-subtitle">
+          Your Virtual Shopping Paradise
+        </p>
+        <div class="user-info" *ngIf="userName">
+          <p class="greeting">Hello, <span class="user-name">{{ userName }}</span>!</p>
+          <p class="user-role">You are logged in as a <span class="role-badge">{{ userRole }}</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section" [class.show]="showFeatures">
+      <h2 class="features-title">Discover Amazing Features</h2>
+      <div class="features-grid">
+        <div 
+          class="feature-card" 
+          *ngFor="let feature of features; let i = index"
+          [class.active]="i <= currentStep"
+          [class.current]="i === currentStep"
+        >
+          <div class="feature-icon">
+            <mat-icon>{{ feature.icon }}</mat-icon>
+          </div>
+          <div class="feature-content">
+            <h3 class="feature-title">{{ feature.title }}</h3>
+            <p class="feature-description">{{ feature.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Section -->
+    <div class="loading-section" [class.show]="showLoading">
+      <div class="loading-content">
+        <h3 class="loading-title">Preparing Your Experience</h3>
+        <p class="loading-subtitle">Loading virtual street and connecting to multiplayer...</p>
+        
+        <!-- Progress bar -->
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progress"></div>
+          </div>
+          <span class="progress-text">{{ progress }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enter Button Section -->
+    <div class="enter-section" [class.show]="showEnterButton">
+      <div class="enter-content">
+        <h2 class="enter-title">Ready to Explore?</h2>
+        <p class="enter-subtitle">Your virtual shopping adventure awaits!</p>
+        
+        <div class="button-container">
+          <button 
+            class="enter-button primary"
+            (click)="enterVirtualStreet()"
+            [disabled]="isLoading"
+          >
+            <mat-icon>explore</mat-icon>
+            <span>Enter Virtual Street</span>
+          </button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skip button (always visible) -->
+  <button class="skip-button" (click)="skipSplash()" title="Skip splash screen">
+    <mat-icon>close</mat-icon>
+    <span>Skip</span>
+  </button>
+
+
+</div> 

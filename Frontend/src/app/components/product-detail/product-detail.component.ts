@@ -233,6 +233,7 @@ export class ProductDetailComponent implements OnInit {
     // Get store information first
     this.storeService.getStore(this.product.storeId).subscribe({
       next: (store) => {
+        const savedScrollY = window.scrollY;
         // Open chat in a dialog
         const dialogRef = this.dialog.open(ChatComponent, {
           width: '90vw',
@@ -286,6 +287,7 @@ export class ProductDetailComponent implements OnInit {
         });
 
         dialogRef.afterClosed().subscribe(() => {
+          window.scrollTo(0, savedScrollY);
           // Handle dialog close if needed
         });
       },

@@ -1,0 +1,187 @@
+<div class="word-scramble-game">
+  <!-- Game Header -->
+  <div class="game-header">
+    <h2>Word Scramble</h2>
+    <div class="game-stats">
+      <div class="stat">
+        <mat-icon>timer</mat-icon>
+        <span>{{ formatTime(timeLeft) }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>score</mat-icon>
+        <span>{{ score }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>round</mat-icon>
+        <span>{{ currentRound }}/{{ maxRounds }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Instructions -->
+  <div *ngIf="!gameActive && !gameCompleted" class="game-instructions">
+    <div class="instruction-card">
+      <mat-icon class="instruction-icon">text_fields</mat-icon>
+      <h3>How to Play</h3>
+      <p>Unscramble the letters to form the correct word!</p>
+      <ul>
+        <li>You'll see scrambled letters for each word</li>
+        <li>Type your answer in the input field</li>
+        <li>Use hints if you get stuck (costs 10 points)</li>
+        <li>Faster answers earn more points</li>
+        <li>Complete 10 rounds to finish the game</li>
+      </ul>
+      <div class="example">
+        <h4>Example:</h4>
+        <div class="example-word">
+          <span class="scrambled">MOCPUTER</span>
+          <span class="arrow">→</span>
+          <span class="answer">COMPUTER</span>
+        </div>
+      </div>
+      <button mat-raised-button color="primary" (click)="startGame()" class="start-button">
+        <mat-icon>play_arrow</mat-icon>
+        Start Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Game -->
+  <div *ngIf="gameActive && !gameCompleted" class="game-content">
+    <div class="round-info">
+      <h3>Round {{ currentRound }} of {{ maxRounds }}</h3>
+      <div class="category-badge">
+        <mat-icon>category</mat-icon>
+        <span>{{ currentPuzzle?.category }}</span>
+      </div>
+    </div>
+
+    <div class="puzzle-area">
+      <div class="scrambled-letters">
+        <div class="letter-tiles">
+          <div 
+            *ngFor="let letter of (currentPuzzle?.scrambled || '').split(''); trackBy: trackByLetter"
+            class="letter-tile"
+          >
+            {{ letter }}
+          </div>
+        </div>
+      </div>
+
+      <div class="answer-section">
+        <mat-form-field appearance="outline" class="answer-input">
+          <mat-label>Your Answer</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="userAnswer" 
+            placeholder="Type the unscrambled word..."
+            (keyup)="onKeyPress($event)"
+            [disabled]="roundCompleted"
+            maxlength="20"
+          >
+          <mat-icon matSuffix>edit</mat-icon>
+        </mat-form-field>
+
+        <div class="answer-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="submitAnswer()"
+            [disabled]="!userAnswer.trim() || roundCompleted"
+            class="submit-btn"
+          >
+            <mat-icon>send</mat-icon>
+            Submit
+          </button>
+          
+          <button 
+            mat-stroked-button 
+            (click)="useHint()"
+            [disabled]="showHint || roundCompleted"
+            class="hint-btn"
+          >
+            <mat-icon>lightbulb</mat-icon>
+            Hint (-10 pts)
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="showHint" class="hint-section">
+        <mat-card class="hint-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar>lightbulb</mat-icon>
+            <mat-card-title>Hint</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p>{{ currentPuzzle?.hint }}</p>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Round Result -->
+    <div *ngIf="roundCompleted" class="round-result">
+      <div class="result-card" [class.correct]="userAnswer.trim().toUpperCase() === currentPuzzle?.word" [class.incorrect]="userAnswer.trim().toUpperCase() !== currentPuzzle?.word">
+        <mat-icon class="result-icon">
+          {{ userAnswer.trim().toUpperCase() === currentPuzzle?.word ? 'check_circle' : 'cancel' }}
+        </mat-icon>
+        <h4>{{ userAnswer.trim().toUpperCase() === currentPuzzle?.word ? 'Correct!' : 'Incorrect!' }}</h4>
+        <p *ngIf="userAnswer.trim().toUpperCase() !== currentPuzzle?.word">
+          The correct answer was: <strong>{{ currentPuzzle?.word }}</strong>
+        </p>
+        <p *ngIf="userAnswer.trim().toUpperCase() === currentPuzzle?.word">
+          +{{ 50 + getTimeBonus() }} points!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Actions -->
+  <div class="game-actions">
+    <button mat-raised-button color="primary" (click)="restartGame()" *ngIf="!gameActive">
+      <mat-icon>refresh</mat-icon>
+      Restart
+    </button>
+    <button mat-raised-button color="warn" (click)="closeGame()">
+      <mat-icon>close</mat-icon>
+      Exit Game
+    </button>
+  </div>
+
+  <!-- Game Completion Overlay -->
+  <div *ngIf="gameCompleted" class="completion-overlay">
+    <div class="completion-card">
+      <mat-icon class="completion-icon">celebration</mat-icon>
+      <h3>Game Complete!</h3>
+      <p>You've finished all {{ maxRounds }} rounds!</p>
+      
+      <div class="final-stats">
+        <div class="final-stat">
+          <span class="label">Final Score:</span>
+          <span class="value">{{ score }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Correct Answers:</span>
+          <span class="value">{{ correctAnswers }}/{{ maxRounds }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Accuracy:</span>
+          <span class="value">{{ getAccuracy().toFixed(1) }}%</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Hints Used:</span>
+          <span class="value">{{ hintsUsed }}</span>
+        </div>
+      </div>
+      
+      <div class="completion-actions">
+        <button mat-raised-button color="primary" (click)="restartGame()">
+          Play Again
+        </button>
+        <button mat-raised-button (click)="closeGame()">
+          Exit
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

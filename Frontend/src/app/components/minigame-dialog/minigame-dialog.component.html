@@ -1,0 +1,50 @@
+<div class="minigame-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>sports_esports</mat-icon>
+      Choose a Minigame
+    </h2>
+    <button mat-icon-button (click)="closeDialog()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <div class="minigames-grid">
+      <div 
+        *ngFor="let game of minigames" 
+        class="game-card"
+        [class.disabled]="!game.isAvailable"
+        (click)="selectGame(game)"
+      >
+        <div class="game-icon">
+          <mat-icon>{{ game.icon }}</mat-icon>
+        </div>
+        
+        <div class="game-info">
+          <h3 class="game-name">{{ game.name }}</h3>
+          <p class="game-description">{{ game.description }}</p>
+          
+          <div class="game-meta">
+            <span class="difficulty" [style.background-color]="getDifficultyColor(game.difficulty)">
+              {{ game.difficulty }}
+            </span>
+            <span class="time">
+              <mat-icon>schedule</mat-icon>
+              {{ game.estimatedTime }}
+            </span>
+          </div>
+        </div>
+
+        <div class="game-action">
+          <mat-icon *ngIf="game.isAvailable">play_arrow</mat-icon>
+          <mat-icon *ngIf="!game.isAvailable">lock</mat-icon>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">Cancel</button>
+  </mat-dialog-actions>
+</div> 
