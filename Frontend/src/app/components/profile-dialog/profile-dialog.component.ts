@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { ImageService } from '../../services/image.service';
 import { ShowOnDirtyOrTouchedErrorStateMatcher } from './custom-error-state-matcher';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-profile-dialog',
@@ -28,7 +29,8 @@ export class ProfileDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private authService: AuthService,
     private fileUploadService: FileUploadService,
-    public imageService: ImageService
+    public imageService: ImageService,
+    private cdr: ChangeDetectorRef
   ) {
     this.avatar = (data && data.avatar) ? data.avatar : '/uploads/images/user-avatar.png';
     if (!this.avatar || this.avatar === 'null' || this.avatar === 'undefined' || this.avatar === '/user-avatar.png' || this.avatar === 'user-avatar.png') {
@@ -130,12 +132,17 @@ export class ProfileDialogComponent {
       next: (res) => {
         this.passwordChangeSuccess = 'Password changed successfully.';
         this.changePasswordForm.reset();
-        Object.keys(this.changePasswordForm.controls).forEach(key => {
-          const control = this.changePasswordForm.get(key);
-          control?.markAsPristine();
-          control?.markAsUntouched();
-          control?.updateValueAndValidity();
+        this.changePasswordForm.markAsPristine();
+        this.changePasswordForm.markAsUntouched();
+        Object.values(this.changePasswordForm.controls).forEach(control => {
+          control.markAsPristine();
+          control.markAsUntouched();
+          control.updateValueAndValidity();
         });
+        this.changePasswordForm.updateValueAndValidity();
+        // Force error state matcher to re-evaluate
+        this.errorStateMatcher = new ShowOnDirtyOrTouchedErrorStateMatcher();
+        this.cdr.detectChanges();
         this.isChangingPassword = false;
       },
       error: (err) => {

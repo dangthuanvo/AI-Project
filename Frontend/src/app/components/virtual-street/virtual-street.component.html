@@ -102,6 +102,40 @@
         [class.walking]="player.isWalking"
         [ngClass]="'facing-' + player.facing"
       >
+        <!-- New Stacked Wind effect when running -->
+        <ng-container *ngIf="isRunning">
+          <svg *ngIf="player.facing === 'right'" class="wind-effect-svg wind-right" width="40" height="32" viewBox="0 0 40 32" style="position:absolute;left:-38px;top:10px;z-index:1;pointer-events:none;">
+            <path d="M2 10 Q12 2 22 10 T38 10" stroke="#b3e5fc" stroke-width="3" fill="none" opacity="0.5">
+              <animate attributeName="d" values="M2 10 Q12 2 22 10 T38 10;M2 10 Q12 18 22 10 T38 10;M2 10 Q12 2 22 10 T38 10" dur="0.7s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          <svg *ngIf="player.facing === 'right'" class="wind-effect-svg wind-right" width="40" height="32" viewBox="0 0 40 32" style="position:absolute;left:-38px;top:18px;z-index:1;pointer-events:none;">
+            <path d="M2 16 Q12 8 22 16 T38 16" stroke="#b3e5fc" stroke-width="4" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M2 16 Q12 8 22 16 T38 16;M2 16 Q12 24 22 16 T38 16;M2 16 Q12 8 22 16 T38 16" dur="0.7s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          <svg *ngIf="player.facing === 'right'" class="wind-effect-svg wind-right" width="40" height="32" viewBox="0 0 40 32" style="position:absolute;left:-38px;top:26px;z-index:1;pointer-events:none;">
+            <path d="M2 22 Q12 14 22 22 T38 22" stroke="#b3e5fc" stroke-width="2.5" fill="none" opacity="0.35">
+              <animate attributeName="d" values="M2 22 Q12 14 22 22 T38 22;M2 22 Q12 30 22 22 T38 22;M2 22 Q12 14 22 22 T38 22" dur="0.7s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+
+          <svg *ngIf="player.facing === 'left'" class="wind-effect-svg wind-left" width="40" height="32" viewBox="0 0 40 32" style="position:absolute;right:-38px;top:10px;z-index:1;pointer-events:none;transform:scaleX(-1);">
+            <path d="M2 10 Q12 2 22 10 T38 10" stroke="#b3e5fc" stroke-width="3" fill="none" opacity="0.5">
+              <animate attributeName="d" values="M2 10 Q12 2 22 10 T38 10;M2 10 Q12 18 22 10 T38 10;M2 10 Q12 2 22 10 T38 10" dur="0.7s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          <svg *ngIf="player.facing === 'left'" class="wind-effect-svg wind-left" width="40" height="32" viewBox="0 0 40 32" style="position:absolute;right:-38px;top:18px;z-index:1;pointer-events:none;transform:scaleX(-1);">
+            <path d="M2 16 Q12 8 22 16 T38 16" stroke="#b3e5fc" stroke-width="4" fill="none" opacity="0.7">
+              <animate attributeName="d" values="M2 16 Q12 8 22 16 T38 16;M2 16 Q12 24 22 16 T38 16;M2 16 Q12 8 22 16 T38 16" dur="0.7s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+          <svg *ngIf="player.facing === 'left'" class="wind-effect-svg wind-left" width="40" height="32" viewBox="0 0 40 32" style="position:absolute;right:-38px;top:26px;z-index:1;pointer-events:none;transform:scaleX(-1);">
+            <path d="M2 22 Q12 14 22 22 T38 22" stroke="#b3e5fc" stroke-width="2.5" fill="none" opacity="0.35">
+              <animate attributeName="d" values="M2 22 Q12 14 22 22 T38 22;M2 22 Q12 30 22 22 T38 22;M2 22 Q12 14 22 22 T38 22" dur="0.7s" repeatCount="indefinite"/>
+            </path>
+          </svg>
+        </ng-container>
         <div class="player-name-tag">{{ player.name }}</div>
         <svg width="48" height="64" viewBox="0 0 48 64" class="player-svg">
           <!-- Hair (larger and higher for more visibility) -->
@@ -229,7 +263,7 @@
     
     <div class="controls-info">
       <p><strong>Controls:</strong></p>
-      <p>WASD - Move character</p>
+      <p>WASD - Move character, Shift to run</p>
       <p>E - Enter store (when near entrance)</p>
       <p>Ctrl + F - Global search</p>
       <p>Ctrl + M - Start chatting</p>
@@ -266,32 +300,42 @@
     </div>
   </div>
 
-  <!-- Online Users Counter -->
-  <div class="online-users-counter">
+  <!-- Online Users Counter with Dropdown -->
+  <div class="online-users-counter" [matMenuTriggerFor]="onlineUsersMenu" style="cursor:pointer;">
     <mat-icon>group</mat-icon>
     <span class="counter-text">
       <span *ngIf="connectionStatus === 'connecting'">Connecting...</span>
       <span *ngIf="connectionStatus === 'connected'">{{ onlineUsers.length }} online</span>
       <span *ngIf="connectionStatus === 'disconnected'">Disconnected</span>
     </span>
-    <button mat-icon-button (click)="toggleNight()" title="Toggle Night Mode">
+    <button mat-icon-button (click)="toggleNight(); $event.stopPropagation();" title="Toggle Night Mode">
       <mat-icon>{{ isNight ? 'dark_mode' : 'light_mode' }}</mat-icon>
     </button>
   </div>
+  <mat-menu #onlineUsersMenu="matMenu">
+    <ng-container *ngIf="onlineUsers.length > 0; else noUsers">
+      <button mat-menu-item *ngFor="let userId of onlineUsersWithSelfFirst"
+              (click)="onOnlineUserClick(userId)"
+              [disabled]="!otherPlayers[userId]">
+        <ng-container *ngIf="otherPlayers[userId]; else selfUser">
+          <img [src]="imageService.getImageUrl(otherPlayers[userId]?.avatar)" [alt]="otherPlayers[userId]?.name || 'Avatar'" width="28" height="28" style="border-radius:50%;margin-right:8px;object-fit:cover;vertical-align:middle;" />
+          <span>{{ otherPlayers[userId]?.name || userId }}</span>
+        </ng-container>
+        <ng-template #selfUser>
+          <img [src]="imageService.getImageUrl(player.avatar)" [alt]="player.name || 'You'" width="28" height="28" style="border-radius:50%;margin-right:8px;object-fit:cover;vertical-align:middle;" />
+          <span>You</span>
+        </ng-template>
+      </button>
+    </ng-container>
+    <ng-template #noUsers>
+      <span style="padding: 8px 16px; display: block; color: #888;">No users online</span>
+    </ng-template>
+  </mat-menu>
 
   <!-- Reconnection Notification -->
   <div class="reconnection-notification" *ngIf="connectionStatus === 'connecting'">
     <mat-icon class="spinning">sync</mat-icon>
     <span>Reconnecting to multiplayer...</span>
-  </div>
-
-  <!-- Online Users List -->
-  <div class="online-users-list" *ngIf="onlineUsers.length > 0">
-    <mat-icon style="vertical-align: middle; margin-right: 4px;">people</mat-icon>
-    <span style="font-weight: bold;">Online Users:</span>
-    <span *ngFor="let user of onlineUsers; let last = last">
-      {{ user }}<span *ngIf="!last">, </span>
-    </span>
   </div>
 
   <!-- Draw all chat buttons above the current player if any user is close -->

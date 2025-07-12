@@ -129,6 +129,17 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   isRepeat: boolean = false;
   waveformBars: number[] = Array(24).fill(40); // Placeholder for waveform heights
 
+  // Getter to return online users with 'You' (myUserId) always at the top
+  get onlineUsersWithSelfFirst(): string[] {
+    if (!this.myUserId) return this.onlineUsers;
+    const others = this.onlineUsers.filter(id => id !== this.myUserId);
+    return [this.myUserId, ...others];
+  }
+
+  isRunning: boolean = false;
+  private baseMoveSpeed = 6;
+  private runMoveSpeed = 12;
+
   constructor(
     private storeService: StoreService,
     private authService: AuthService,
@@ -549,6 +560,9 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
       event.preventDefault();
       this.keys[key] = true;
     }
+    if (event.key === 'Shift') {
+      this.isRunning = true;
+    }
     // Play/pause music with spacebar if not typing in an input
     if (event.code === 'Space' && !(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) {
       this.toggleMusic();
@@ -581,6 +595,9 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         console.log(`Sending state update on keyup - Walking: ${this.player.isWalking}`);
         this.sendNetworkUpdate();
       }
+    }
+    if (event.key === 'Shift') {
+      this.isRunning = false;
     }
   }
 
@@ -684,6 +701,9 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     const oldY = this.player.y;
     const oldFacing = this.player.facing;
     let moved = false;
+
+    // Use running speed if Shift is held
+    this.moveSpeed = this.isRunning ? this.runMoveSpeed : this.baseMoveSpeed;
 
     // Movement logic
     if (this.keys['w'] || this.keys['arrowup']) {
@@ -1586,6 +1606,19 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
       if (this.isMusicPlaying) {
         this.audio.play();
       }
+    }
+  }
+
+  // Add this method to handle clicking an online user in the dropdown
+  onOnlineUserClick(user: string) {
+    // If you have userId instead of name, adjust accordingly
+    // Try to find the userId from otherPlayers by name (if available)
+    const userEntry = Object.values(this.otherPlayers).find(p => p.name === user);
+    if (userEntry && userEntry.userId) {
+      this.openChatWithUser(userEntry.userId);
+    } else {
+      // Fallback: if user is the userId itself
+      this.openChatWithUser(user);
     }
   }
 } 
