@@ -1,0 +1,130 @@
+<div class="color-rush-game">
+  <!-- Game Header -->
+  <div class="game-header">
+    <h2>Color Rush</h2>
+    <div class="game-stats">
+      <div class="stat">
+        <mat-icon>timer</mat-icon>
+        <span>{{ formatTime(timeLeft) }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>score</mat-icon>
+        <span>{{ score }}</span>
+      </div>
+      <div class="stat">
+        <mat-icon>round</mat-icon>
+        <span>{{ currentRound }}/{{ maxRounds }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Instructions -->
+  <div *ngIf="!gameActive && !gameCompleted" class="game-instructions">
+    <div class="instruction-card">
+      <mat-icon class="instruction-icon">palette</mat-icon>
+      <h3>How to Play</h3>
+      <p>Click the correct color as fast as you can!</p>
+      <ul>
+        <li>You have <strong>60 seconds</strong> to get the highest score</li>
+        <li>Faster reactions = higher points</li>
+        <li>Wrong answers lose points</li>
+        <li>Don't wait too long - rounds auto-advance after 3 seconds</li>
+      </ul>
+      <button mat-raised-button color="primary" (click)="startGame()" class="start-button">
+        <mat-icon>play_arrow</mat-icon>
+        Start Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Game -->
+  <div *ngIf="gameActive && !gameCompleted" class="game-content">
+    <!-- Target Color Display -->
+    <div class="target-section">
+      <h3>Click this color:</h3>
+      <div class="target-color" [style.background-color]="targetColor?.hex">
+        <span class="color-name">{{ targetColor?.displayName }}</span>
+      </div>
+    </div>
+
+    <!-- Color Options -->
+    <div class="color-options">
+      <div 
+        *ngFor="let color of colorOptions" 
+        class="color-option"
+        [style.background-color]="color.hex"
+        [class.correct]="roundCompleted && color.name === targetColor?.name"
+        [class.wrong]="roundCompleted && color.name !== targetColor?.name"
+        (click)="handleAnswer(color)"
+      >
+        <span class="color-name">{{ color.displayName }}</span>
+      </div>
+    </div>
+
+    <!-- Round Feedback -->
+    <div *ngIf="roundCompleted" class="round-feedback">
+      <div class="feedback-message">
+        <mat-icon *ngIf="correctAnswers > wrongAnswers">check_circle</mat-icon>
+        <mat-icon *ngIf="correctAnswers <= wrongAnswers">cancel</mat-icon>
+        <span>{{ correctAnswers > wrongAnswers ? 'Correct!' : 'Wrong!' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Actions -->
+  <div class="game-actions">
+    <button mat-raised-button color="primary" (click)="restartGame()" *ngIf="!gameActive">
+      <mat-icon>refresh</mat-icon>
+      Restart
+    </button>
+    <button mat-raised-button color="warn" (click)="closeGame()">
+      <mat-icon>close</mat-icon>
+      Exit Game
+    </button>
+  </div>
+
+  <!-- Game Completion Overlay -->
+  <div *ngIf="gameCompleted" class="completion-overlay">
+    <div class="completion-card">
+      <mat-icon class="completion-icon">celebration</mat-icon>
+      <h3>Game Over!</h3>
+      <p>Time's up! Here's how you did:</p>
+      
+      <div class="final-stats">
+        <div class="final-stat">
+          <span class="label">Final Score:</span>
+          <span class="value">{{ score }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Correct Answers:</span>
+          <span class="value">{{ correctAnswers }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Wrong Answers:</span>
+          <span class="value">{{ wrongAnswers }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Accuracy:</span>
+          <span class="value">{{ correctAnswers + wrongAnswers > 0 ? ((correctAnswers / (correctAnswers + wrongAnswers)) * 100).toFixed(1) : 0 }}%</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Avg Reaction Time:</span>
+          <span class="value">{{ formatReactionTime(averageReactionTime) }}</span>
+        </div>
+        <div class="final-stat">
+          <span class="label">Time Remaining:</span>
+          <span class="value">{{ formatTime(timeLeft) }}</span>
+        </div>
+      </div>
+      
+      <div class="completion-actions">
+        <button mat-raised-button color="primary" (click)="restartGame()">
+          Play Again
+        </button>
+        <button mat-raised-button (click)="closeGame()">
+          Exit
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

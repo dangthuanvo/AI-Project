@@ -56,6 +56,12 @@ import { ShippingAddressCardComponent } from './components/checkout/shipping-add
 import { ShippingAddressDialogComponent } from './components/checkout/shipping-address-dialog.component';
 import { ChatRequestDialogComponent } from './components/chat-request-dialog/chat-request-dialog.component';
 import { ForgotPasswordComponent } from './components/auth/forgot-password/forgot-password.component';
+import { MinigameDialogComponent } from './components/minigame-dialog/minigame-dialog.component';
+import { MemoryMatchComponent } from './components/memory-match/memory-match.component';
+import { ColorRushComponent } from './components/color-rush/color-rush.component';
+import { NumberPuzzleComponent } from './components/number-puzzle/number-puzzle.component';
+import { WordScrambleComponent } from './components/word-scramble/word-scramble.component';
+import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 
 // Services
 import { AuthService } from './services/auth.service';
@@ -91,7 +97,13 @@ import { RoleGuard } from './guards/role.guard';
     ShippingAddressCardComponent,
     ShippingAddressDialogComponent,
     ChatRequestDialogComponent,
-    ForgotPasswordComponent
+    ForgotPasswordComponent,
+    MinigameDialogComponent,
+    MemoryMatchComponent,
+    ColorRushComponent,
+    NumberPuzzleComponent,
+    WordScrambleComponent,
+    SplashScreenComponent
   ],
   imports: [
     BrowserModule,
@@ -101,10 +113,11 @@ import { RoleGuard } from './guards/role.guard';
     FormsModule,
     CommonModule,
     RouterModule.forRoot([
-      { path: '', redirectTo: '/virtual-street', pathMatch: 'full' },
+      { path: '', redirectTo: '/login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },
+      { path: 'splash', component: SplashScreenComponent, canActivate: [AuthGuard] },
       { path: 'virtual-street', component: VirtualStreetComponent, canActivate: [AuthGuard] },
       { path: 'store/:id', component: StoreDetailComponent, canActivate: [AuthGuard] },
       { path: 'cart', component: ShoppingCartComponent, canActivate: [AuthGuard] },

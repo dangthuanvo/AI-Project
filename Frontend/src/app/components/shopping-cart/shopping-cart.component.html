@@ -21,24 +21,37 @@
         <div class="info-section">
           <h3>Cart Items</h3>
           <div class="items-list">
-            <div class="item" *ngFor="let item of cartItems">
-              <div class="item-image">
-                <img [src]="getImageUrl(item.productImageUrl)" [alt]="item.productName">
+            <ng-container *ngFor="let storeId of (groupedCartItems | keyvalue)">
+              <div class="store-group">
+                <h4 class="store-name">
+                  <img *ngIf="storeLogos[+storeId.key]" [src]="getImageUrl(storeLogos[+storeId.key])" alt="{{ storeId.value.storeName }} logo" class="store-logo" (error)="onStoreLogoError(+storeId.key)" />
+                  {{ storeId.value.storeName }}
+                </h4>
+                <div class="item" *ngFor="let item of storeId.value.items">
+                  <div class="item-image">
+                    <img [src]="getImageUrl(item.productImageUrl)" [alt]="item.productName">
+                  </div>
+                  <div class="item-details">
+                    <h4>{{ item.productName }}</h4>
+                    <div class="quantity-controls">
+                      <button mat-mini-button color="primary" (click)="updateQuantity(item, -1)">-</button>
+                      <input type="number" min="1" [max]="itemStock[item.productId] || 99" [(ngModel)]="item.quantity" (change)="onQuantityInputChange(item)" style="width: 48px; text-align: center; margin: 0 4px;" />
+                      <button mat-mini-button color="primary" (click)="updateQuantity(item, 1)">+</button>
+                      <span class="stock-warning" *ngIf="itemStock[item.productId] !== undefined && item.quantity > itemStock[item.productId]">(Only {{ itemStock[item.productId] }} left)</span>
+                    </div>
+                    <p class="item-price">${{ item.unitPrice | number:'1.2-2' }}</p>
+                  </div>
+                  <div class="item-total">
+                    ${{ item.totalPrice | number:'1.2-2' }}
+                  </div>
+                  <div class="item-actions">
+                    <button mat-icon-button color="warn" (click)="removeItem(item)" matTooltip="Remove">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div class="item-details">
-                <h4>{{ item.productName }}</h4>
-                <p>Quantity: {{ item.quantity }}</p>
-                <p class="item-price">${{ item.unitPrice | number:'1.2-2' }}</p>
-              </div>
-              <div class="item-total">
-                ${{ item.totalPrice | number:'1.2-2' }}
-              </div>
-              <div class="item-actions">
-                <button mat-icon-button color="warn" (click)="removeItem(item)" matTooltip="Remove">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </div>
+            </ng-container>
           </div>
         </div>
         <div class="cart-summary-section">
