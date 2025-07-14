@@ -4,7 +4,7 @@
     <div class="avatar-section">
       <img [src]="avatarPreview || avatarUrl" alt="Avatar" class="avatar-img"
            (error)="avatarUrl = imageService.getImageUrl('/uploads/images/user-avatar.png')">
-      <input id="avatar-upload" type="file" accept="image/*" (change)="onAvatarUpload($event)" hidden>
+      <input id="avatar-upload" type="file" accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" (change)="onAvatarUpload($event)" hidden>
       <button mat-button type="button" (click)="triggerFileInput()">Upload</button>
     </div>
     <mat-form-field appearance="outline">

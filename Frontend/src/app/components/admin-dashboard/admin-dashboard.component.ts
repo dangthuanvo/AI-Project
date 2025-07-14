@@ -45,7 +45,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   
   // UI state
   showAddUser = false;
-  editingUser: User | null = null;
   
   // Pagination
   currentPage = 1;
@@ -228,32 +227,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.handleError('Failed to create admin account', error);
       }
-    });
-  }
-
-  editUser(user: User): void {
-    this.editingUser = user;
-    this.userForm.patchValue({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      roles: user.roles[0] || 'Customer',
-      isActive: user.isActive
-    });
-  }
-
-  updateUser(): void {
-    if (this.userForm.invalid || !this.editingUser) return;
-
-    const userData = this.userForm.value;
-    this.adminService.updateUser(this.editingUser.id, userData).pipe(takeUntil(this.destroy$)).subscribe({
-      next: () => {
-        this.snackBar.open('User updated successfully', 'Close', { duration: 3000 });
-        this.editingUser = null;
-        this.userForm.reset();
-        this.loadUsers();
-      },
-      error: (error) => this.handleError('Failed to update user', error)
     });
   }
 

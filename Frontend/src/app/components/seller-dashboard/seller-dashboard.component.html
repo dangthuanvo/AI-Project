@@ -200,7 +200,7 @@
             <input 
               type="file" 
               id="logoInput"
-              accept="image/*" 
+              accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" 
               (change)="onLogoSelected($event)"
               style="display: none;">
             <button 
@@ -234,7 +234,7 @@
             <input 
               type="file" 
               id="bannerInput"
-              accept="image/*" 
+              accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" 
               (change)="onBannerSelected($event)"
               style="display: none;">
             <button 
@@ -309,7 +309,7 @@
             <input 
               type="file" 
               id="editLogoInput"
-              accept="image/*" 
+              accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" 
               (change)="onLogoSelected($event)"
               style="display: none;">
             <button 
@@ -349,7 +349,7 @@
             <input 
               type="file" 
               id="editBannerInput"
-              accept="image/*" 
+              accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" 
               (change)="onBannerSelected($event)"
               style="display: none;">
             <button 
@@ -429,7 +429,7 @@
         <div class="image-upload-section">
           <label class="upload-label">Product Images</label>
           <div class="file-input-container">
-            <input type="file" id="productImagesInput" accept="image/*" multiple (change)="onFilesSelected($event)" style="display: none;">
+            <input type="file" id="productImagesInput" accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" multiple (change)="onFilesSelected($event)" style="display: none;">
             <button type="button" mat-stroked-button (click)="document.getElementById('productImagesInput')?.click()">
               <mat-icon>upload</mat-icon>
               Choose Images

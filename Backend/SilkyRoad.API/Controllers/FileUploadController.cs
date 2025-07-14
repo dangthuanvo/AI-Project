@@ -25,12 +25,12 @@ namespace SilkyRoad.API.Controllers
             }
 
             // Validate file type
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".jfif", ".bmp", ".tiff", ".svg", ".ico" };
             var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
             
             if (!allowedExtensions.Contains(fileExtension))
             {
-                return BadRequest("Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed.");
+                return BadRequest("Invalid file type. Only JPG, JPEG, PNG, GIF, WebP, JFIF, BMP, TIFF, SVG, and ICO images are allowed.");
             }
 
             // Validate file size (max 5MB)
