@@ -72,9 +72,12 @@ export class ProfileDialogComponent {
     if (input.files && input.files[0]) {
       const file = input.files[0];
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedTypes = [
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        'image/jfif', 'image/bmp', 'image/tiff', 'image/svg+xml', 'image/x-icon'
+      ];
       if (!allowedTypes.includes(file.type)) {
-        alert('Please select a valid image file (JPG, PNG, GIF, WebP)');
+        alert('Please select a valid image file (JPG, JPEG, PNG, GIF, WebP, JFIF, BMP, TIFF, SVG, ICO)');
         return;
       }
       // Validate file size (5MB)

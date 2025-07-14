@@ -492,9 +492,12 @@ export class SellerDashboardComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedTypes = [
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        'image/jfif', 'image/bmp', 'image/tiff', 'image/svg+xml', 'image/x-icon'
+      ];
       if (!allowedTypes.includes(file.type)) {
-        this.snackBar.open('Please select a valid image file (JPG, PNG, GIF, WebP)', 'Close', { duration: 3000 });
+        this.snackBar.open('Please select a valid image file (JPG, JPEG, PNG, GIF, WebP, JFIF, BMP, TIFF, SVG, ICO)', 'Close', { duration: 3000 });
         return;
       }
 
@@ -526,9 +529,12 @@ export class SellerDashboardComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const allowedTypes = [
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        'image/jfif', 'image/bmp', 'image/tiff', 'image/svg+xml', 'image/x-icon'
+      ];
       if (!allowedTypes.includes(file.type)) {
-        this.snackBar.open('Please select a valid image file (JPG, PNG, GIF, WebP)', 'Close', { duration: 3000 });
+        this.snackBar.open('Please select a valid image file (JPG, JPEG, PNG, GIF, WebP, JFIF, BMP, TIFF, SVG, ICO)', 'Close', { duration: 3000 });
         return;
       }
 
