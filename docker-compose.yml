@@ -23,8 +23,7 @@ services:
       - ConnectionStrings__DefaultConnection=Server=db;Database=SilkyRoadDb;User=sa;Password=Your_password123;TrustServerCertificate=True;
     depends_on:
       - db
-    volumes:
-      - ./Backend/SilkyRoad.API/wwwroot/uploads:/app/wwwroot/uploads
+
 
   frontend:
     build:
