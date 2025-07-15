@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,6 +18,7 @@ import { RatingService } from '../../services/rating.service';
   styleUrls: ['./product-detail.component.scss']
 })
 export class ProductDetailComponent implements OnInit {
+  @ViewChild('mainProductImg') mainProductImg!: ElementRef<HTMLImageElement>;
   product: Product | null = null;
   loading = true;
   error: string | null = null;
@@ -179,9 +180,15 @@ export class ProductDetailComponent implements OnInit {
     }
 
     const quantity = this.addToCartForm.get('quantity')?.value;
-    
-    if (quantity > this.product.stockQuantity) {
-      this.snackBar.open('Quantity exceeds available stock', 'Close', { duration: 3000 });
+
+    // Get current quantity in cart for this product
+    const cartItems = (this.cartService as any).cartItemsSubject?.value || [];
+    const cartItem = cartItems.find((item: any) => item.productId === this.product!.id);
+    const currentCartQty = cartItem ? cartItem.quantity : 0;
+    const totalRequested = currentCartQty + quantity;
+
+    if (totalRequested > this.product.stockQuantity) {
+      this.snackBar.open('You cannot add more than the available stock to your cart.', 'Close', { duration: 4000 });
       return;
     }
 
@@ -192,6 +199,9 @@ export class ProductDetailComponent implements OnInit {
       next: () => {
         this.snackBar.open('Product added to cart successfully!', 'Close', { duration: 3000 });
         this.addToCartForm.reset({ quantity: 1 });
+        if (this.mainProductImg?.nativeElement) {
+          this.flyToCart();
+        }
       },
       error: (error: any) => {
         console.error('Error adding to cart:', error);
@@ -365,5 +375,65 @@ export class ProductDetailComponent implements OnInit {
   onChatInitiated(): void {
     // Handle chat initiation if needed
     console.log('Chat initiated for product:', this.product?.name);
+  }
+
+  flyToCart() {
+    const productImg = this.mainProductImg?.nativeElement;
+    if (!productImg) return;
+    const cartIcon = document.querySelector('.cart-icon') as HTMLElement;
+    if (!cartIcon) return;
+
+    const imgRect = productImg.getBoundingClientRect();
+    const cartRect = cartIcon.getBoundingClientRect();
+
+    const clone = productImg.cloneNode(true) as HTMLImageElement;
+    clone.style.position = 'fixed';
+    clone.style.left = imgRect.left + 'px';
+    clone.style.top = imgRect.top + 'px';
+    clone.style.width = imgRect.width + 'px';
+    clone.style.height = imgRect.height + 'px';
+    clone.style.zIndex = '1000';
+    clone.style.pointerEvents = 'none';
+    clone.style.transition = 'none';
+    document.body.appendChild(clone);
+
+    // Ellipse parameters
+    const centerX = imgRect.left + imgRect.width / 2;
+    const centerY = imgRect.top + imgRect.height / 2;
+    const radiusX = 240; // Increased from 120
+    const radiusY = 140; // Increased from 60
+    const duration = 1200; // ms for 1 circle
+    const startTime = performance.now();
+
+    function animateCircle(now: number) {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const angle = 2 * Math.PI * t;
+      const x = centerX + radiusX * Math.cos(angle) - imgRect.width / 2;
+      const y = centerY + radiusY * Math.sin(angle) - imgRect.height / 2;
+      clone.style.left = x + 'px';
+      clone.style.top = y + 'px';
+      if (t < 1) {
+        requestAnimationFrame(animateCircle);
+      } else {
+        // After circle, fly to cart
+        clone.style.transition = 'all 0.45s cubic-bezier(.7,0,1,1)';
+        clone.style.left = cartRect.left + 'px';
+        clone.style.top = cartRect.top + 'px';
+        clone.style.width = '40px';
+        clone.style.height = '40px';
+        clone.style.opacity = '0.7';
+      }
+    }
+    requestAnimationFrame(animateCircle);
+
+    // Remove after final transition
+    const onFinalTransition = () => {
+      clone.removeEventListener('transitionend', onFinalTransition);
+      clone.remove();
+      cartIcon.classList.add('cart-shake');
+      setTimeout(() => cartIcon.classList.remove('cart-shake'), 400);
+    };
+    clone.addEventListener('transitionend', onFinalTransition);
   }
 } 

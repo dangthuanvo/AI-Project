@@ -32,7 +32,7 @@
             <button mat-icon-button class="nav-arrow left" (click)="selectedImageIndex = (selectedImageIndex - 1 + getGalleryImages().length) % getGalleryImages().length" *ngIf="getGalleryImages().length > 1">
               <mat-icon>chevron_left</mat-icon>
             </button>
-            <img 
+            <img #mainProductImg 
               [src]="getImageUrl(getGalleryImages()[selectedImageIndex])" 
               [alt]="product.name || 'Product image'" 
               (error)="onImageError(selectedImageIndex)"
