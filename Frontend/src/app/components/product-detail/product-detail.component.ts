@@ -9,6 +9,8 @@ import { AuthService } from '../../services/auth.service';
 import { ImageService } from '../../services/image.service';
 import { ChatComponent } from '../chat/chat.component';
 import { ChatService } from '../../services/chat.service';
+import { HttpClient } from '@angular/common/http';
+import { RatingService } from '../../services/rating.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -26,6 +28,28 @@ export class ProductDetailComponent implements OnInit {
   // Full-screen viewer properties
   isFullScreenOpen = false;
   fullScreenImageIndex = 0;
+  ratings: any[] = [];
+  averageRating: number | null = null;
+
+  // Paging for ratings
+  ratingsPerPage = 5;
+  currentRatingsPage = 1;
+  get totalRatingsPages(): number {
+    return Math.ceil(this.ratings.length / this.ratingsPerPage) || 1;
+  }
+  get pagedRatings(): any[] {
+    const start = (this.currentRatingsPage - 1) * this.ratingsPerPage;
+    return this.ratings.slice(start, start + this.ratingsPerPage);
+  }
+
+  setRatingsPage(page: number): void {
+    if (page < 1 || page > this.totalRatingsPages) return;
+    this.currentRatingsPage = page;
+  }
+
+  // Rating image fullscreen properties
+  isRatingImageFullScreen = false;
+  ratingImageFullScreenUrl: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,7 +61,9 @@ export class ProductDetailComponent implements OnInit {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private http: HttpClient,
+    private ratingService: RatingService
   ) {
     this.addToCartForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]]
@@ -61,6 +87,7 @@ export class ProductDetailComponent implements OnInit {
       next: (product) => {
         this.product = product;
         this.loading = false;
+        this.loadRatings(product.id);
       },
       error: (error) => {
         console.error('Error loading product:', error);
@@ -68,6 +95,30 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  loadRatings(productId: number): void {
+    this.ratingService.getProductRatings(productId).subscribe({
+      next: (ratings) => {
+        this.ratings = ratings;
+        this.calculateAverageRating();
+        this.currentRatingsPage = 1;
+      },
+      error: (err) => {
+        this.ratings = [];
+        this.averageRating = null;
+        this.currentRatingsPage = 1;
+      }
+    });
+  }
+
+  calculateAverageRating(): void {
+    if (!this.ratings || this.ratings.length === 0) {
+      this.averageRating = null;
+      return;
+    }
+    const sum = this.ratings.reduce((acc, r) => acc + (r.rating || 0), 0);
+    this.averageRating = +(sum / this.ratings.length).toFixed(1);
   }
 
   // Full-screen viewer methods
@@ -81,6 +132,19 @@ export class ProductDetailComponent implements OnInit {
   closeFullScreenViewer(): void {
     this.isFullScreenOpen = false;
     // Restore body scroll
+    document.body.style.overflow = '';
+  }
+
+  // Rating image fullscreen methods
+  openRatingImageFullScreen(url: string): void {
+    this.isRatingImageFullScreen = true;
+    this.ratingImageFullScreenUrl = url;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeRatingImageFullScreen(): void {
+    this.isRatingImageFullScreen = false;
+    this.ratingImageFullScreenUrl = null;
     document.body.style.overflow = '';
   }
 

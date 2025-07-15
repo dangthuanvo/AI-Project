@@ -133,15 +133,6 @@
             <div class="cart-actions">
               <button 
                 mat-raised-button 
-                color="accent"
-                type="button"
-                (click)="openChatWithSeller()"
-                aria-label="Ask about this product">
-                <mat-icon>chat</mat-icon>
-                Ask about this product
-              </button>
-              <button 
-                mat-raised-button 
                 color="primary" 
                 type="submit"
                 [disabled]="addToCartForm.invalid || product.stockQuantity === 0"
@@ -157,6 +148,19 @@
         <div class="out-of-stock" *ngIf="product.stockQuantity === 0">
           <mat-icon>inventory_2</mat-icon>
           <p>This product is currently out of stock.</p>
+        </div>
+
+        <!-- Ask About This Product Button (Always Visible, now below out-of-stock) -->
+        <div class="cart-actions" *ngIf="!isAdmin() && !isSeller()">
+          <button 
+            mat-raised-button 
+            color="accent"
+            type="button"
+            (click)="openChatWithSeller()"
+            aria-label="Ask about this product">
+            <mat-icon>chat</mat-icon>
+            Ask about this product
+          </button>
         </div>
 
         <!-- Cannot Add to Cart Messages -->
@@ -235,6 +239,65 @@
       
       <div class="fullscreen-counter" *ngIf="getGalleryImages().length > 1">
         {{ fullScreenImageIndex + 1 }} / {{ getGalleryImages().length }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Ratings Section -->
+  <div class="product-ratings">
+    <h3>
+      <mat-icon class="ratings-icon">rate_review</mat-icon>
+      Customer Ratings & Reviews
+    </h3>
+    <ng-container *ngIf="ratings.length > 0; else noRatingsBlock">
+      <div class="average-rating" *ngIf="averageRating !== null">
+        <mat-icon color="warn">star</mat-icon>
+        <span class="average-value">{{ averageRating }}</span>
+        <span class="total-ratings">({{ ratings.length }} ratings)</span>
+      </div>
+      <div class="rating-item" *ngFor="let rating of pagedRatings">
+        <div class="rating-header">
+          <span class="stars">
+            <mat-icon *ngFor="let star of [1,2,3,4,5]">{{ star <= rating.rating ? 'star' : 'star_border' }}</mat-icon>
+          </span>
+          <span class="user-info">
+            <img *ngIf="rating.userAvatar" [src]="getImageUrl(rating.userAvatar)" class="avatar" alt="User avatar">
+            <span class="user-name">{{ rating.userName || 'Anonymous' }}</span>
+            <span class="date">{{ rating.createdAt | date:'medium' }}</span>
+          </span>
+        </div>
+        <div class="rating-body">
+          <p class="comment">{{ rating.comment }}</p>
+          <img *ngIf="rating.imageUrl" [src]="getImageUrl(rating.imageUrl)" class="rating-image" alt="Rating image" (click)="openRatingImageFullScreen(getImageUrl(rating.imageUrl))" tabindex="0" style="cursor: zoom-in;"/>
+        </div>
+      </div>
+      <!-- Pagination Controls -->
+      <div class="ratings-pagination" *ngIf="totalRatingsPages > 1">
+        <button mat-icon-button (click)="setRatingsPage(currentRatingsPage - 1)" [disabled]="currentRatingsPage === 1" aria-label="Previous page">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span>Page {{ currentRatingsPage }} of {{ totalRatingsPages }}</span>
+        <button mat-icon-button (click)="setRatingsPage(currentRatingsPage + 1)" [disabled]="currentRatingsPage === totalRatingsPages" aria-label="Next page">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </ng-container>
+    <ng-template #noRatingsBlock>
+      <div class="no-ratings">
+        <mat-icon color="disabled">rate_review</mat-icon>
+        <span>No ratings or comments yet.</span>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Rating Image Full Screen Modal -->
+  <div class="fullscreen-viewer" *ngIf="isRatingImageFullScreen" (click)="closeRatingImageFullScreen()" tabindex="0">
+    <div class="fullscreen-content" (click)="$event.stopPropagation()">
+      <button mat-icon-button class="close-button" (click)="closeRatingImageFullScreen()" aria-label="Close full screen view">
+        <mat-icon>close</mat-icon>
+      </button>
+      <div class="fullscreen-image-container">
+        <img [src]="ratingImageFullScreenUrl" alt="Rating image fullscreen" class="fullscreen-image"/>
       </div>
     </div>
   </div>

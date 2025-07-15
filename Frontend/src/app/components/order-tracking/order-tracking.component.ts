@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { OrderService } from '../../services/order.service';
 import { AuthService } from '../../services/auth.service';
 import { ImageService } from '../../services/image.service';
+import { MatDialog } from '@angular/material/dialog';
+import { RatingDialogComponent } from '../rating-dialog/rating-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { RatingService } from '../../services/rating.service';
 
 export interface Order {
   id: number;
@@ -68,10 +72,16 @@ export class OrderTrackingComponent implements OnInit {
   selectedOrder: Order | null = null;
   currentUser: any = null;
 
+  // Track reviewed items: key = productId + '-' + orderId
+  reviewedItems: { [key: string]: boolean } = {};
+
   constructor(
     private orderService: OrderService,
     private authService: AuthService,
-    public imageService: ImageService
+    public imageService: ImageService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private ratingService: RatingService
   ) {}
 
   ngOnInit(): void {
@@ -99,6 +109,23 @@ export class OrderTrackingComponent implements OnInit {
 
   selectOrder(order: Order): void {
     this.selectedOrder = order;
+    this.fetchReviewedItems(order);
+  }
+
+  fetchReviewedItems(order: Order): void {
+    this.reviewedItems = {};
+    if (!order || !order.items) return;
+    order.items.forEach(item => {
+      this.ratingService.getMyRatingForProductInOrder(item.productId, order.id).subscribe(rating => {
+        const key = `${item.productId}-${order.id}`;
+        this.reviewedItems[key] = !!rating;
+      });
+    });
+  }
+
+  isItemReviewed(item: OrderItem, orderId: number): boolean {
+    const key = `${item.productId}-${orderId}`;
+    return !!this.reviewedItems[key];
   }
 
   getStatusColor(status: string): string {
@@ -180,5 +207,33 @@ export class OrderTrackingComponent implements OnInit {
     
     // Fallback to placeholder
     return this.imageService.getPlaceholderUrl();
+  }
+
+  openRatingDialog(item: OrderItem): void {
+    if (!this.selectedOrder) return;
+    const dialogRef = this.dialog.open(RatingDialogComponent, {
+      width: '400px',
+      data: {
+        productId: item.productId,
+        orderId: this.selectedOrder.id,
+        productName: item.productName
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.submitRating(result);
+      }
+    });
+  }
+
+  submitRating(ratingData: any): void {
+    this.orderService.submitProductRating(ratingData).subscribe({
+      next: () => {
+        this.snackBar.open('Thank you for your rating!', 'Close', { duration: 3000 });
+      },
+      error: (err) => {
+        this.snackBar.open('Failed to submit rating. Please try again.', 'Close', { duration: 4000 });
+      }
+    });
   }
 } 
