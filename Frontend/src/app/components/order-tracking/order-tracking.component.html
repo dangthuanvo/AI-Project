@@ -138,6 +138,14 @@
                   <h4>{{ item.productName }}</h4>
                   <p>Quantity: {{ item.quantity }}</p>
                   <p class="item-price">{{ formatCurrency(item.unitPrice) }}</p>
+                  <button *ngIf="selectedOrder.status === 'Delivered' && !isItemReviewed(item, selectedOrder.id)" mat-stroked-button color="primary" (click)="openRatingDialog(item)">
+                    <mat-icon>star_rate</mat-icon>
+                    Add rating
+                  </button>
+                  <span *ngIf="selectedOrder.status === 'Delivered' && isItemReviewed(item, selectedOrder.id)" class="already-reviewed-label">
+                    <mat-icon color="warn">star</mat-icon>
+                    You already rated this product
+                  </span>
                 </div>
                 <div class="item-total">
                   {{ formatCurrency(item.unitPrice * item.quantity) }}

@@ -53,3 +53,32 @@
     }
   }
 } 
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 1.08rem;
+  .stars mat-icon {
+    color: #FFD600;
+    font-size: 20px;
+    vertical-align: middle;
+  }
+  .average-value {
+    color: #1976d2;
+    font-weight: 700;
+    margin-left: 2px;
+    font-size: 1.08rem;
+  }
+  .ratings-count {
+    color: #888;
+    font-size: 0.98rem;
+    margin-left: 4px;
+  }
+  .no-rating {
+    color: #bbb;
+    font-size: 0.98rem;
+    font-style: italic;
+  }
+} 

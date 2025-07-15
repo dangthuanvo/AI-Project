@@ -20,6 +20,7 @@ namespace SilkyRoad.API.Data
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<PendingOrderInfo> PendingOrderInfos { get; set; }
         public DbSet<ShippingInfo> ShippingInfos { get; set; }
+        public DbSet<ProductRating> ProductRatings { get; set; }
         
         // Chat entities
         public DbSet<ChatMessage> ChatMessages { get; set; }
@@ -164,6 +165,29 @@ namespace SilkyRoad.API.Data
                 // Ensure unique conversations between users
                 entity.HasIndex(cc => new { cc.User1Id, cc.User2Id }).IsUnique();
                 entity.HasIndex(cc => new { cc.User2Id, cc.User1Id }).IsUnique();
+            });
+
+            // Configure ProductRating
+            builder.Entity<ProductRating>(entity =>
+            {
+                entity.HasOne(r => r.Product)
+                      .WithMany()
+                      .HasForeignKey(r => r.ProductId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.User)
+                      .WithMany()
+                      .HasForeignKey(r => r.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.Order)
+                      .WithMany()
+                      .HasForeignKey(r => r.OrderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(r => r.Rating).IsRequired();
+                entity.Property(r => r.Comment).HasMaxLength(2000);
+                entity.Property(r => r.ImageUrl).HasMaxLength(500);
             });
         }
     }

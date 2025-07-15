@@ -120,5 +120,34 @@ namespace SilkyRoad.API.Controllers
             await _productService.DeleteAsync(id, userId!);
             return NoContent();
         }
+        [Authorize]
+        [HttpPost("{id}/ratings")]
+        public async Task<ActionResult<ProductRatingResponse>> AddRating(int id, ProductRatingRequest request)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) return Unauthorized();
+            if (id != request.ProductId) return BadRequest("ProductId mismatch");
+            var result = await _productService.AddRatingAsync(request, userId);
+            return Ok(result);
+        }
+
+        [HttpGet("{id}/ratings")]
+        public async Task<ActionResult<List<ProductRatingResponse>>> GetRatings(int id)
+        {
+            var ratings = await _productService.GetRatingsForProductAsync(id);
+            return Ok(ratings);
+        }
+
+        [Authorize]
+        [HttpGet("{productId}/order/{orderId}/my-rating")]
+        public async Task<ActionResult<ProductRatingResponse?>> GetMyRatingForProductInOrder(int productId, int orderId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null) return Unauthorized();
+            var rating = await _productService.GetRatingForProductOrderUserAsync(productId, orderId, userId);
+            if (rating == null) return Ok(null);
+            return Ok(rating);
+        }
     }
+    
 } 

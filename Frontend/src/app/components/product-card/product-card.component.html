@@ -5,5 +5,17 @@
     <p>{{ product.description }}</p>
     <p class="price">${{ product.price | number:'1.2-2' }}</p>
     <p class="stock">Stock: {{ product.stockQuantity }}</p>
+    <div class="product-rating">
+      <ng-container *ngIf="averageRating !== null; else noRatingBlock">
+        <span class="stars">
+          <mat-icon *ngFor="let star of [1,2,3,4,5]">{{ star <= averageRating ? 'star' : 'star_border' }}</mat-icon>
+        </span>
+        <span class="average-value">{{ averageRating }}</span>
+        <span class="ratings-count">({{ ratingsCount }})</span>
+      </ng-container>
+      <ng-template #noRatingBlock>
+        <span class="no-rating">No ratings yet</span>
+      </ng-template>
+    </div>
   </div>
 </div> 

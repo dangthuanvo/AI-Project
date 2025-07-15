@@ -295,6 +295,15 @@
   }
 }
 
+.item-details button[mat-stroked-button] {
+  color: #1976d2;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.item-details button[mat-stroked-button] mat-icon {
+  color: #FFD600;
+}
+
 .order-summary-section {
   margin-top: 24px;
   padding-top: 16px;
@@ -311,6 +320,21 @@
       color: #1976d2;
       font-size: 1.2rem;
     }
+  }
+}
+
+.already-reviewed-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1976d2;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-top: 6px;
+  mat-icon {
+    font-size: 1.1rem;
+    vertical-align: middle;
+    color: #FFD600;
   }
 }
 

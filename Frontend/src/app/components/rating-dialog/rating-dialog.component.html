@@ -1,0 +1,58 @@
+<div class="rating-dialog-container">
+  <div class="header">
+    <h2>Rate & Comment on {{ data.productName }}</h2>
+    <p>We value your feedback! Please rate and share your experience.</p>
+  </div>
+  <form [formGroup]="ratingForm" (ngSubmit)="submit()" class="rating-form">
+    <div class="section">
+      <div class="section-header">
+        <h3>Rating</h3>
+      </div>
+      <div class="star-rating">
+        <mat-button-toggle-group formControlName="rating" aria-label="Rating">
+          <mat-button-toggle *ngFor="let star of [1,2,3,4,5]" [value]="star">
+            <mat-icon>{{ star <= ratingForm.value.rating ? 'star' : 'star_border' }}</mat-icon>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <h3>Comment</h3>
+      </div>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Comment</mat-label>
+        <textarea matInput formControlName="comment" rows="3" maxlength="2000" placeholder="Share your experience..."></textarea>
+        <mat-hint align="end">{{ ratingForm.value.comment?.length || 0 }}/2000</mat-hint>
+      </mat-form-field>
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <h3>Attach Image</h3>
+      </div>
+      <div class="image-upload-section">
+        <div class="file-input-container">
+          <input type="file" #fileInput accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" (change)="onFileSelected($event)" style="display: none;">
+          <button type="button" mat-stroked-button color="primary" (click)="onFileButtonClick(fileInput)">
+            <mat-icon>upload</mat-icon>
+            Choose Image
+          </button>
+        </div>
+        <div class="image-previews" *ngIf="imagePreview">
+          <div class="preview-thumb">
+            <img [src]="imagePreview" alt="Image Preview">
+            <button mat-icon-button color="warn" (click)="removeImage()"><mat-icon>close</mat-icon></button>
+          </div>
+        </div>
+        <mat-error *ngIf="uploadError">{{ uploadError }}</mat-error>
+      </div>
+    </div>
+    <div class="actions">
+      <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="ratingForm.invalid || uploading">
+        <mat-spinner *ngIf="uploading" diameter="20"></mat-spinner>
+        <span *ngIf="!uploading">Submit</span>
+      </button>
+    </div>
+  </form>
+</div> 

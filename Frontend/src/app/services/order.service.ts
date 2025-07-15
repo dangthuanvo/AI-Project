@@ -36,4 +36,8 @@ export class OrderService {
       trackingNumber
     });
   }
+
+  submitProductRating(rating: any): Observable<any> {
+    return this.http.post(`${this.API_URL}/product/${rating.productId}/ratings`, rating);
+  }
 } 

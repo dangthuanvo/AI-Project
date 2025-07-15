@@ -34,6 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 // Components
 import { AppComponent } from './app.component';
@@ -62,6 +63,7 @@ import { ColorRushComponent } from './components/color-rush/color-rush.component
 import { NumberPuzzleComponent } from './components/number-puzzle/number-puzzle.component';
 import { WordScrambleComponent } from './components/word-scramble/word-scramble.component';
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
+import { RatingDialogComponent } from './components/rating-dialog/rating-dialog.component';
 
 // Services
 import { AuthService } from './services/auth.service';
@@ -103,7 +105,8 @@ import { RoleGuard } from './guards/role.guard';
     ColorRushComponent,
     NumberPuzzleComponent,
     WordScrambleComponent,
-    SplashScreenComponent
+    SplashScreenComponent,
+    RatingDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -154,7 +157,8 @@ import { RoleGuard } from './guards/role.guard';
     MatListModule,
     MatGridListModule,
     NgChartsModule,
-    LeafletModule
+    LeafletModule,
+    MatButtonToggleModule
   ],
   providers: [
     AuthService,

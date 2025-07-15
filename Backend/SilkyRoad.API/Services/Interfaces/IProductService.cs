@@ -1,3 +1,4 @@
+using SilkyRoad.API.DTOs;
 using SilkyRoad.API.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,5 +13,8 @@ namespace SilkyRoad.API.Services.Interfaces
         Task<Product> CreateAsync(Product product, string userId);
         Task UpdateAsync(int id, Product updated, string userId);
         Task DeleteAsync(int id, string userId);
+        Task<ProductRatingResponse> AddRatingAsync(ProductRatingRequest request, string userId);
+        Task<List<ProductRatingResponse>> GetRatingsForProductAsync(int productId);
+        Task<ProductRatingResponse?> GetRatingForProductOrderUserAsync(int productId, int orderId, string userId);
     }
 } 
