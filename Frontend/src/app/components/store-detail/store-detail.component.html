@@ -70,7 +70,18 @@
       </div>
       
       <div class="product-list" *ngIf="filteredProducts.length > 0">
-        <div class="product-card" *ngFor="let product of filteredProducts" (click)="navigateToProduct(product.id)">
+        <div 
+          class="product-card" 
+          *ngFor="let product of filteredProducts; let i = index" 
+          (click)="navigateToProduct(product.id)"
+          [ngClass]="{ 'jump-in': firstAppear[i] }"
+          (animationend)="firstAppear[i] = false"
+          [ngStyle]="{
+            '--fly-direction-x': flyDirections[i] === 'left' ? -1 : flyDirections[i] === 'right' ? 1 : 0,
+            '--fly-direction-y': flyDirections[i] === 'top' ? -1 : flyDirections[i] === 'bottom' ? 1 : 0,
+            '--fly-delay': (i * 60) + 'ms'
+          }"
+        >
           <img *ngIf="product.imageUrls && product.imageUrls.length > 0" [src]="getImageUrl(product.imageUrls[0])" alt="{{ product.name }}">
           <div class="product-info">
             <h4>{{ product.name }}</h4>

@@ -154,7 +154,13 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   isRunning: boolean = false;
   private baseMoveSpeed = 6;
   private runMoveSpeed = 12;
-
+  isFalling: boolean = false;
+  private fallingTimeout: any = null;
+  fallingDirection: 'left' | 'right' | 'down' = 'down';
+  private fallCount: number = 0;
+  showFallWarning: boolean = false;
+  fallWarningMessage: string = '';
+  
   constructor(
     private storeService: StoreService,
     private authService: AuthService,
@@ -171,7 +177,13 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
-    this.restorePlayerPosition();
+    this.fallCount = 0; // Reset on page load/login
+    // Spawn player at the middle of the street (not just the map)
+    const playerWidth = 48;
+    const playerHeight = 64;
+    this.player.x = Math.floor((this.roadLength - playerWidth) / 2);
+    this.player.y = Math.floor((400 - playerHeight) / 2); // 400px is the street height
+    // this.restorePlayerPosition(); // Disabled: always spawn at center
     this.loadStores();
     this.loadPlayerData();
     this.startGameLoop();
@@ -503,7 +515,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     document.body.style.overflow = '';
     document.documentElement.style.overflow = '';
-    this.savePlayerPosition();
+    // this.savePlayerPosition(); // Disabled: do not persist position
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
     }
@@ -719,6 +731,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   }
 
   private updatePlayerMovement(): void {
+    if (this.isFalling) return; // Prevent movement while falling
     const oldX = this.player.x;
     const oldY = this.player.y;
     const oldFacing = this.player.facing;
@@ -766,11 +779,58 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     const minY = 0;
     const maxY = 400 - playerHeight;
 
+    // Only fall if out of left or right edge
+    if (this.player.x < minX) {
+      this.triggerFalling('left');
+      return;
+    } else if (this.player.x > maxX) {
+      this.triggerFalling('right');
+      return;
+    }
+
+    // Clamp Y as usual (no falling for top/bottom)
     this.player.x = Math.max(minX, Math.min(this.player.x, maxX));
     this.player.y = Math.max(minY, Math.min(this.player.y, maxY));
 
     // Send network updates at a consistent rate when moving
     this.sendNetworkUpdateIfNeeded(moved, oldX, oldY, oldFacing);
+  }
+
+  private triggerFalling(direction: 'left' | 'right' | 'down' = 'down'): void {
+    if (this.isFalling) return;
+    this.isFalling = true;
+    this.fallingDirection = direction;
+    this.player.isWalking = false;
+    this.fallCount++;
+    if (this.fallCount === 1) {
+      this.fallWarningMessage = 'Please do not try it again.';
+      this.showFallWarning = true;
+      setTimeout(() => {
+        this.showFallWarning = false;
+      }, 2500);
+    }
+    // Optionally, play a sound or effect here
+    if (this.fallingTimeout) clearTimeout(this.fallingTimeout);
+    this.fallingTimeout = setTimeout(() => {
+      if (this.fallCount >= 2) {
+        this.fallWarningMessage = 'We told you :<';
+        this.showFallWarning = true;
+        setTimeout(() => {
+          this.showFallWarning = false;
+          this.authService.logout();
+          this.router.navigate(['/login']);
+        }, 2000);
+        return;
+      }
+      // Respawn player at the center of the street
+      const playerWidth = 48;
+      const playerHeight = 64;
+      this.player.x = Math.floor((this.roadLength - playerWidth) / 2);
+      this.player.y = Math.floor((400 - playerHeight) / 2);
+      this.isFalling = false;
+      this.fallingDirection = 'down';
+      this.sendNetworkUpdate();
+    }, 2500); // Match the slower animation duration
   }
 
   private sendNetworkUpdateIfNeeded(moved: boolean, oldX: number, oldY: number, oldFacing: string): void {
@@ -857,7 +917,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   }
 
   enterStore(store: GameStore): void {
-    this.savePlayerPosition();
+    // this.savePlayerPosition(); // Disabled: do not persist position
     this.lastStorePosition = { x: this.player.x, y: this.player.y };
     sessionStorage.setItem('lastStorePosition', JSON.stringify(this.lastStorePosition));
     sessionStorage.setItem('lastStoreId', store.id.toString());
