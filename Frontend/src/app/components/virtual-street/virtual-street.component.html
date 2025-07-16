@@ -105,6 +105,9 @@
         [style.zIndex]="9999"
         [class.walking]="player.isWalking"
         [ngClass]="'facing-' + player.facing"
+        [class.falling]="isFalling && fallingDirection === 'down'"
+        [class.falling-left]="isFalling && fallingDirection === 'left'"
+        [class.falling-right]="isFalling && fallingDirection === 'right'"
       >
         <!-- New Stacked Wind effect when running -->
         <ng-container *ngIf="isRunning">
@@ -397,6 +400,12 @@
   <div class="reconnection-notification" *ngIf="connectionStatus === 'connecting'">
     <mat-icon class="spinning">sync</mat-icon>
     <span>Reconnecting to multiplayer...</span>
+  </div>
+
+  <!-- Fall Warning Notification -->
+  <div class="reconnection-notification" *ngIf="showFallWarning">
+    <mat-icon>warning</mat-icon>
+    <span>{{ fallWarningMessage }}</span>
   </div>
 
   <!-- Draw all chat buttons above the current player if any user is close -->

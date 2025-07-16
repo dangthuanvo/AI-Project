@@ -273,6 +273,35 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  /* Remove default animation, only animate with .jump-in class */
+}
+
+.product-card.jump-in {
+  animation: flyIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--fly-delay, 0ms);
+  --fly-direction-x: 1;
+  --fly-direction-y: 0;
+}
+
+@keyframes flyIn {
+  0% {
+    opacity: 0;
+    transform: translateX(calc(var(--fly-direction-x, 0) * 100vw)) translateY(calc(var(--fly-direction-y, 0) * 100vh)) scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1.05);
+  }
+  80% {
+    transform: translateX(0) translateY(0) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+.product-card {
   
   &:hover {
     border-color: #4a90e2;

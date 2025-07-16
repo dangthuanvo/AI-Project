@@ -17,6 +17,8 @@ export class StoreDetailComponent implements OnInit {
   error: string | null = null;
   searchTerm = '';
   sortOrder = 'none';
+  firstAppear: boolean[] = [];
+  flyDirections: string[] = [];
 
   constructor(
     private route: ActivatedRoute, 
@@ -47,11 +49,18 @@ export class StoreDetailComponent implements OnInit {
     }
   }
 
+  private getRandomDirection(): string {
+    const directions = ['left', 'right', 'top', 'bottom'];
+    return directions[Math.floor(Math.random() * directions.length)];
+  }
+
   loadProducts(storeId: number): void {
     this.storeService.getStoreProducts(storeId).subscribe({
       next: (products) => {
         this.products = products;
         this.filteredProducts = products;
+        this.firstAppear = products.map(() => true);
+        this.flyDirections = products.map(() => this.getRandomDirection());
         this.loading = false;
       },
       error: (error) => {
@@ -105,6 +114,8 @@ export class StoreDetailComponent implements OnInit {
     }
 
     this.filteredProducts = filtered;
+    this.firstAppear = filtered.map(() => true);
+    this.flyDirections = filtered.map(() => this.getRandomDirection());
   }
 
   getImageUrl(imageUrl: string | null | undefined): string {

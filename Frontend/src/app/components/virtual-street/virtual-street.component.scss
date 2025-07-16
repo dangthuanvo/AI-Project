@@ -2749,3 +2749,80 @@
   0% { opacity: 0.7; left: 3px; }
   100% { opacity: 1; left: 7px; }
 }
+
+.player-character.falling {
+  animation: player-fall 2.5s cubic-bezier(0.4, 0.2, 0.6, 1) forwards;
+  z-index: 10000;
+}
+.player-character.falling-left {
+  animation: player-fall-left 2.5s cubic-bezier(0.4, 0.2, 0.6, 1) forwards;
+  z-index: 10000;
+}
+.player-character.falling-right {
+  animation: player-fall-right 2.5s cubic-bezier(0.4, 0.2, 0.6, 1) forwards;
+  z-index: 10000;
+}
+
+@keyframes player-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(60px) rotate(180deg) scale(1.1);
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(120px) rotate(340deg) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(calc(100vh + 1000px)) rotate(540deg) scale(0.7);
+  }
+}
+@keyframes player-fall-left {
+  0% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(60px) translateX(-40px) rotate(-180deg) scale(1.1);
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(120px) translateX(-80px) rotate(-340deg) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(calc(100vh + 1000px)) translateX(-200px) rotate(-540deg) scale(0.7);
+  }
+}
+@keyframes player-fall-right {
+  0% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(60px) translateX(40px) rotate(180deg) scale(1.1);
+  }
+  80% {
+    opacity: 0.7;
+    transform: translateY(120px) translateX(80px) rotate(340deg) scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(calc(100vh + 1000px)) translateX(200px) rotate(540deg) scale(0.7);
+  }
+}
+
+// Ensure falling overrides walking/idle
+.player-character.falling .player-svg,
+.player-character.falling .arm-left,
+.player-character.falling .arm-right,
+.player-character.falling .leg-left,
+.player-character.falling .leg-right {
+  animation: none !important;
+}
