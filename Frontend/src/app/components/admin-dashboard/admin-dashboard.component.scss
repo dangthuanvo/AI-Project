@@ -758,3 +758,59 @@
 .order-status-badge.cancelled {
   background: #ef5350;
 } 
+
+// Minimap Monitor Styles
+.minimap-panel {
+  background: rgba(255,255,255,0.98);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(102,126,234,0.08);
+  padding: 16px 20px 12px 20px;
+  margin-bottom: 24px;
+  max-width: 440px;
+  border: 1px solid #e0e6ef;
+
+  svg {
+    display: block;
+    margin: 0 auto 8px auto;
+    background: #f5f7fa;
+    border-radius: 12px;
+    border: 1px solid #e0e6ef;
+  }
+
+  .minimap-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 6px;
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      border-radius: 6px;
+      padding: 2px 8px;
+      box-shadow: 0 1px 3px rgba(102,126,234,0.06);
+      font-size: 13px;
+      border: 1px solid #e0e6ef;
+    }
+    img {
+      border-radius: 50%;
+      border: 1px solid #e0e6ef;
+      object-fit: cover;
+      margin-right: 2px;
+    }
+  }
+} 
+
+.minimap-panel.minimap-fullwidth {
+  max-width: none;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+  padding-left: 0;
+  padding-right: 0;
+} 

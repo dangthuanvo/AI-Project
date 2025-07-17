@@ -73,7 +73,7 @@
         <div 
           class="product-card" 
           *ngFor="let product of filteredProducts; let i = index" 
-          (click)="navigateToProduct(product.id)"
+          (click)="navigateToProduct(product.id, $event)"
           [ngClass]="{ 'jump-in': firstAppear[i] }"
           (animationend)="firstAppear[i] = false"
           [ngStyle]="{
