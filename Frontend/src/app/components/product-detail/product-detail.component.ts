@@ -11,6 +11,7 @@ import { ChatComponent } from '../chat/chat.component';
 import { ChatService } from '../../services/chat.service';
 import { HttpClient } from '@angular/common/http';
 import { RatingService } from '../../services/rating.service';
+import { AnimationService, FlyImageAnimationState } from '../services/animation.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -25,6 +26,7 @@ export class ProductDetailComponent implements OnInit {
   addToCartForm: FormGroup;
   currentUser: any;
   selectedImageIndex = 0;
+  showMainImage = true; // <-- Add this flag
   
   // Full-screen viewer properties
   isFullScreenOpen = false;
@@ -64,7 +66,8 @@ export class ProductDetailComponent implements OnInit {
     private dialog: MatDialog,
     private chatService: ChatService,
     private http: HttpClient,
-    private ratingService: RatingService
+    private ratingService: RatingService,
+    private animationService: AnimationService // <-- Injected
   ) {
     this.addToCartForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]]
@@ -73,7 +76,50 @@ export class ProductDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.showMainImage = true; // default
+    const state = this.animationService.getFlyImageState();
+    if (state) {
+      this.showMainImage = false;
+      setTimeout(() => this.tryFlyInAnimation(state), 0);
+    }
     this.loadProduct();
+  }
+
+  private tryFlyInAnimation(state: FlyImageAnimationState) {
+    // Wait for main image to render
+    setTimeout(() => {
+      const mainImg = this.mainProductImg?.nativeElement;
+      if (!mainImg) {
+        this.showMainImage = true;
+        return;
+      }
+      const destRect = mainImg.getBoundingClientRect();
+      const clone = document.createElement('img');
+      clone.src = state.imageUrl;
+      clone.style.position = 'fixed';
+      clone.style.left = state.rect.left + 'px';
+      clone.style.top = state.rect.top + 'px';
+      clone.style.width = state.rect.width + 'px';
+      clone.style.height = state.rect.height + 'px';
+      clone.style.zIndex = '9999';
+      clone.style.borderRadius = '8px';
+      clone.style.transition = 'all 0.7s cubic-bezier(.7,0,1,1)';
+      clone.style.pointerEvents = 'none';
+      document.body.appendChild(clone);
+      // Force reflow
+      void clone.offsetWidth;
+      clone.style.left = destRect.left + 'px';
+      clone.style.top = destRect.top + 'px';
+      clone.style.width = destRect.width + 'px';
+      clone.style.height = destRect.height + 'px';
+      setTimeout(() => {
+        clone.style.opacity = '0';
+      }, 600);
+      clone.addEventListener('transitionend', () => {
+        clone.remove();
+        this.showMainImage = true;
+      });
+    }, 100);
   }
 
   loadProduct(): void {

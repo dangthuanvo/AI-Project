@@ -33,6 +33,7 @@
               <mat-icon>chevron_left</mat-icon>
             </button>
             <img #mainProductImg 
+              [style.visibility]="showMainImage ? 'visible' : 'hidden'"
               [src]="getImageUrl(getGalleryImages()[selectedImageIndex])" 
               [alt]="product.name || 'Product image'" 
               (error)="onImageError(selectedImageIndex)"

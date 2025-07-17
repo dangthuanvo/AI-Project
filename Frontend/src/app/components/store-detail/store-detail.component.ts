@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StoreService, Store, Product } from '../../services/store.service';
 import { ImageService } from '../../services/image.service';
 import { AuthService } from '../../services/auth.service';
+import { AnimationService } from '../services/animation.service';
 
 @Component({
   selector: 'app-store-detail',
@@ -25,7 +26,8 @@ export class StoreDetailComponent implements OnInit {
     private storeService: StoreService, 
     private imageService: ImageService, 
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private animationService: AnimationService // <-- Injected
   ) {}
 
   ngOnInit(): void {
@@ -122,7 +124,20 @@ export class StoreDetailComponent implements OnInit {
     return this.imageService.getImageUrl(imageUrl);
   }
 
-  navigateToProduct(productId: number): void {
+  navigateToProduct(productId: number, event?: MouseEvent): void {
+    if (event) {
+      // Find the image element that was clicked
+      const card = (event.currentTarget as HTMLElement);
+      const img = card.querySelector('img');
+      if (img) {
+        const rect = img.getBoundingClientRect();
+        this.animationService.setFlyImageState({
+          productId,
+          imageUrl: img.src,
+          rect
+        });
+      }
+    }
     this.router.navigate(['/product', productId]);
   }
 

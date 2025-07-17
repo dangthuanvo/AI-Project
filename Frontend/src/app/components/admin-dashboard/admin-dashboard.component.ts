@@ -7,6 +7,7 @@ import { Subject, takeUntil, interval } from 'rxjs';
 import { AdminService, User, Store, Product, Order, SystemStats, UserStats, StoreStats, OrderStats, ProductStats } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { ImageService } from '../../services/image.service';
+import { PresenceService, PlayerState } from '../../services/presence.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -62,6 +63,24 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   // Real-time updates
   private refreshInterval: any;
 
+  // Monitor (Street Minimap) state
+  showMonitor = false;
+  playerStates: PlayerState[] = [];
+  minimapWidth = 400;
+  minimapHeight = 120;
+  streetLength = 2000; // Should match virtual street roadLength
+  minimapScale = 0.2; // minimapWidth / streetLength
+  minimapPlayerSize = 12;
+  minimapStreetHeight = 400; // Should match virtual street height
+  roadLength = 2000;
+
+  // Only show active stores on the minimap
+  get activeStores() {
+    return this.stores.filter(s => s.isActive);
+  }
+
+  selectedUserId: string | null = null;
+
   constructor(
     private adminService: AdminService,
     private authService: AuthService,
@@ -69,7 +88,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private fb: FormBuilder,
-    public imageService: ImageService
+    public imageService: ImageService,
+    private presenceService: PresenceService
   ) {
     this.initializeForms();
   }
@@ -77,7 +97,15 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loadDashboardData();
+    this.loadStores(); // Ensure stores are loaded for minimap
     this.startAutoRefresh();
+    // Subscribe to player states for monitor
+    this.presenceService.allPlayerStates$.pipe(takeUntil(this.destroy$)).subscribe(states => {
+      this.playerStates = states;
+      // Dynamically set roadLength based on max player x (fallback to 2000)
+      const maxX = states.length > 0 ? Math.max(...states.map(p => p.x)) : 2000;
+      this.roadLength = Math.max(1200, maxX + 200); // Add margin like virtual street
+    });
   }
 
   ngOnDestroy(): void {
@@ -529,6 +557,29 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   onProductImageError(event: any): void {
     // Fallback to product-default when product image fails to load
     event.target.src = this.imageService.getImageUrl('/uploads/images/product-default.png');
+  }
+
+  // Minimap helper: get color for player
+  getPlayerColor(player: PlayerState): string {
+    // Use their color if set, else fallback
+    return player.color || '#1976d2';
+  }
+
+  // Minimap helper: get avatar url
+  getPlayerAvatar(player: PlayerState): string {
+    return this.imageService.getImageUrl(player.avatar || '/uploads/images/user-avatar.png');
+  }
+
+  // Highlight logic for minimap
+  selectUser(userId: string) {
+    if (this.selectedUserId === userId) {
+      this.selectedUserId = null;
+    } else {
+      this.selectedUserId = userId;
+    }
+  }
+  isUserSelected(userId: string): boolean {
+    return this.selectedUserId === userId;
   }
 
   private handleError(message: string, error: any): void {

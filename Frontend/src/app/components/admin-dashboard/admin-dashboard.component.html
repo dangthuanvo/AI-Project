@@ -185,6 +185,81 @@
             </mat-card-content>
           </mat-card>
         </div>
+        <!-- Monitor Street Minimap Panel (always shown, full width) -->
+        <div class="minimap-panel minimap-fullwidth">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <mat-icon color="primary">monitor_heart</mat-icon>
+            <span style="font-size: 1.15rem; font-weight: 600; color: #667eea; letter-spacing: 0.5px;">Street Monitoring</span>
+          </div>
+          <svg width="100%" [attr.height]="minimapHeight" [attr.viewBox]="'0 0 1200 ' + minimapHeight" preserveAspectRatio="none" style="background: #f5f7fa; border-radius: 12px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); border: 1px solid #e0e6ef; width: 100%; min-width: 400px; max-width: 100%; display: block; margin-bottom: 8px;">
+            <defs>
+              <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            <!-- Sidewalks -->
+            <rect x="0" y="0" width="1200" [attr.height]="minimapHeight * 0.18" fill="#e0e6ef" />
+            <rect x="0" [attr.y]="minimapHeight * 0.82" width="1200" [attr.height]="minimapHeight * 0.18" fill="#e0e6ef" />
+            <!-- Street (main road) -->
+            <rect x="0" [attr.y]="minimapHeight * 0.18" width="1200" [attr.height]="minimapHeight * 0.64" rx="22" fill="#444" />
+            <!-- Lane markings -->
+            <g>
+              <rect *ngFor="let i of [].constructor(24); let idx = index" [attr.x]="idx * 50 + 10" [attr.y]="minimapHeight/2 - 3" width="30" height="6" fill="#fff" opacity="0.7" rx="2" />
+            </g>
+            <!-- Stores (evenly spaced, centered with road, with left/right margin) -->
+            <g *ngIf="activeStores.length > 0">
+              <ng-container *ngFor="let store of activeStores; let i = index">
+                <g>
+                  <rect
+                    [attr.x]="activeStores.length === 1 ? 600-20 : (60 + i * ((1080) / (activeStores.length - 1)) - 20)"
+                    [attr.y]="minimapHeight * 0.13"
+                    width="40" height="24"
+                    [attr.fill]="store.primaryColor || '#1976d2'"
+                    stroke="#222" stroke-width="1.5" rx="6"
+                  />
+                </g>
+              </ng-container>
+            </g>
+            <!-- Debug fallback: show a placeholder if no stores -->
+            <g *ngIf="activeStores.length === 0">
+              <rect x="580" [attr.y]="minimapHeight * 0.13" width="40" height="24" fill="#bbb" stroke="#222" stroke-width="1.5" rx="6" />
+            </g>
+            <!-- Players -->
+            <g *ngFor="let player of playerStates">
+              <circle
+                *ngIf="isUserSelected(player.userId)"
+                [attr.cx]="(player.x / roadLength) * 1200"
+                [attr.cy]="minimapHeight / 2 + (player.y - minimapStreetHeight/2) * (minimapHeight/minimapStreetHeight)"
+                r="13"
+                fill="#ffe066"
+                filter="url(#glow)"
+                opacity="0.7"
+              />
+              <circle
+                [attr.cx]="(player.x / roadLength) * 1200"
+                [attr.cy]="minimapHeight / 2 + (player.y - minimapStreetHeight/2) * (minimapHeight/minimapStreetHeight)"
+                r="5"
+                [attr.fill]="getPlayerColor(player)"
+                stroke="#333"
+                stroke-width="1"
+              >
+                <title>{{ player.name }} ({{ player.x }}, {{ player.y }})</title>
+              </circle>
+            </g>
+          </svg>
+          <div class="minimap-legend">
+            <ng-container *ngFor="let player of playerStates">
+              <div class="legend-item" [class.selected]="isUserSelected(player.userId)" (click)="selectUser(player.userId)" style="cursor:pointer;">
+                <img [src]="getPlayerAvatar(player)" [alt]="player.name" width="18" height="18">
+                <span [style.color]="getPlayerColor(player)">{{ player.name }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
       </div>
     </mat-tab>
 
