@@ -9,6 +9,8 @@ import { ImageService } from '../../services/image.service';
 import { firstValueFrom } from 'rxjs';
 import { ShippingInfoService, ShippingInfo } from '../../services/shipping-info.service';
 import { MatDialog } from '@angular/material/dialog';
+import { VoucherService } from '../../services/voucher.service';
+import { UserVoucher } from '../../models/voucher.model';
 import { ShippingAddressDialogComponent } from './shipping-address-dialog.component';
 
 // Leaflet imports
@@ -65,7 +67,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     private authService: AuthService,
     private imageService: ImageService,
     private shippingInfoService: ShippingInfoService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private voucherService: VoucherService
   ) {
     this.checkoutForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -91,9 +94,14 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     };
   }
 
+  // Voucher selection state
+  userVouchers: UserVoucher[] = [];
+  selectedVoucherId: number | null = null;
+
   ngOnInit(): void {
     this.loadCart();
     this.loadShippingInfos();
+    this.loadUserVouchers();
     // Autofill user email
     const user = this.authService.getCurrentUser();
     if (user && user.email) {
@@ -114,6 +122,23 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
         this.formDirty = true;
       }
     });
+  }
+
+  loadUserVouchers(): void {
+    this.voucherService.getUserVouchers().subscribe({
+      next: (vouchers) => {
+        this.userVouchers = vouchers.filter(v => !v.used && (!v.expiryDate || new Date(v.expiryDate) > new Date()));
+        this.calculateTotals();
+      },
+      error: () => {
+        this.userVouchers = [];
+      }
+    });
+  }
+
+  onVoucherChange(voucherId: number): void {
+    this.selectedVoucherId = voucherId;
+    this.calculateTotals();
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -148,10 +173,20 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     this.itemsByStore = grouped;
   }
 
+  discountAmount = 0;
+
   calculateTotals(): void {
     this.subtotal = this.cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
     this.tax = this.subtotal * 0.08; // 8% tax
-    this.total = this.subtotal + this.tax;
+    // Apply voucher discount if selected
+    const selectedVoucher = this.userVouchers.find(v => v.id === this.selectedVoucherId);
+    if (selectedVoucher) {
+      this.discountAmount = (this.subtotal + this.tax) * (selectedVoucher.discountPercent / 100);
+    } else {
+      this.discountAmount = 0;
+    }
+    this.total = this.subtotal + this.tax - this.discountAmount;
+    if (this.total < 0) this.total = 0;
   }
 
   setPaymentMethod(method: string): void {
@@ -285,7 +320,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
       const shippingInfo = this.checkoutForm.value;
       console.log('Checkout form values at PayPal order creation:', shippingInfo);
       const response = await firstValueFrom(
-        this.payPalService.createOrder(this.total, shippingInfo)
+        this.payPalService.createOrder(this.total, shippingInfo, typeof this.selectedVoucherId === 'number' ? this.selectedVoucherId : undefined)
       );
       console.log('PayPal createOrder response:', response);
       if (response && response.orderId) {

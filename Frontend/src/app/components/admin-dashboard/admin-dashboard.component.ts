@@ -700,7 +700,20 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
   loadOrders(): void {
     this.adminService.getAllOrders().pipe(takeUntil(this.destroy$)).subscribe({
       next: (orders) => {
-        this.orders = orders;
+        // Map backend UserVoucher to userVoucher for template compatibility
+this.orders = orders.map(order => {
+  const backendVoucher = (order as any)['UserVoucher'];
+if (order.userVoucher || backendVoucher) {
+    // Use the property regardless of casing
+    const voucher = order.userVoucher || backendVoucher;
+    order.userVoucher = voucher
+      ? { code: voucher.code, discountPercent: voucher.discountPercent }
+      : undefined;
+  } else {
+    order.userVoucher = undefined;
+  }
+  return order;
+});
         // Set default sorting for orders (most recent first) only when on orders tab
         if (this.activeTab === 4 && !this.sortField) {
           this.sortField = 'orderDate';

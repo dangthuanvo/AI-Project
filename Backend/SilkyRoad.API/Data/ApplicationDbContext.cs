@@ -21,6 +21,7 @@ namespace SilkyRoad.API.Data
         public DbSet<PendingOrderInfo> PendingOrderInfos { get; set; }
         public DbSet<ShippingInfo> ShippingInfos { get; set; }
         public DbSet<ProductRating> ProductRatings { get; set; }
+        public DbSet<UserVoucher> UserVouchers { get; set; }
         
         // Chat entities
         public DbSet<ChatMessage> ChatMessages { get; set; }

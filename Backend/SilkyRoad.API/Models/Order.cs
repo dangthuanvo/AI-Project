@@ -51,6 +51,10 @@ namespace SilkyRoad.API.Models
         [JsonIgnore]
         public virtual ApplicationUser User { get; set; } = null!;
 
+        // Foreign key for applied voucher
+        public int? UserVoucherId { get; set; }
+        public virtual UserVoucher? UserVoucher { get; set; }
+
         // Navigation properties
         public virtual ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }

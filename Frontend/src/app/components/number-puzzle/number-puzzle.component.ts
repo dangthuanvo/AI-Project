@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MinigameService } from '../../services/minigame.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface PuzzleTile {
   value: number;
@@ -21,8 +23,13 @@ export class NumberPuzzleComponent implements OnInit, OnDestroy {
   gameActive: boolean = false;
   private timer: any;
   private gameStartTime: number = 0;
+  private voucherRewarded = false;
 
-  constructor(private dialogRef: MatDialogRef<NumberPuzzleComponent>) {}
+  constructor(
+    private dialogRef: MatDialogRef<NumberPuzzleComponent>,
+    private minigameService: MinigameService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.initializeGame();
@@ -40,6 +47,7 @@ export class NumberPuzzleComponent implements OnInit, OnDestroy {
     this.timeElapsed = 0;
     this.gameCompleted = false;
     this.gameActive = false;
+    this.voucherRewarded = false;
     
     // Create tiles for 3x3 puzzle (1-8 + empty space)
     const totalTiles = this.size * this.size - 1; // 8 tiles for 3x3
@@ -148,6 +156,21 @@ export class NumberPuzzleComponent implements OnInit, OnDestroy {
     this.gameActive = false;
     if (this.timer) {
       clearInterval(this.timer);
+    }
+    // Reward voucher if puzzle solved
+    if (!this.voucherRewarded && this.isPuzzleSolved()) {
+      this.voucherRewarded = true;
+      this.minigameService.rewardVoucher({
+        minigameId: 'number-puzzle',
+        difficulty: 'hard'
+      }).subscribe({
+        next: (res) => {
+          this.snackBar.open('Congratulations! You won a 15% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
+        },
+        error: (err) => {
+          this.snackBar.open('Failed to reward voucher: ' + (err.error?.message || 'Unknown error'), 'Close', { duration: 5000 });
+        }
+      });
     }
   }
 

@@ -123,6 +123,10 @@ export interface Product {
 }
 
 export interface Order {
+  userVoucher?: {
+    code: string;
+    discountPercent: number;
+  };
   id: number;
   orderNumber: string;
   userId: string;
@@ -139,6 +143,7 @@ export interface Order {
   shippedDate?: string;
   deliveredDate?: string;
   items: OrderItem[];
+
 }
 
 export interface OrderItem {

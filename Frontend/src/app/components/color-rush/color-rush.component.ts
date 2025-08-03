@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MinigameService } from '../../services/minigame.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface ColorOption {
   name: string;
@@ -17,6 +19,7 @@ export class ColorRushComponent implements OnInit, OnDestroy {
   timeLeft: number = 60; // 60 seconds game
   currentRound: number = 1;
   maxRounds: number = 30;
+  maxScore: number = 300; // max score for perfect win
   gameActive: boolean = false;
   gameCompleted: boolean = false;
   roundCompleted: boolean = false;
@@ -32,6 +35,7 @@ export class ColorRushComponent implements OnInit, OnDestroy {
   private timer: any;
   private roundTimer: any;
   private gameStartTime: number = 0;
+  private voucherRewarded = false;
 
   // Color definitions
   private colors: ColorOption[] = [
@@ -45,7 +49,11 @@ export class ColorRushComponent implements OnInit, OnDestroy {
     { name: 'cyan', hex: '#00d2d3', displayName: 'Cyan' }
   ];
 
-  constructor(private dialogRef: MatDialogRef<ColorRushComponent>) {}
+  constructor(
+    private dialogRef: MatDialogRef<ColorRushComponent>,
+    private minigameService: MinigameService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.initializeGame();
@@ -68,6 +76,7 @@ export class ColorRushComponent implements OnInit, OnDestroy {
     this.totalReactionTime = 0;
     this.targetColor = null;
     this.colorOptions = [];
+    this.voucherRewarded = false;
   }
 
   startGame(): void {
@@ -166,6 +175,21 @@ export class ColorRushComponent implements OnInit, OnDestroy {
     this.gameActive = false;
     this.gameCompleted = true;
     this.clearTimers();
+    // Reward voucher if perfect score
+    if (!this.voucherRewarded && this.score === this.maxScore) {
+      this.voucherRewarded = true;
+      this.minigameService.rewardVoucher({
+        minigameId: 'color-rush',
+        difficulty: 'easy'
+      }).subscribe({
+        next: (res) => {
+          this.snackBar.open('Congratulations! You won a 5% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
+        },
+        error: (err) => {
+          this.snackBar.open('Failed to reward voucher: ' + (err.error?.message || 'Unknown error'), 'Close', { duration: 5000 });
+        }
+      });
+    }
   }
 
   clearTimers(): void {

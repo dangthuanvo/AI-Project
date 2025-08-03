@@ -1,4 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { VoucherService } from '../../services/voucher.service';
+import { UserVoucher } from '../../models/voucher.model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 export interface Minigame {
@@ -16,7 +18,8 @@ export interface Minigame {
   templateUrl: './minigame-dialog.component.html',
   styleUrls: ['./minigame-dialog.component.scss']
 })
-export class MinigameDialogComponent {
+export class MinigameDialogComponent implements OnInit {
+  // --- imports moved above ---
   minigames: Minigame[] = [
     {
       id: 'memory-match',
@@ -56,10 +59,36 @@ export class MinigameDialogComponent {
     }
   ];
 
+  userVouchers: UserVoucher[] = [];
+
   constructor(
     public dialogRef: MatDialogRef<MinigameDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private voucherService: VoucherService
   ) {}
+
+  ngOnInit(): void {
+    this.voucherService.getUserVouchers().subscribe(vouchers => {
+      this.userVouchers = vouchers;
+      const today = new Date().toISOString().slice(0, 10);
+      console.log('All user vouchers:', this.userVouchers);
+      const todaysVouchers = this.userVouchers.filter(v => v.createdAt.slice(0, 10) === today);
+      console.log(`Today's vouchers:`, todaysVouchers);
+      this.minigames.forEach(game => {
+        const blockingVoucher = this.userVouchers.find(v =>
+          v.minigameId === game.id && v.createdAt.slice(0, 10) === today
+        );
+        const played = !!blockingVoucher;
+        game.isAvailable = !played;
+        if (played) {
+          console.log(`Minigame '${game.name}' (id: ${game.id}) is NOT playable today. Blocking voucher:`, blockingVoucher);
+        } else {
+          console.log(`Minigame '${game.name}' (id: ${game.id}) is playable today.`);
+        }
+      });
+      console.log('All minigames availability:', this.minigames.map(g => ({id: g.id, isAvailable: g.isAvailable})));
+    });
+  }
 
   selectGame(game: Minigame): void {
     if (game.isAvailable) {
