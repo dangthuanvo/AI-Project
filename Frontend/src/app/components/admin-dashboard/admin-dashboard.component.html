@@ -25,16 +25,22 @@
   <mat-tab-group [(selectedIndex)]="activeTab" (selectedIndexChange)="setActiveTab($event)" class="dashboard-tabs">
     
     <!-- Overview Tab -->
-    <mat-tab label="Overview">
-      <div class="tab-content">
+    <mat-tab>
+  <ng-template mat-tab-label>
+    <mat-icon style="margin-right: 8px;">dashboard</mat-icon>
+    Overview
+  </ng-template>
+      <div class="tab-content" style="margin: 24px;">
         <!-- Statistics Cards -->
         <div class="stats-grid">
           <!-- System Stats -->
           <mat-card class="stat-card system-stats" *ngIf="systemStats">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>dashboard</mat-icon>
-                System Overview
+                <span style="display: flex; align-items: center;">
+                  <mat-icon style="margin-right: 8px;">dashboard</mat-icon>
+                  System Overview
+                </span>
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
@@ -65,8 +71,10 @@
           <mat-card class="stat-card user-stats" *ngIf="userStats">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>people</mat-icon>
-                User Statistics
+                <span style="display: flex; align-items: center;">
+                  <mat-icon style="margin-right: 8px;">people</mat-icon>
+                  User Statistics
+                </span>
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
@@ -97,8 +105,10 @@
           <mat-card class="stat-card store-stats" *ngIf="storeStats">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>store</mat-icon>
-                Store Statistics
+                <span style="display: flex; align-items: center;">
+                  <mat-icon style="margin-right: 8px;">store</mat-icon>
+                  Store Statistics
+                </span>
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
@@ -125,8 +135,10 @@
           <mat-card class="stat-card order-stats" *ngIf="orderStats">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>shopping_cart</mat-icon>
-                Order Statistics
+                <span style="display: flex; align-items: center;">
+                  <mat-icon style="margin-right: 8px;">shopping_cart</mat-icon>
+                  Order Statistics
+                </span>
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
@@ -157,8 +169,10 @@
           <mat-card class="stat-card product-stats" *ngIf="productStats">
             <mat-card-header>
               <mat-card-title>
-                <mat-icon>inventory</mat-icon>
-                Product Statistics
+                <span style="display: flex; align-items: center;">
+                  <mat-icon style="margin-right: 8px;">inventory</mat-icon>
+                  Product Statistics
+                </span>
               </mat-card-title>
             </mat-card-header>
             <mat-card-content>
@@ -193,9 +207,11 @@
             <mat-card class="chart-card">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon>trending_up</mat-icon>
-                  Revenue Overview
-                </mat-card-title>
+  <span style="display: flex; align-items: center;">
+    <mat-icon style="margin-right: 8px;">trending_up</mat-icon>
+    Revenue Overview
+  </span>
+</mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <canvas #revenueChart></canvas>
@@ -206,9 +222,11 @@
             <mat-card class="chart-card">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon>people</mat-icon>
-                  User Growth
-                </mat-card-title>
+  <span style="display: flex; align-items: center;">
+    <mat-icon style="margin-right: 8px;">people</mat-icon>
+    User Growth
+  </span>
+</mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <canvas #userGrowthChart></canvas>
@@ -219,9 +237,11 @@
             <mat-card class="chart-card">
               <mat-card-header>
                 <mat-card-title>
-                  <mat-icon>pie_chart</mat-icon>
-                  Order Status Distribution
-                </mat-card-title>
+  <span style="display: flex; align-items: center;">
+    <mat-icon style="margin-right: 8px;">pie_chart</mat-icon>
+    Order Status Distribution
+  </span>
+</mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <canvas #orderStatusChart></canvas>
@@ -232,9 +252,11 @@
              <mat-card class="chart-card">
                <mat-card-header>
                  <mat-card-title>
-                   <mat-icon>store</mat-icon>
-                   Top Stores by Revenue
-                 </mat-card-title>
+  <span style="display: flex; align-items: center;">
+    <mat-icon style="margin-right: 8px;">store</mat-icon>
+    Top Stores by Revenue
+  </span>
+</mat-card-title>
                </mat-card-header>
                <mat-card-content>
                  <canvas #topStoresChart></canvas>
@@ -245,10 +267,12 @@
 
         <!-- Monitor Street Minimap Panel (always shown, full width) -->
         <div class="minimap-panel minimap-fullwidth">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-            <mat-icon color="primary">monitor_heart</mat-icon>
-            <span style="font-size: 1.15rem; font-weight: 600; color: #667eea; letter-spacing: 0.5px;">Street Monitoring</span>
-          </div>
+          <div class="minimap-header">
+  <span style="display: flex; align-items: center;    font-weight: 600;">
+    <mat-icon style="margin-right: 8px;">monitor_heart</mat-icon>
+    Street Monitoring
+  </span>
+</div>
           <svg width="100%" [attr.height]="minimapHeight" [attr.viewBox]="'0 0 1200 ' + minimapHeight" preserveAspectRatio="none" style="background: #f5f7fa; border-radius: 12px; box-shadow: 0 2px 8px rgba(102,126,234,0.08); border: 1px solid #e0e6ef; width: 100%; min-width: 400px; max-width: 100%; display: block; margin-bottom: 8px;">
             <defs>
               <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
@@ -322,10 +346,14 @@
     </mat-tab>
 
     <!-- Users Tab -->
-    <mat-tab label="Users">
-      <div class="tab-content">
+    <mat-tab>
+  <ng-template mat-tab-label>
+    <mat-icon style="margin-right: 8px;">people</mat-icon>
+    Users
+  </ng-template>
+      <div class="tab-content" style="margin: 24px;">
         <div class="tab-header">
-          <h2 style="display: flex; align-items: center; font-weight: bold;">
+          <h2 style="display: flex; align-items: center;">
             <mat-icon style="margin-right: 8px;">people</mat-icon>
             User Management
           </h2>
@@ -451,10 +479,14 @@
     </mat-tab>
 
     <!-- Stores Tab -->
-    <mat-tab label="Stores">
-      <div class="tab-content">
+    <mat-tab>
+  <ng-template mat-tab-label>
+    <mat-icon style="margin-right: 8px;">store</mat-icon>
+    Stores
+  </ng-template>
+      <div class="tab-content" style="margin: 24px;">
         <div class="tab-header">
-          <h2 style="display: flex; align-items: center; font-weight: bold;">
+          <h2 style="display: flex; align-items: center;">
             <mat-icon style="margin-right: 8px;">store</mat-icon>
             Store Management
           </h2>
@@ -524,10 +556,14 @@
     </mat-tab>
 
     <!-- Products Tab -->
-    <mat-tab label="Products">
-      <div class="tab-content">
+    <mat-tab>
+  <ng-template mat-tab-label>
+    <mat-icon style="margin-right: 8px;">inventory_2</mat-icon>
+    Products
+  </ng-template>
+      <div class="tab-content" style="margin: 24px;">
         <div class="tab-header">
-          <h2 style="display: flex; align-items: center; font-weight: bold;">
+          <h2 style="display: flex; align-items: center;">
             <mat-icon style="margin-right: 8px;">inventory_2</mat-icon>
             Product Management
           </h2>
@@ -642,10 +678,14 @@
     </mat-tab>
 
     <!-- Orders Tab -->
-    <mat-tab label="Orders">
-      <div class="tab-content">
+    <mat-tab>
+  <ng-template mat-tab-label>
+    <mat-icon style="margin-right: 8px;">shopping_cart</mat-icon>
+    Orders
+  </ng-template>
+      <div class="tab-content" style="margin: 24px;">
         <div class="tab-header">
-          <h2 style="display: flex; align-items: center; font-weight: bold;">
+          <h2 style="display: flex; align-items: center;">
             <mat-icon style="margin-right: 8px;">shopping_cart</mat-icon>
             Order Management
           </h2>
