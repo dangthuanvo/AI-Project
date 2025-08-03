@@ -185,6 +185,64 @@
             </mat-card-content>
           </mat-card>
         </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+          <div class="charts-grid">
+            <!-- Revenue Chart -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>trending_up</mat-icon>
+                  Revenue Overview
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <canvas #revenueChart></canvas>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- User Growth Chart -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>people</mat-icon>
+                  User Growth
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <canvas #userGrowthChart></canvas>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Order Status Distribution -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>pie_chart</mat-icon>
+                  Order Status Distribution
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <canvas #orderStatusChart></canvas>
+              </mat-card-content>
+            </mat-card>
+
+                         <!-- Top Stores by Revenue -->
+             <mat-card class="chart-card">
+               <mat-card-header>
+                 <mat-card-title>
+                   <mat-icon>store</mat-icon>
+                   Top Stores by Revenue
+                 </mat-card-title>
+               </mat-card-header>
+               <mat-card-content>
+                 <canvas #topStoresChart></canvas>
+               </mat-card-content>
+             </mat-card>
+          </div>
+        </div>
+
         <!-- Monitor Street Minimap Panel (always shown, full width) -->
         <div class="minimap-panel minimap-fullwidth">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
@@ -604,7 +662,7 @@
                 <mat-option value="Pending">Pending</mat-option>
                 <mat-option value="Shipped">Shipped</mat-option>
                 <mat-option value="Delivered">Delivered</mat-option>
-                <mat-option value="Cancelled">Cancelled</mat-option>
+                <mat-option value="Accepted">Accepted</mat-option>
               </mat-select>
             </mat-form-field>
           </div>
@@ -635,6 +693,26 @@
               <div>
                 <div>{{ order.customerName }}</div>
                 <small>{{ order.customerEmail }}</small>
+              </div>
+            </mat-cell>
+          </ng-container>
+
+          <!-- Store Column -->
+          <ng-container matColumnDef="store">
+            <mat-header-cell *matHeaderCellDef>
+              <div (click)="sortData('storeName')" class="sort-header" style="cursor: pointer;">
+                Store
+                <mat-icon>{{ getSortIcon('storeName') }}</mat-icon>
+              </div>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let order">
+              <div *ngIf="order.items && order.items.length > 0">
+                <div *ngFor="let item of order.items.slice(0, 2)" class="store-item">
+                  <span class="store-name">{{ item.storeName }}</span>
+                </div>
+                <div *ngIf="order.items.length > 2" class="more-stores">
+                  <small>+{{ order.items.length - 2 }} more stores</small>
+                </div>
               </div>
             </mat-cell>
           </ng-container>
@@ -676,12 +754,112 @@
             </mat-cell>
           </ng-container>
 
-          <mat-header-row *matHeaderRowDef="['orderNumber', 'customer', 'date', 'amount', 'status']"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: ['orderNumber', 'customer', 'date', 'amount', 'status'];"></mat-row>
+          <mat-header-row *matHeaderRowDef="['orderNumber', 'customer', 'store', 'date', 'amount', 'status']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['orderNumber', 'customer', 'store', 'date', 'amount', 'status'];" 
+                   (click)="selectOrder(row)" 
+                   style="cursor: pointer;"></mat-row>
         </mat-table>
       </div>
     </mat-tab>
   </mat-tab-group>
+
+  <!-- Order Detail Dialog -->
+  <div *ngIf="selectedOrder" class="order-detail-overlay">
+    <div class="order-detail-dialog">
+      <div class="detail-header">
+        <h2>Order Details</h2>
+        <button mat-icon-button (click)="selectedOrder = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="order-info">
+        <div class="info-section">
+          <h3>Order Information</h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Order Number:</label>
+              <span>{{ selectedOrder.orderNumber }}</span>
+            </div>
+            <div class="info-item">
+              <label>Order Date:</label>
+              <span>{{ formatDate(selectedOrder.orderDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="status-text" [style.color]="getStatusColor(selectedOrder.status)">
+                {{ selectedOrder.status }}
+              </span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.trackingNumber">
+              <label>Tracking Number:</label>
+              <span>{{ selectedOrder.trackingNumber }}</span>
+            </div>
+            <div class="info-item">
+              <label>Customer:</label>
+              <span>{{ selectedOrder.customerName }}</span>
+            </div>
+            <div class="info-item">
+              <label>Customer Email:</label>
+              <span>{{ selectedOrder.customerEmail }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.customerPhone">
+              <label>Customer Phone:</label>
+              <span>{{ selectedOrder.customerPhone }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.payPalOrderId">
+              <label>PayPal Order ID:</label>
+              <span>{{ selectedOrder.payPalOrderId }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.payPalTransactionId">
+              <label>PayPal Transaction ID:</label>
+              <span>{{ selectedOrder.payPalTransactionId }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.shippedDate">
+              <label>Shipped Date:</label>
+              <span>{{ formatDate(selectedOrder.shippedDate) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOrder.deliveredDate">
+              <label>Delivered Date:</label>
+              <span>{{ formatDate(selectedOrder.deliveredDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3>Shipping Address</h3>
+          <p>{{ selectedOrder.shippingAddress }}</p>
+        </div>
+
+        <div class="info-section">
+          <h3>Order Items</h3>
+          <div class="items-list">
+            <div class="item" *ngFor="let item of selectedOrder.items">
+              <div class="item-image">
+                <img [src]="getProductImageUrl(item)" [alt]="item.productName">
+              </div>
+              <div class="item-details">
+                <h4>{{ item.productName }}</h4>
+                <p>Quantity: {{ item.quantity }}</p>
+                <p class="item-price">{{ formatCurrency(item.unitPrice) }}</p>
+                <p *ngIf="item.storeName" class="store-name">Store: {{ item.storeName }}</p>
+              </div>
+              <div class="item-total">
+                {{ formatCurrency(item.unitPrice * item.quantity) }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-summary-section">
+          <div class="total-line">
+            <span>Total:</span>
+            <span class="total-amount">{{ formatCurrency(selectedOrder.totalAmount) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Add Admin Dialog -->
   <div *ngIf="showAddUser" class="edit-dialog-overlay">

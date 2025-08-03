@@ -1,7 +1,10 @@
 <div class="cart-container">
   <mat-card class="cart-card">
     <mat-card-header>
-      <mat-card-title>Shopping Cart</mat-card-title>
+      <mat-card-title>
+        <mat-icon>shopping_cart</mat-icon>
+        Shopping Cart
+      </mat-card-title>
       <mat-card-subtitle *ngIf="cartItems.length > 0">
         {{ cartItems.length }} item(s) in your cart
       </mat-card-subtitle>
@@ -19,7 +22,10 @@
       </div>
       <div class="cart-details" *ngIf="cartItems.length > 0">
         <div class="info-section">
-          <h3>Cart Items</h3>
+          <h3>
+            <mat-icon>inventory_2</mat-icon>
+            Cart Items
+          </h3>
           <div class="items-list">
             <ng-container *ngFor="let storeId of (groupedCartItems | keyvalue)">
               <div class="store-group">

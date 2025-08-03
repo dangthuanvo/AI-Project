@@ -16,5 +16,6 @@ namespace SilkyRoad.API.Services.Interfaces
         Task<ProductRatingResponse> AddRatingAsync(ProductRatingRequest request, string userId);
         Task<List<ProductRatingResponse>> GetRatingsForProductAsync(int productId);
         Task<ProductRatingResponse?> GetRatingForProductOrderUserAsync(int productId, int orderId, string userId);
+        Task<IEnumerable<Product>> GetRelatedProductsAsync(int productId, int limit);
     }
 } 

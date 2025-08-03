@@ -81,7 +81,7 @@
         </div>
 
         <div class="product-description">
-          <h3>Description</h3>
+          <h3>Description:</h3>
           <p>{{ product.description || 'No description available.' }}</p>
         </div>
 
@@ -289,6 +289,70 @@
         <span>No ratings or comments yet.</span>
       </div>
     </ng-template>
+  </div>
+
+  <!-- Related Products Section -->
+  <div class="related-products-section">
+    <h3>
+      <mat-icon class="related-icon">shopping_bag</mat-icon>
+      Related Products
+    </h3>
+    
+    <div *ngIf="relatedProductsLoading" class="related-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading related products...</p>
+    </div>
+    
+    <div *ngIf="relatedProductsError" class="related-error">
+      <mat-icon>error</mat-icon>
+      <p>{{ relatedProductsError }}</p>
+    </div>
+    
+    <div *ngIf="!relatedProductsLoading && !relatedProductsError && relatedProducts.length > 0" class="related-products-grid">
+      <div 
+        class="related-product-card" 
+        *ngFor="let relatedProduct of relatedProducts"
+        (click)="navigateToRelatedProduct(relatedProduct)"
+        tabindex="0"
+        (keydown.enter)="navigateToRelatedProduct(relatedProduct)"
+        (keydown.space)="navigateToRelatedProduct(relatedProduct)"
+        role="button"
+      >
+        <div class="product-image">
+          <img 
+            *ngIf="relatedProduct.imageUrls && relatedProduct.imageUrls.length > 0" 
+            [src]="getImageUrl(relatedProduct.imageUrls[0])" 
+            [alt]="relatedProduct.name"
+            (error)="onImageError(0)"
+          >
+          <div *ngIf="!relatedProduct.imageUrls || relatedProduct.imageUrls.length === 0" class="no-image">
+            <mat-icon>image_not_supported</mat-icon>
+          </div>
+        </div>
+        
+        <div class="product-info">
+          <h4 class="product-name">{{ relatedProduct.name }}</h4>
+          <p class="product-price">${{ relatedProduct.price | number:'1.2-2' }}</p>
+          
+          <div class="product-meta">
+            <span class="product-category" *ngIf="relatedProduct.category">{{ relatedProduct.category }}</span>
+            <span class="product-brand" *ngIf="relatedProduct.brand">{{ relatedProduct.brand }}</span>
+          </div>
+          
+          <div class="product-stock" [ngClass]="{'low-stock': relatedProduct.stockQuantity <= 5, 'out-stock': relatedProduct.stockQuantity === 0}">
+            <mat-icon *ngIf="relatedProduct.stockQuantity <= 5 && relatedProduct.stockQuantity > 0">warning</mat-icon>
+            <mat-icon *ngIf="relatedProduct.stockQuantity === 0">inventory_2</mat-icon>
+            <span *ngIf="relatedProduct.stockQuantity > 0">{{ relatedProduct.stockQuantity <= 5 ? 'Low Stock' : 'In Stock' }}</span>
+            <span *ngIf="relatedProduct.stockQuantity === 0">Out of Stock</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="!relatedProductsLoading && !relatedProductsError && relatedProducts.length === 0" class="no-related-products">
+      <mat-icon>search_off</mat-icon>
+      <p>No related products.</p>
+    </div>
   </div>
 
   <!-- Rating Image Full Screen Modal -->
