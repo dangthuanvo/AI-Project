@@ -32,7 +32,8 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
   
   private timer: any;
   private gameStartTime: number = 0;
-  private voucherRewarded = false;
+  public voucherRewarded = false;
+public voucherInfo: any = null;
 
   // Word puzzles with hints
   private wordPuzzles: WordPuzzle[] = [
@@ -86,6 +87,7 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
     this.currentPuzzle = null;
     this.usedPuzzles.clear();
     this.voucherRewarded = false;
+this.voucherInfo = null;
   }
 
   startGame(): void {
@@ -182,6 +184,7 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
         difficulty: 'medium'
       }).subscribe({
         next: (res) => {
+          this.voucherInfo = res.voucher;
           this.snackBar.open('Congratulations! You won a 10% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
         },
         error: (err) => {

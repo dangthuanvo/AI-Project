@@ -23,7 +23,8 @@ export class NumberPuzzleComponent implements OnInit, OnDestroy {
   gameActive: boolean = false;
   private timer: any;
   private gameStartTime: number = 0;
-  private voucherRewarded = false;
+  public voucherRewarded = false;
+public voucherInfo: any = null;
 
   constructor(
     private dialogRef: MatDialogRef<NumberPuzzleComponent>,
@@ -48,6 +49,7 @@ export class NumberPuzzleComponent implements OnInit, OnDestroy {
     this.gameCompleted = false;
     this.gameActive = false;
     this.voucherRewarded = false;
+this.voucherInfo = null;
     
     // Create tiles for 3x3 puzzle (1-8 + empty space)
     const totalTiles = this.size * this.size - 1; // 8 tiles for 3x3
@@ -165,6 +167,7 @@ export class NumberPuzzleComponent implements OnInit, OnDestroy {
         difficulty: 'hard'
       }).subscribe({
         next: (res) => {
+          this.voucherInfo = res.voucher;
           this.snackBar.open('Congratulations! You won a 15% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
         },
         error: (err) => {

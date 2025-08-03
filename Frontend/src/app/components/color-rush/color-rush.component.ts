@@ -35,7 +35,8 @@ export class ColorRushComponent implements OnInit, OnDestroy {
   private timer: any;
   private roundTimer: any;
   private gameStartTime: number = 0;
-  private voucherRewarded = false;
+  public voucherRewarded = false;
+public voucherInfo: any = null;
 
   // Color definitions
   private colors: ColorOption[] = [
@@ -77,6 +78,7 @@ export class ColorRushComponent implements OnInit, OnDestroy {
     this.targetColor = null;
     this.colorOptions = [];
     this.voucherRewarded = false;
+this.voucherInfo = null;
   }
 
   startGame(): void {
@@ -183,6 +185,7 @@ export class ColorRushComponent implements OnInit, OnDestroy {
         difficulty: 'easy'
       }).subscribe({
         next: (res) => {
+          this.voucherInfo = res.voucher;
           this.snackBar.open('Congratulations! You won a 5% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
         },
         error: (err) => {

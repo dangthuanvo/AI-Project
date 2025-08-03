@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>Edit Profile</h2>
-<div class="profile-dialog-scrollable">
+<div class="profile-dialog-scrollable" style="padding: 20px;">
   <form [formGroup]="profileForm" (ngSubmit)="save()" class="profile-form">
     <div class="avatar-section">
       <img [src]="avatarPreview || avatarUrl" alt="Avatar" class="avatar-img"
@@ -31,45 +31,54 @@
     <form [formGroup]="changePasswordForm" (ngSubmit)="changePassword()" class="change-password-form">
       <mat-form-field appearance="outline">
         <mat-label>Current Password</mat-label>
-        <input matInput type="password" formControlName="currentPassword" required>
-        <mat-error *ngIf="changePasswordForm.get('currentPassword')?.hasError('required') && (changePasswordForm.get('currentPassword')?.touched || changePasswordForm.get('currentPassword')?.dirty)">
+        <input matInput [type]="hideCurrentPassword ? 'password' : 'text'" formControlName="currentPassword" required [errorStateMatcher]="passwordFieldMatcher">
+        <button mat-icon-button matSuffix type="button" (click)="hideCurrentPassword = !hideCurrentPassword" tabindex="-1">
+          <mat-icon>{{hideCurrentPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('currentPassword')?.hasError('required') && (changePasswordForm.get('currentPassword')?.touched || changePasswordForm.get('currentPassword')?.dirty)">
           Current password is required
         </mat-error>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>New Password</mat-label>
-        <input matInput type="password" formControlName="newPassword" required minlength="6">
-        <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('required') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
+        <input matInput [type]="hideNewPassword ? 'password' : 'text'" formControlName="newPassword" required minlength="6" [errorStateMatcher]="passwordFieldMatcher">
+        <button mat-icon-button matSuffix type="button" (click)="hideNewPassword = !hideNewPassword" tabindex="-1">
+          <mat-icon>{{hideNewPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('newPassword')?.hasError('required') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
           Password is required
         </mat-error>
         <ng-template #minlengthErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('minlength') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
+          <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('newPassword')?.hasError('minlength') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must be at least 6 characters
           </mat-error>
         </ng-template>
         <ng-template #upperErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresUpper') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
+          <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('newPassword')?.hasError('passwordRequiresUpper') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must contain at least one uppercase letter
           </mat-error>
         </ng-template>
         <ng-template #lowerErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresLower') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
+          <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('newPassword')?.hasError('passwordRequiresLower') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must contain at least one lowercase letter
           </mat-error>
         </ng-template>
         <ng-template #nonAlphaErr>
-          <mat-error *ngIf="changePasswordForm.get('newPassword')?.hasError('passwordRequiresNonAlphanumeric') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
+          <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('newPassword')?.hasError('passwordRequiresNonAlphanumeric') && (changePasswordForm.get('newPassword')?.touched || changePasswordForm.get('newPassword')?.dirty)">
             Password must contain at least one non-alphanumeric character
           </mat-error>
         </ng-template>
       </mat-form-field>
       <mat-form-field appearance="outline">
         <mat-label>Confirm New Password</mat-label>
-        <input matInput type="password" formControlName="confirmNewPassword" required>
-        <mat-error *ngIf="changePasswordForm.get('confirmNewPassword')?.hasError('required') && (changePasswordForm.get('confirmNewPassword')?.touched || changePasswordForm.get('confirmNewPassword')?.dirty)">
+        <input matInput [type]="hideConfirmNewPassword ? 'password' : 'text'" formControlName="confirmNewPassword" required [errorStateMatcher]="passwordFieldMatcher">
+        <button mat-icon-button matSuffix type="button" (click)="hideConfirmNewPassword = !hideConfirmNewPassword" tabindex="-1">
+          <mat-icon>{{hideConfirmNewPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.get('confirmNewPassword')?.hasError('required') && (changePasswordForm.get('confirmNewPassword')?.touched || changePasswordForm.get('confirmNewPassword')?.dirty)">
           Please confirm your password
         </mat-error>
-        <mat-error *ngIf="changePasswordForm.hasError('passwordMismatch') && (changePasswordForm.get('confirmNewPassword')?.touched || changePasswordForm.get('confirmNewPassword')?.dirty)">
+        <mat-error *ngIf="!passwordChangeSuccess && changePasswordForm.hasError('passwordMismatch') && (changePasswordForm.get('confirmNewPassword')?.touched || changePasswordForm.get('confirmNewPassword')?.dirty)">
           Passwords do not match
         </mat-error>
       </mat-form-field>
