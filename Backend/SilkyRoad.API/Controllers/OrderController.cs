@@ -33,6 +33,7 @@ namespace SilkyRoad.API.Controllers
             var orders = await _context.Orders
                 .Include(o => o.Items)
                 .Include(o => o.User)
+                .Include(o => o.UserVoucher)
                 .ToListAsync();
             return Ok(orders);
         }
@@ -45,6 +46,7 @@ namespace SilkyRoad.API.Controllers
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
                 .ThenInclude(p => p.ProductImages)
+                .Include(o => o.UserVoucher)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
@@ -59,6 +61,7 @@ namespace SilkyRoad.API.Controllers
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
                 .ThenInclude(p => p.ProductImages)
+                .Include(o => o.UserVoucher)
                 .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber && o.UserId == userId);
             if (order == null)
                 return NotFound();
@@ -73,6 +76,7 @@ namespace SilkyRoad.API.Controllers
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
                 .ThenInclude(p => p.ProductImages)
+                .Include(o => o.UserVoucher)
                 .FirstOrDefaultAsync(o => o.Id == id && o.UserId == userId);
             if (order == null)
                 return NotFound();

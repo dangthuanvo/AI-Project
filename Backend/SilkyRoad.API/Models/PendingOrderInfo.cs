@@ -12,5 +12,7 @@ namespace SilkyRoad.API.Models
         public string Address { get; set; }
         public string UserId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public decimal TotalAmount { get; set; }
+        public int? UserVoucherId { get; set; }
     }
 } 

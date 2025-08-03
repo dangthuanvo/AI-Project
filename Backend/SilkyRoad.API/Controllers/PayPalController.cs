@@ -53,7 +53,8 @@ namespace SilkyRoad.API.Controllers
                     return BadRequest(new { error = "No items in cart" });
                 }
 
-                var totalAmount = cart.Items.Sum(ci => ci.TotalPrice);
+                // Use the total amount sent from frontend (including tax and voucher discount)
+                var totalAmount = request.Amount;
 
                 // Create PayPal order
                 var order = await _payPalService.CreateOrderAsync(totalAmount, request.Phone, request.Address);
@@ -65,7 +66,9 @@ namespace SilkyRoad.API.Controllers
                     Phone = request.Phone,
                     Address = request.Address,
                     UserId = userId,
-                    CreatedAt = DateTime.UtcNow.AddHours(7)
+                    CreatedAt = DateTime.UtcNow.AddHours(7),
+                    TotalAmount = totalAmount, // Save for record
+                    UserVoucherId = request.UserVoucherId // Store voucher ID
                 };
 
                 _context.PendingOrderInfos.Add(pendingOrderInfo);
@@ -150,7 +153,21 @@ namespace SilkyRoad.API.Controllers
                 {
                     var storeId = storeGroup.Key;
                     var storeItems = storeGroup.ToList();
-                    var storeTotal = storeItems.Sum(ci => ci.TotalPrice);
+                    var storeSubtotal = storeItems.Sum(ci => ci.TotalPrice);
+
+                    // Debug log: print pendingOrderInfo.TotalAmount and cart subtotal
+                    Console.WriteLine($"[DEBUG] pendingOrderInfo.TotalAmount: {pendingOrderInfo.TotalAmount}, Cart subtotal: {cart.Items.Sum(ci => ci.TotalPrice)}");
+
+                    // Proportionally allocate the overall total (including tax and voucher discount) to each store
+                    decimal storeTotal = 0;
+                    if (cart.Items.Sum(ci => ci.TotalPrice) > 0)
+                    {
+                        storeTotal = Math.Round((storeSubtotal / cart.Items.Sum(ci => ci.TotalPrice)) * pendingOrderInfo.TotalAmount, 2);
+                    }
+                    else
+                    {
+                        storeTotal = 0;
+                    }
 
                     // Get store information
                     var store = await _context.Stores.FindAsync(storeId);
@@ -173,7 +190,8 @@ namespace SilkyRoad.API.Controllers
                         Status = "Pending",
                         TotalAmount = storeTotal,
                         PayPalTransactionId = order.PurchaseUnits?.FirstOrDefault()?.Payments?.Captures?.FirstOrDefault()?.Id,
-                        PayPalOrderId = orderId,    
+                        PayPalOrderId = orderId,
+                        UserVoucherId = pendingOrderInfo.UserVoucherId // Set voucher ID on order
                     };
 
                     _context.Orders.Add(newOrder);
@@ -209,6 +227,17 @@ namespace SilkyRoad.API.Controllers
 
                 // Add all order items
                 _context.OrderItems.AddRange(allOrderItems);
+
+                // Mark voucher as used if applied
+                if (pendingOrderInfo.UserVoucherId.HasValue)
+                {
+                    var voucher = await _context.UserVouchers.FindAsync(pendingOrderInfo.UserVoucherId.Value);
+                    if (voucher != null && !voucher.IsUsed)
+                    {
+                        voucher.IsUsed = true;
+                        _context.UserVouchers.Update(voucher);
+                    }
+                }
 
                 // Clear the cart
                 _context.CartItems.RemoveRange(cart.Items);

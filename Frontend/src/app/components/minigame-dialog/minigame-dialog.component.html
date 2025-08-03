@@ -2,7 +2,7 @@
   <div class="dialog-header">
     <h2 mat-dialog-title>
       <mat-icon>sports_esports</mat-icon>
-      Choose a Minigame
+      Play game earn Voucher
     </h2>
     <button mat-icon-button (click)="closeDialog()" class="close-button">
       <mat-icon>close</mat-icon>
@@ -15,7 +15,6 @@
         *ngFor="let game of minigames" 
         class="game-card"
         [class.disabled]="!game.isAvailable"
-        (click)="selectGame(game)"
       >
         <div class="game-icon">
           <mat-icon>{{ game.icon }}</mat-icon>
@@ -37,8 +36,12 @@
         </div>
 
         <div class="game-action">
-          <mat-icon *ngIf="game.isAvailable">play_arrow</mat-icon>
-          <mat-icon *ngIf="!game.isAvailable">lock</mat-icon>
+          <button mat-icon-button *ngIf="game.isAvailable" (click)="selectGame(game); $event.stopPropagation()">
+            <mat-icon>play_arrow</mat-icon>
+          </button>
+          <button mat-icon-button *ngIf="!game.isAvailable" disabled matTooltip="You already played this minigame today">
+            <mat-icon>lock</mat-icon>
+          </button>
         </div>
       </div>
     </div>

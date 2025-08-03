@@ -31,8 +31,13 @@ export class PayPalService {
 
   constructor(private http: HttpClient) {}
 
-  createOrder(amount: number, shippingInfo: any): Observable<PayPalOrderResponse> {
-    return this.http.post<PayPalOrderResponse>(`${this.API_URL}/paypal/create-order`, { amount, phone: shippingInfo.phone, address: shippingInfo.address });
+  createOrder(amount: number, shippingInfo: any, userVoucherId?: number): Observable<PayPalOrderResponse> {
+    return this.http.post<PayPalOrderResponse>(`${this.API_URL}/paypal/create-order`, {
+    amount,
+    phone: shippingInfo.phone,
+    address: shippingInfo.address,
+    userVoucherId: userVoucherId ?? null
+  });
   }
 
   captureOrder(orderId: string): Observable<PayPalCaptureResponse> {

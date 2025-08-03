@@ -101,6 +101,10 @@
               <label>Order Number:</label>
               <span>{{ selectedOrder.orderNumber }}</span>
             </div>
+            <div class="info-item" *ngIf="selectedOrder.userVoucher">
+              <label>Voucher Applied:</label>
+              <span>{{ selectedOrder.userVoucher.code }} ({{ selectedOrder.userVoucher.discountPercent }}% off)</span>
+            </div>
             <div class="info-item">
               <label>Order Date:</label>
               <span>{{ formatDate(selectedOrder.orderDate) }}</span>
@@ -156,6 +160,11 @@
 
         <div class="order-summary-section">
           <div class="total-line">
+            <span>Tax (8%):</span>
+            <span>{{ formatCurrency(getOrderTax(selectedOrder)) }}</span>
+          </div>
+          
+          <div class="total-line">
             <span>Total:</span>
             <span class="total-amount">{{ formatCurrency(selectedOrder.totalAmount) }}</span>
           </div>
@@ -163,4 +172,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

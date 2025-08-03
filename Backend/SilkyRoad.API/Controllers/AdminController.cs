@@ -653,6 +653,7 @@ namespace SilkyRoad.API.Controllers
         public async Task<ActionResult<List<object>>> GetAllOrders()
         {
             var orders = await _context.Orders
+                .Include(o => o.UserVoucher)
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
                 .ThenInclude(p => p.Store)
@@ -673,6 +674,7 @@ namespace SilkyRoad.API.Controllers
                 o.PayPalOrderId,
                 o.ShippedDate,
                 o.DeliveredDate,
+                o.UserVoucher,
                 Items = o.Items.Select(oi => new
                 {
                     oi.Id,

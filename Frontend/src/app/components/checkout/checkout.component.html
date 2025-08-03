@@ -10,6 +10,9 @@
     <div class="checkout-form">
 
       <h3>Shipping Information</h3>
+      <div class="address-header">
+        <h4>Personal Information</h4>
+      </div>
       <div class="shipping-actions-row">
         <button mat-stroked-button color="primary" type="button" (click)="openShippingAddressDialog()">
           <mat-icon>location_on</mat-icon> Choose from Saved Addresses
@@ -40,6 +43,7 @@
         </div>
 
         <div class="form-row">
+          
           <mat-form-field appearance="outline">
             <mat-label>Email</mat-label>
             <input matInput type="email" formControlName="email" required>
@@ -190,6 +194,20 @@
           </mat-form-field>
         </div>
 
+        <div *ngIf="userVouchers.length > 0" class="voucher-section" style="margin-bottom: 24px;">
+          <mat-form-field appearance="outline" style="width: 100%;">
+            <mat-label>Select Voucher</mat-label>
+            <mat-select [(ngModel)]="selectedVoucherId" (selectionChange)="onVoucherChange($event.value)">
+              <mat-option [value]="null">No Voucher</mat-option>
+              <mat-option *ngFor="let voucher of userVouchers" [value]="voucher.id">
+                <span>
+                  {{ voucher.code }} - {{ voucher.discountPercent }}% off
+                  <span *ngIf="voucher.expiryDate">(expires {{ voucher.expiryDate | date:'shortDate' }})</span>
+                </span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
         <div class="payment-section">
           <h3>Payment Method</h3>
           <div class="payment-options">
@@ -251,6 +269,10 @@
         <div class="total-row">
           <span>Tax (8%):</span>
           <span>${{ tax | number:'1.2-2' }}</span>
+        </div>
+        <div class="total-row" *ngIf="discountAmount > 0">
+          <span>Voucher Discount:</span>
+          <span class="discount">- ${{ discountAmount | number:'1.2-2' }}</span>
         </div>
         <div class="total-row total">
           <span>Total:</span>

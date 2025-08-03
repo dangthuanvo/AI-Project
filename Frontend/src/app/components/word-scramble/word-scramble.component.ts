@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MinigameService } from '../../services/minigame.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface WordPuzzle {
   word: string;
@@ -30,6 +32,7 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
   
   private timer: any;
   private gameStartTime: number = 0;
+  private voucherRewarded = false;
 
   // Word puzzles with hints
   private wordPuzzles: WordPuzzle[] = [
@@ -52,7 +55,11 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
 
   private usedPuzzles: Set<string> = new Set();
 
-  constructor(private dialogRef: MatDialogRef<WordScrambleComponent>) {}
+  constructor(
+    private dialogRef: MatDialogRef<WordScrambleComponent>,
+    private minigameService: MinigameService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.initializeGame();
@@ -78,6 +85,7 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
     this.userAnswer = '';
     this.currentPuzzle = null;
     this.usedPuzzles.clear();
+    this.voucherRewarded = false;
   }
 
   startGame(): void {
@@ -165,6 +173,21 @@ export class WordScrambleComponent implements OnInit, OnDestroy {
     this.gameCompleted = true;
     if (this.timer) {
       clearInterval(this.timer);
+    }
+    // Reward voucher if all answers correct
+    if (!this.voucherRewarded && this.correctAnswers === this.maxRounds) {
+      this.voucherRewarded = true;
+      this.minigameService.rewardVoucher({
+        minigameId: 'word-scramble',
+        difficulty: 'medium'
+      }).subscribe({
+        next: (res) => {
+          this.snackBar.open('Congratulations! You won a 10% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
+        },
+        error: (err) => {
+          this.snackBar.open('Failed to reward voucher: ' + (err.error?.message || 'Unknown error'), 'Close', { duration: 5000 });
+        }
+      });
     }
   }
 

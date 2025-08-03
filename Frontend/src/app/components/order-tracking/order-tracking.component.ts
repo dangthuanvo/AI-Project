@@ -25,6 +25,10 @@ export interface Order {
   shippedDate?: string;
   deliveredDate?: string;
   userId: string;
+  userVoucher?: {
+    code: string;
+    discountPercent: number;
+  };
 }
 
 export interface OrderItem {
@@ -67,6 +71,12 @@ export interface ProductImage {
   styleUrls: ['./order-tracking.component.scss']
 })
 export class OrderTrackingComponent implements OnInit {
+  // ...existing code...
+  getOrderTax(order: Order): number {
+    if (!order || !order.items) return 0;
+    const subtotal = order.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+    return Math.round(subtotal * 0.08 * 100) / 100;
+  }
   orders: Order[] = [];
   loading = false;
   selectedOrder: Order | null = null;

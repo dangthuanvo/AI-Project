@@ -69,6 +69,13 @@
           <span class="value">{{ formatTime(timeElapsed) }}</span>
         </div>
       </div>
+      <div *ngIf="voucherInfo" class="voucher-notification mat-elevation-z2" style="margin-bottom: 10px;">
+        <mat-icon color="primary">card_giftcard</mat-icon>
+        <span class="voucher-message">
+          You received a <b>{{ voucherInfo.discountPercent }}% discount voucher</b>!<br>
+          <span class="voucher-code">Code: <b>{{ voucherInfo.code }}</b></span>
+        </span>
+      </div>
       <div class="completion-actions">
         <button mat-raised-button color="primary" (click)="restartGame()">
           Play Again

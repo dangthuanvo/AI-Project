@@ -1,5 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MinigameService } from '../../services/minigame.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 interface Card {
   id: number;
@@ -15,6 +17,7 @@ interface Card {
   styleUrls: ['./memory-match.component.scss']
 })
 export class MemoryMatchComponent implements OnInit, OnDestroy {
+  voucherInfo: { code: string, discountPercent: number } | null = null;
   cards: Card[] = [];
   flippedCards: Card[] = [];
   score: number = 0;
@@ -23,11 +26,16 @@ export class MemoryMatchComponent implements OnInit, OnDestroy {
   gameCompleted: boolean = false;
   private timer: any;
   private gameStartTime: number = 0;
+  private voucherRewarded = false;
 
   // Emoji pairs for the memory game
   private emojis: string[] = ['🎮', '🎲', '🎯', '🎪', '🎨', '🎭', '🎪', '🎯', '🎲', '🎮', '🎨', '🎭'];
 
-  constructor(private dialogRef: MatDialogRef<MemoryMatchComponent>) {}
+  constructor(
+    private dialogRef: MatDialogRef<MemoryMatchComponent>,
+    private minigameService: MinigameService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.initializeGame();
@@ -46,6 +54,8 @@ export class MemoryMatchComponent implements OnInit, OnDestroy {
     this.moves = 0;
     this.timeElapsed = 0;
     this.gameCompleted = false;
+    this.voucherRewarded = false;
+    this.voucherInfo = null;
 
     // Create cards with emoji pairs
     const cardValues = [...this.emojis];
@@ -125,6 +135,26 @@ export class MemoryMatchComponent implements OnInit, OnDestroy {
     // Bonus points for quick completion
     const timeBonus = Math.max(0, 100 - this.timeElapsed);
     this.score += timeBonus;
+
+    // Reward voucher if perfect win (all pairs matched, no mistakes)
+    if (!this.voucherRewarded && this.cards.every(card => card.isMatched)) {
+      this.voucherRewarded = true;
+      this.minigameService.rewardVoucher({
+        minigameId: 'memory-match',
+        difficulty: 'easy'
+      }).subscribe({
+        next: (res) => {
+          this.voucherInfo = {
+            code: res.voucher.code,
+            discountPercent: res.voucher.discountPercent
+          };
+          this.snackBar.open('Congratulations! You won a 5% discount voucher: ' + res.voucher.code, 'Close', { duration: 8000 });
+        },
+        error: (err) => {
+          this.snackBar.open('Failed to reward voucher: ' + (err.error?.message || 'Unknown error'), 'Close', { duration: 5000 });
+        }
+      });
+    }
   }
 
   restartGame(): void {
