@@ -862,7 +862,7 @@
           height: 100% !important;
           max-width: 100%;
           max-height: 100%;
-          position: absolute !important; // Use absolute positioning to prevent floating
+          position: relative !important; // Use relative positioning instead of absolute
           top: 0 !important;
           left: 0 !important;
           right: 0 !important;
@@ -872,6 +872,7 @@
           display: block !important; // Ensure proper display
           margin: 0 !important; // Remove any margins
           padding: 0 !important; // Remove any padding
+          box-sizing: border-box !important; // Ensure proper box sizing
         }
       }
     }
