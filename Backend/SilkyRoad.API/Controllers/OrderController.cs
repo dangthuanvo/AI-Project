@@ -319,13 +319,14 @@ namespace SilkyRoad.API.Controllers
             var startDate = new DateTime(targetYear, 1, 1);
             var endDate = new DateTime(targetYear, 12, 31);
 
-            // Get orders for this store for the specified year
+            // Get orders for this store for the specified year, only delivered
             var orders = await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
                 .Where(o => o.Items.Any(oi => oi.Product.StoreId == store.Id) && 
                            o.OrderDate >= startDate && 
-                           o.OrderDate <= endDate)
+                           o.OrderDate <= endDate &&
+                           o.Status == "Delivered")
                 .ToListAsync();
 
             // Initialize arrays for 12 months

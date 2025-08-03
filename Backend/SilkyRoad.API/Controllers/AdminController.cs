@@ -37,7 +37,7 @@ namespace SilkyRoad.API.Controllers
             var totalProducts = await _context.Products.CountAsync();
             var totalOrders = await _context.Orders.CountAsync();
             var totalRevenue = await _context.Orders
-                .Where(o => o.Status == "Delivered" || o.Status == "Paid")
+                .Where(o => o.Status == "Delivered")
                 .SumAsync(o => o.TotalAmount);
 
             // Generate revenue history for the last 6 months
@@ -46,7 +46,7 @@ namespace SilkyRoad.API.Controllers
             {
                 var month = DateTime.UtcNow.AddMonths(-i);
                 var monthRevenue = await _context.Orders
-                    .Where(o => o.Status == "Delivered" || o.Status == "Paid")
+                    .Where(o => o.Status == "Delivered")
                     .Where(o => o.OrderDate.Month == month.Month && o.OrderDate.Year == month.Year)
                     .SumAsync(o => o.TotalAmount);
                 
@@ -72,36 +72,36 @@ namespace SilkyRoad.API.Controllers
         }
 
         [HttpGet("stats/top-stores-revenue")]
-    public async Task<ActionResult<IEnumerable<object>>> GetTopStoresByRevenue(int top = 5)
-    {
-        var topStores = (
-        from oi in _context.OrderItems
-        join o in _context.Orders on oi.OrderId equals o.Id
-        join p in _context.Products on oi.ProductId equals p.Id
-        join s in _context.Stores on p.StoreId equals s.Id
-        where o.Status == "Delivered" || o.Status == "Paid"
-        select new
+public async Task<ActionResult<IEnumerable<object>>> GetTopStoresByRevenue(int top = 5)
+{
+    // Get all delivered orders and their store
+    var storeOrderTotals = await _context.Orders
+        .Where(o => o.Status == "Delivered")
+        .SelectMany(o => o.Items
+            .GroupBy(oi => oi.Product.StoreId)
+            .Select(g => new {
+                StoreId = g.Key,
+                OrderId = o.Id,
+                StoreName = g.First().Product.Store.Name,
+                OrderTotal = o.TotalAmount
+            })
+        )
+        .ToListAsync();
+
+    var topStores = storeOrderTotals
+        .GroupBy(x => new { x.StoreId, x.StoreName })
+        .Select(g => new
         {
-            StoreId = s.Id,
-            StoreName = s.Name,
-            Quantity = oi.Quantity,
-            UnitPrice = oi.UnitPrice
-        }
-    )
-    .AsEnumerable()
-    .GroupBy(x => new { x.StoreId, x.StoreName })
-    .Select(g => new
-    {
-        StoreId = g.Key.StoreId,
-        StoreName = g.Key.StoreName,
-        Revenue = g.Sum(x => x.Quantity * x.UnitPrice)
-    })
-    .OrderByDescending(x => x.Revenue)
-    .Take(top)
-    .ToList();
+            StoreId = g.Key.StoreId,
+            StoreName = g.Key.StoreName,
+            Revenue = g.Sum(x => x.OrderTotal)
+        })
+        .OrderByDescending(x => x.Revenue)
+        .Take(top)
+        .ToList();
 
     return Ok(topStores);
-    }
+}
 
     [HttpGet("stats/users")]
         public async Task<ActionResult<object>> GetUserStats()
