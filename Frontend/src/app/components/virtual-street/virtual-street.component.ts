@@ -67,6 +67,10 @@ interface Decoration {
   styleUrls: ['./virtual-street.component.scss']
 })
 export class VirtualStreetComponent implements OnInit, OnDestroy {
+  // Voice search fields
+  isListening = false;
+  private recognition: any = null;
+  private speechSupported = false;
   player: Player = {
     name: 'Player',
     avatar: 'assets/player-avatar.png',
@@ -172,7 +176,32 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private chatService: ChatService,
     private musicService: MusicService
-  ) {}
+  ) {
+    // Initialize Web Speech API
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      this.speechSupported = true;
+      this.recognition = new SpeechRecognition();
+      this.recognition.lang = 'en-US';
+      this.recognition.interimResults = false;
+      this.recognition.maxAlternatives = 1;
+      this.recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        this.searchQuery = transcript;
+        this.isListening = false;
+        this.searchProducts();
+      };
+      this.recognition.onerror = (event: any) => {
+        this.isListening = false;
+        this.snackBar.open('Voice recognition error: ' + event.error, 'Close', { duration: 3000 });
+      };
+      this.recognition.onend = () => {
+        this.isListening = false;
+      };
+    } else {
+      this.speechSupported = false;
+    }
+  }
 
   ngOnInit(): void {
     document.body.style.overflow = 'hidden';
@@ -1704,7 +1733,28 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Add this method to handle clicking an online user in the dropdown
+  // Voice search methods
+  startVoiceSearch(): void {
+    if (!this.speechSupported) {
+      this.snackBar.open('Voice search is not supported in this browser.', 'Close', { duration: 3000 });
+      return;
+    }
+    if (this.isListening) {
+      this.stopVoiceSearch();
+      return;
+    }
+    this.isListening = true;
+    this.recognition.start();
+  }
+
+  stopVoiceSearch(): void {
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+    }
+  }
+
+// Add this method to handle clicking an online user in the dropdown
   onOnlineUserClick(user: string) {
     // If you have userId instead of name, adjust accordingly
     // Try to find the userId from otherPlayers by name (if available)

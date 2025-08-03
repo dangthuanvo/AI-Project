@@ -450,34 +450,36 @@
         </button>
       </div>
       
-      <div class="search-input-container">
-        <input 
-          type="text" 
-          [(ngModel)]="searchQuery" 
-          [placeholder]="searchStoreMode ? 'Search for store names...' : 'Search for products across all stores...'"
-          (keyup)="handleSearchKeyPress($event)"
-          (input)="onSearchInput()"
-          (compositionstart)="onCompositionStart()"
-          (compositionend)="onCompositionEnd()"
-          class="search-input"
-          autofocus
-        />
-        <button 
-          class="search-btn" 
-          (click)="searchProducts()"
-          [disabled]="isSearching"
-        >
-          <mat-icon>{{ isSearching ? 'hourglass_empty' : 'search' }}</mat-icon>
-        </button>
-        <button 
-          *ngIf="searchQuery || searchResults.length > 0"
-          class="clear-btn" 
-          (click)="clearSearch()"
-          title="Clear search"
-        >
-          <mat-icon>clear</mat-icon>
-        </button>
-      </div>
+      <div class="search-input-container" style="position: relative;">
+  <input 
+    type="text" 
+    [(ngModel)]="searchQuery" 
+    [placeholder]="searchStoreMode ? 'Search for store names...' : 'Search for products across all stores...'"
+    (keyup)="handleSearchKeyPress($event)"
+    (input)="onSearchInput()"
+    (compositionstart)="onCompositionStart()"
+    (compositionend)="onCompositionEnd()"
+    class="search-input"
+    autofocus
+  />
+  <button 
+    class="mic-btn"
+    (click)="startVoiceSearch()"
+    [class.listening]="isListening"
+    title="Voice search"
+    type="button"
+  >
+    <mat-icon>{{ isListening ? 'mic' : 'mic_none' }}</mat-icon>
+  </button>
+  <button 
+    class="search-btn" 
+    (click)="searchProducts()"
+    [disabled]="isSearching"
+  >
+    <mat-icon>{{ isSearching ? 'hourglass_empty' : 'search' }}</mat-icon>
+  </button>
+
+</div>
 
       <div class="search-results" *ngIf="searchResults.length > 0">
         <h3>Found {{ searchResults.length }} {{ searchStoreMode ? 'store(s)' : 'product(s)' }}:</h3>

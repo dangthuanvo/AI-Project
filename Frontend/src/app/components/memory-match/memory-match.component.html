@@ -77,7 +77,7 @@
         </span>
       </div>
       <div class="completion-actions">
-        <button mat-raised-button color="primary" (click)="restartGame()">
+        <button mat-raised-button color="primary" (click)="restartGame()" [disabled]="voucherInfo">
           Play Again
         </button>
         <button mat-raised-button (click)="closeGame()">

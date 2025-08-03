@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { FileUploadService } from '../../services/file-upload.service';
 import { ImageService } from '../../services/image.service';
-import { ShowOnDirtyOrTouchedErrorStateMatcher } from './custom-error-state-matcher';
+import { ShowOnDirtyOrTouchedErrorStateMatcher, DisableOnSuccessErrorStateMatcher } from './custom-error-state-matcher';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
@@ -13,6 +13,9 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./profile-dialog.component.scss']
 })
 export class ProfileDialogComponent {
+  hideCurrentPassword: boolean = true;
+  hideNewPassword: boolean = true;
+  hideConfirmNewPassword: boolean = true;
   profileForm: FormGroup;
   changePasswordForm: FormGroup;
   avatar: string;
@@ -22,6 +25,7 @@ export class ProfileDialogComponent {
   passwordChangeError: string | null = null;
   isChangingPassword = false;
   errorStateMatcher = new ShowOnDirtyOrTouchedErrorStateMatcher();
+  passwordFieldMatcher = new DisableOnSuccessErrorStateMatcher(() => !!this.passwordChangeSuccess);
 
   constructor(
     private fb: FormBuilder,
@@ -135,6 +139,7 @@ export class ProfileDialogComponent {
       next: (res) => {
         this.passwordChangeSuccess = 'Password changed successfully.';
         this.changePasswordForm.reset();
+        // Mark form and all controls as pristine and untouched
         this.changePasswordForm.markAsPristine();
         this.changePasswordForm.markAsUntouched();
         Object.values(this.changePasswordForm.controls).forEach(control => {
@@ -145,6 +150,11 @@ export class ProfileDialogComponent {
         this.changePasswordForm.updateValueAndValidity();
         // Force error state matcher to re-evaluate
         this.errorStateMatcher = new ShowOnDirtyOrTouchedErrorStateMatcher();
+        this.passwordFieldMatcher = new DisableOnSuccessErrorStateMatcher(() => !!this.passwordChangeSuccess);
+        // Remove focus from all fields to avoid accidental error display
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
         this.cdr.detectChanges();
         this.isChangingPassword = false;
       },
