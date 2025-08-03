@@ -166,6 +166,10 @@ export class AdminService {
     return this.http.get<SystemStats>(`${this.API_URL}/admin/stats/system`);
   }
 
+  getTopStoresByRevenue(top: number = 5): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL}/admin/stats/top-stores-revenue?top=${top}`);
+  }
+
   getUserStats(): Observable<UserStats> {
     return this.http.get<UserStats>(`${this.API_URL}/admin/stats/users`);
   }

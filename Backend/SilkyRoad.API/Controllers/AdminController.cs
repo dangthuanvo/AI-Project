@@ -71,7 +71,28 @@ namespace SilkyRoad.API.Controllers
             });
         }
 
-        [HttpGet("stats/users")]
+        [HttpGet("stats/top-stores-revenue")]
+    public async Task<ActionResult<IEnumerable<object>>> GetTopStoresByRevenue(int top = 5)
+    {
+        var topStores = await _context.OrderItems
+            .Where(oi => oi.Order.Status == "Delivered" || oi.Order.Status == "Paid")
+            .Include(oi => oi.Product)
+            .ThenInclude(p => p.Store)
+            .GroupBy(oi => new { oi.Product.Store.Id, oi.Product.Store.Name })
+            .Select(g => new
+            {
+                StoreId = g.Key.Id,
+                StoreName = g.Key.Name,
+                Revenue = g.Sum(oi => oi.TotalPrice)
+            })
+            .OrderByDescending(x => x.Revenue)
+            .Take(top)
+            .ToListAsync();
+
+        return Ok(topStores);
+    }
+
+    [HttpGet("stats/users")]
         public async Task<ActionResult<object>> GetUserStats()
         {
             var users = await _userManager.Users.ToListAsync();

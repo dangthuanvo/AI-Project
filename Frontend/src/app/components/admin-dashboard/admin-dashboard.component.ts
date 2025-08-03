@@ -454,33 +454,23 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   private updateTopStoresChart(): void {
-    if (!this.topStoresChart || !this.stores.length) return;
-    
-    // Recalculate store revenue with real data
-    const storeRevenue = this.stores.map(store => {
-      const revenue = store.products?.reduce((total: number, product: Product) => {
-        return total + product.price;
-      }, 0) || 0;
-      
-      return {
-        name: store.name,
-        revenue: revenue
-      };
+    if (!this.topStoresChart) return;
+    // Fetch top stores by revenue from backend
+    this.adminService.getTopStoresByRevenue(5).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (topStores) => {
+        const labels = topStores.map(store => store.storeName);
+        const data = topStores.map(store => store.revenue);
+        if (this.topStoresChart && this.topStoresChart.data && this.topStoresChart.data.datasets.length > 0) {
+          this.topStoresChart.data.labels = labels;
+          this.topStoresChart.data.datasets[0].data = data;
+          this.topStoresChart.update();
+        }
+      },
+      error: (error) => {
+        this.handleError('Failed to load top stores by revenue', error);
+      }
     });
-
-    const topStores = storeRevenue
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
-
-    const labels = topStores.map(store => store.name);
-    const data = topStores.map(store => store.revenue);
-    
-    this.topStoresChart.data.labels = labels;
-    this.topStoresChart.data.datasets[0].data = data;
-    this.topStoresChart.update();
   }
-
-
 
   // Tab Management
   setActiveTab(tabIndex: number): void {
