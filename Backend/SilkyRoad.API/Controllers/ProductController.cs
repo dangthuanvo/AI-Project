@@ -46,6 +46,33 @@ namespace SilkyRoad.API.Controllers
             return Ok(response);
         }
 
+        [HttpGet("{id}/related")]
+        public async Task<ActionResult<List<ProductResponse>>> GetRelatedProducts(int id, [FromQuery] int limit = 8)
+        {
+            var relatedProducts = await _productService.GetRelatedProductsAsync(id, limit);
+            
+            var response = relatedProducts.Select(product => new ProductResponse
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                StockQuantity = product.StockQuantity,
+                Category = product.Category,
+                Brand = product.Brand,
+                Size = product.Size,
+                Color = product.Color,
+                ImageUrls = product.ProductImages.Select(pi => pi.ImageUrl).ToList(),
+                IsActive = product.IsActive,
+                CreatedAt = product.CreatedAt,
+                UpdatedAt = product.UpdatedAt,
+                StoreId = product.StoreId,
+                StoreName = product.Store?.Name ?? "Unknown Store"
+            }).ToList();
+            
+            return Ok(response);
+        }
+
         [Authorize(Roles = "Seller")]
         [HttpPost]
         public async Task<ActionResult<ProductResponse>> CreateProduct(CreateProductRequest request)

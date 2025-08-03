@@ -1,21 +1,38 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil, interval } from 'rxjs';
-import { AdminService, User, Store, Product, Order, SystemStats, UserStats, StoreStats, OrderStats, ProductStats } from '../../services/admin.service';
+import { AdminService, User, Store, Product, Order, SystemStats, UserStats, StoreStats, OrderStats, ProductStats, RevenueHistoryItem, UserGrowthHistoryItem, OrderStatusHistoryItem } from '../../services/admin.service';
 import { AuthService } from '../../services/auth.service';
 import { ImageService } from '../../services/image.service';
 import { PresenceService, PlayerState } from '../../services/presence.service';
+import { Chart, ChartConfiguration, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-admin-dashboard',
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.scss']
 })
-export class AdminDashboardComponent implements OnInit, OnDestroy {
+export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit {
   private destroy$ = new Subject<void>();
+  
+  // Chart ViewChild references
+  @ViewChild('revenueChart', { static: false }) revenueChartRef!: ElementRef;
+  @ViewChild('userGrowthChart', { static: false }) userGrowthChartRef!: ElementRef;
+  @ViewChild('orderStatusChart', { static: false }) orderStatusChartRef!: ElementRef;
+  @ViewChild('topStoresChart', { static: false }) topStoresChartRef!: ElementRef;
+  
+  // Chart instances
+  private revenueChart: Chart | null = null;
+  private userGrowthChart: Chart | null = null;
+  private orderStatusChart: Chart | null = null;
+  private topStoresChart: Chart | null = null;
+  
+  // Chart initialization state
+  private isInitializingCharts = false;
+  private resizeTimeout: any = null;
   
   // Dashboard state
   activeTab = 0; // Changed to number for mat-tab-group
@@ -60,8 +77,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'desc';
   
-  // Real-time updates
-  private refreshInterval: any;
+  // Real-time updates - removed auto-refresh
+
+  // Order detail state
+  selectedOrder: Order | null = null;
 
   // Monitor (Street Minimap) state
   showMonitor = false;
@@ -96,9 +115,14 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.loadDashboardData();
-    this.loadStores(); // Ensure stores are loaded for minimap
-    this.startAutoRefresh();
+    this.initializeForms();
+    
+    // Load data with a slight delay to ensure proper initialization order
+    setTimeout(() => {
+      this.loadDashboardData();
+      this.loadStores(); // Ensure stores are loaded for minimap
+    }, 100);
+    
     // Subscribe to player states for monitor
     this.presenceService.allPlayerStates$.pipe(takeUntil(this.destroy$)).subscribe(states => {
       this.playerStates = states;
@@ -106,14 +130,211 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       const maxX = states.length > 0 ? Math.max(...states.map(p => p.x)) : 2000;
       this.roadLength = Math.max(1200, maxX + 200); // Add margin like virtual street
     });
+    
+    // Add window resize listener to handle chart resizing
+    window.addEventListener('resize', this.handleWindowResize.bind(this));
+    
+    // Add visibility change listener to handle chart resizing when tab becomes visible
+    document.addEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+  }
+
+  private handleWindowResize(): void {
+    // Resize charts when window is resized to prevent positioning issues
+    if (this.activeTab === 0) {
+      // Debounce the resize to prevent multiple rapid calls
+      clearTimeout(this.resizeTimeout);
+      this.resizeTimeout = setTimeout(() => {
+        this.resizeCharts();
+        // Force another resize after a delay to ensure proper positioning
+        setTimeout(() => {
+          this.resizeCharts();
+        }, 100);
+      }, 150);
+    }
+  }
+
+  private handleVisibilityChange(): void {
+    // Resize charts when the page becomes visible (e.g., when switching back to the tab)
+    if (!document.hidden && this.activeTab === 0) {
+      setTimeout(() => {
+        this.resizeCharts();
+      }, 100);
+    }
+  }
+
+  private resizeCharts(): void {
+    if (this.revenueChart) {
+      this.revenueChart.resize();
+    }
+    if (this.userGrowthChart) {
+      this.userGrowthChart.resize();
+    }
+    if (this.orderStatusChart) {
+      this.orderStatusChart.resize();
+    }
+    if (this.topStoresChart) {
+      this.topStoresChart.resize();
+    }
+  }
+
+  private ensureChartsInitialized(): void {
+    // Check if charts exist and reinitialize if needed
+    if (!this.revenueChart || !this.userGrowthChart || !this.orderStatusChart || !this.topStoresChart) {
+      this.initializeChartsWithRetry();
+    } else {
+      // If charts exist, just resize them to ensure proper positioning
+      // Use a longer delay to ensure DOM is stable
+      setTimeout(() => {
+        this.resizeCharts();
+        // Force another resize after a delay to ensure proper positioning
+        setTimeout(() => {
+          this.resizeCharts();
+        }, 100);
+      }, 100);
+    }
+  }
+
+  ngAfterViewInit(): void {
+    // Initialize charts after view is initialized with better timing
+    // Use the same robust timing as setActiveTab to prevent floating chart issues
+    setTimeout(() => {
+      this.ensureChartsInitialized();
+      this.resizeCharts();
+      // Force another resize after a longer delay to ensure proper positioning
+      setTimeout(() => {
+        this.resizeCharts();
+      }, 300);
+    }, 200);
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
+    
+    // Clear resize timeout
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
     }
+    
+    // Remove event listeners
+    window.removeEventListener('resize', this.handleWindowResize.bind(this));
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange.bind(this));
+    
+    // Destroy charts
+    this.destroyCharts();
+  }
+
+  private destroyCharts(): void {
+    if (this.revenueChart) {
+      this.revenueChart.destroy();
+      this.revenueChart = null;
+    }
+    if (this.userGrowthChart) {
+      this.userGrowthChart.destroy();
+      this.userGrowthChart = null;
+    }
+    if (this.orderStatusChart) {
+      this.orderStatusChart.destroy();
+      this.orderStatusChart = null;
+    }
+    if (this.topStoresChart) {
+      this.topStoresChart.destroy();
+      this.topStoresChart = null;
+    }
+  }
+
+  private recreateCharts(): void {
+    // Destroy existing charts first
+    this.destroyCharts();
+    
+    // Wait a bit then recreate with better timing
+    setTimeout(() => {
+      this.initializeChartsWithRetry();
+    }, 200);
+  }
+
+  private forceRecreateCharts(): void {
+    // Force complete recreation of charts for persistent floating issues
+    this.destroyCharts();
+    
+    // Use longer delays to ensure DOM is completely stable
+    setTimeout(() => {
+      this.initializeChartsWithRetry();
+      // Force multiple resizes to ensure proper positioning
+      setTimeout(() => {
+        this.resizeCharts();
+        setTimeout(() => {
+          this.resizeCharts();
+        }, 200);
+      }, 300);
+    }, 500);
+  }
+
+  private initializeChartsWithRetry(): void {
+    // Prevent multiple simultaneous initialization attempts
+    if (this.isInitializingCharts) {
+      return;
+    }
+    
+    this.isInitializingCharts = true;
+    
+    // Use requestAnimationFrame for better timing
+    requestAnimationFrame(() => {
+      // Check if all chart elements are available and have proper dimensions
+      if (this.revenueChartRef?.nativeElement && 
+          this.userGrowthChartRef?.nativeElement && 
+          this.orderStatusChartRef?.nativeElement && 
+          this.topStoresChartRef?.nativeElement) {
+        
+        // Check if containers have proper dimensions
+        const revenueContainer = this.revenueChartRef.nativeElement.parentElement;
+        const userGrowthContainer = this.userGrowthChartRef.nativeElement.parentElement;
+        const orderStatusContainer = this.orderStatusChartRef.nativeElement.parentElement;
+        const topStoresContainer = this.topStoresChartRef.nativeElement.parentElement;
+        
+        if (revenueContainer && userGrowthContainer && orderStatusContainer && topStoresContainer) {
+          const containers = [revenueContainer, userGrowthContainer, orderStatusContainer, topStoresContainer];
+          const hasDimensions = containers.every(container => {
+            const rect = container.getBoundingClientRect();
+            return rect.width > 0 && rect.height > 0;
+          });
+          
+          if (hasDimensions) {
+            // Force a longer delay to ensure DOM is fully rendered and stable
+            setTimeout(() => {
+              this.initializeCharts();
+              // Force chart resize after initialization with proper timing
+              setTimeout(() => {
+                this.resizeCharts();
+                // Force another resize after a longer delay to ensure proper positioning
+                setTimeout(() => {
+                  this.resizeCharts();
+                  this.isInitializingCharts = false;
+                }, 200);
+              }, 100);
+            }, 100);
+          } else {
+            // Retry after a longer delay if containers don't have proper dimensions
+            setTimeout(() => {
+              this.isInitializingCharts = false;
+              this.initializeChartsWithRetry();
+            }, 300);
+          }
+        } else {
+          // Retry after a longer delay if containers aren't ready
+          setTimeout(() => {
+            this.isInitializingCharts = false;
+            this.initializeChartsWithRetry();
+          }, 100);
+        }
+      } else {
+        // Retry after a longer delay if elements aren't ready
+        setTimeout(() => {
+          this.isInitializingCharts = false;
+          this.initializeChartsWithRetry();
+        }, 100);
+      }
+    });
   }
 
   private initializeForms(): void {
@@ -131,22 +352,34 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     
     // Load all statistics
     this.adminService.getSystemStats().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (stats) => this.systemStats = stats,
+      next: (stats) => {
+        this.systemStats = stats;
+        this.updateChartsWithRealData();
+      },
       error: (error) => this.handleError('Failed to load system stats', error)
     });
 
     this.adminService.getUserStats().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (stats) => this.userStats = stats,
+      next: (stats) => {
+        this.userStats = stats;
+        this.updateChartsWithRealData();
+      },
       error: (error) => this.handleError('Failed to load user stats', error)
     });
 
     this.adminService.getStoreStats().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (stats) => this.storeStats = stats,
+      next: (stats) => {
+        this.storeStats = stats;
+        this.updateChartsWithRealData();
+      },
       error: (error) => this.handleError('Failed to load store stats', error)
     });
 
     this.adminService.getOrderStats().pipe(takeUntil(this.destroy$)).subscribe({
-      next: (stats) => this.orderStats = stats,
+      next: (stats) => {
+        this.orderStats = stats;
+        this.updateChartsWithRealData();
+      },
       error: (error) => this.handleError('Failed to load order stats', error)
     });
 
@@ -154,6 +387,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       next: (stats) => {
         this.productStats = stats;
         this.loading = false;
+        this.updateChartsWithRealData();
       },
       error: (error) => {
         this.handleError('Failed to load product stats', error);
@@ -162,12 +396,91 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
-  private startAutoRefresh(): void {
-    // Refresh data every 30 seconds
-    this.refreshInterval = setInterval(() => {
-      this.loadDashboardData();
-    }, 30000);
+  private updateChartsWithRealData(): void {
+    // Only update charts if they exist and we're on the overview tab
+    if (this.activeTab === 0 && this.revenueChart && this.userGrowthChart && this.orderStatusChart && this.topStoresChart) {
+      // Update charts with real data
+      this.updateRevenueChart();
+      this.updateUserGrowthChart();
+      this.updateOrderStatusChart();
+      this.updateTopStoresChart();
+      
+      // Force resize after data update to ensure proper positioning
+      setTimeout(() => {
+        this.resizeCharts();
+      }, 100);
+      
+      // Force another resize after a longer delay to ensure proper positioning
+      setTimeout(() => {
+        this.resizeCharts();
+      }, 300);
+    }
   }
+
+  private updateRevenueChart(): void {
+    if (!this.revenueChart || !this.systemStats?.revenueHistory) return;
+    
+    const revenueData = this.systemStats.revenueHistory;
+    const labels = revenueData.map((item: RevenueHistoryItem) => item.month);
+    const data = revenueData.map((item: RevenueHistoryItem) => item.revenue);
+    
+    this.revenueChart.data.labels = labels;
+    this.revenueChart.data.datasets[0].data = data;
+    this.revenueChart.update();
+  }
+
+  private updateUserGrowthChart(): void {
+    if (!this.userGrowthChart || !this.userStats?.userGrowthHistory) return;
+    
+    const userGrowthData = this.userStats.userGrowthHistory;
+    const labels = userGrowthData.map((item: UserGrowthHistoryItem) => item.month);
+    const data = userGrowthData.map((item: UserGrowthHistoryItem) => item.newUsers);
+    
+    this.userGrowthChart.data.labels = labels;
+    this.userGrowthChart.data.datasets[0].data = data;
+    this.userGrowthChart.update();
+  }
+
+  private updateOrderStatusChart(): void {
+    if (!this.orderStatusChart || !this.orderStats?.orderStatusHistory) return;
+    
+    const orderStatusData = this.orderStats.orderStatusHistory;
+    const labels = orderStatusData.map((item: OrderStatusHistoryItem) => item.status);
+    const data = orderStatusData.map((item: OrderStatusHistoryItem) => item.count);
+    
+    this.orderStatusChart.data.labels = labels;
+    this.orderStatusChart.data.datasets[0].data = data;
+    this.orderStatusChart.update();
+  }
+
+  private updateTopStoresChart(): void {
+    if (!this.topStoresChart || !this.stores.length) return;
+    
+    // Recalculate store revenue with real data
+    const storeRevenue = this.stores.map(store => {
+      const revenue = store.products?.reduce((total: number, product: Product) => {
+        return total + product.price;
+      }, 0) || 0;
+      
+      return {
+        name: store.name,
+        revenue: revenue
+      };
+    });
+
+    const topStores = storeRevenue
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    const labels = topStores.map(store => store.name);
+    const data = topStores.map(store => store.revenue);
+    
+    this.topStoresChart.data.labels = labels;
+    this.topStoresChart.data.datasets[0].data = data;
+    this.topStoresChart.update();
+  }
+
+
 
   // Tab Management
   setActiveTab(tabIndex: number): void {
@@ -178,6 +491,18 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     this.sortField = ''; // Reset sorting
     this.sortDirection = 'desc'; // Reset sort direction
     this.loadTabData(tabIndex);
+    
+    // If switching to overview tab, ensure charts are properly sized and initialized
+    if (tabIndex === 0) {
+      setTimeout(() => {
+        this.ensureChartsInitialized();
+        this.resizeCharts();
+        // Force another resize after a longer delay to ensure proper positioning
+        setTimeout(() => {
+          this.resizeCharts();
+        }, 300);
+      }, 200);
+    }
   }
 
   private loadTabData(tabIndex: number): void {
@@ -504,11 +829,19 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  selectOrder(order: Order): void {
+    this.selectedOrder = order;
+  }
+
   updateOrderStatus(order: Order, status: string): void {
     this.adminService.updateOrderStatus(order.id, status).pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
         this.snackBar.open('Order status updated successfully', 'Close', { duration: 3000 });
         this.loadOrders();
+        // Update the selected order if it's the same one
+        if (this.selectedOrder && this.selectedOrder.id === order.id) {
+          this.selectedOrder.status = status as any;
+        }
       },
       error: (error) => this.handleError('Failed to update order status', error)
     });
@@ -519,7 +852,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     switch (status.toLowerCase()) {
       case 'active': case 'delivered': case 'paid': return 'green';
       case 'pending': return 'orange';
-      case 'inactive': case 'cancelled': return 'red';
+      case 'accepted': return 'green';
+      case 'inactive': return 'red';
       case 'shipped': return 'blue';
       default: return 'gray';
     }
@@ -559,6 +893,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     event.target.src = this.imageService.getImageUrl('/uploads/images/product-default.png');
   }
 
+  getProductImageUrl(item: any): string {
+    if (item.productImageUrl) {
+      return this.imageService.getImageUrl(item.productImageUrl);
+    }
+    if (item.product && item.product.productImages && item.product.productImages.length > 0) {
+      return this.imageService.getImageUrl(item.product.productImages[0].imageUrl);
+    }
+    return this.imageService.getImageUrl('/uploads/images/product-default.png');
+  }
+
   // Minimap helper: get color for player
   getPlayerColor(player: PlayerState): string {
     // Use their color if set, else fallback
@@ -595,5 +939,320 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Chart Methods
+  private initializeCharts(): void {
+    // Only initialize charts if they don't already exist
+    if (!this.revenueChart) {
+      this.createRevenueChart();
+    }
+    if (!this.userGrowthChart) {
+      this.createUserGrowthChart();
+    }
+    if (!this.orderStatusChart) {
+      this.createOrderStatusChart();
+    }
+    if (!this.topStoresChart) {
+      this.createTopStoresChart();
+    }
+  }
+
+  private createRevenueChart(): void {
+    if (!this.revenueChartRef?.nativeElement) return;
+
+    const ctx = this.revenueChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    // Ensure the canvas is properly sized and positioned
+    const canvas = this.revenueChartRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    
+    // Force canvas to match container size
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Use real data from systemStats if available
+    const revenueData = this.systemStats?.revenueHistory || [
+      { month: 'Jan', revenue: 12000 },
+      { month: 'Feb', revenue: 19000 },
+      { month: 'Mar', revenue: 15000 },
+      { month: 'Apr', revenue: 25000 },
+      { month: 'May', revenue: 22000 },
+      { month: 'Jun', revenue: 30000 }
+    ];
+
+    const labels = revenueData.map((item: RevenueHistoryItem) => item.month);
+    const data = revenueData.map((item: RevenueHistoryItem) => item.revenue);
+
+    const config: ChartConfiguration = {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Revenue',
+          data: data,
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    };
+
+    this.revenueChart = new Chart(ctx, config);
+  }
+
+  private createUserGrowthChart(): void {
+    if (!this.userGrowthChartRef?.nativeElement) return;
+
+    const ctx = this.userGrowthChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    // Ensure the canvas is properly sized and positioned
+    const canvas = this.userGrowthChartRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    
+    // Force canvas to match container size
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Use real data from userStats if available
+    const userGrowthData = this.userStats?.userGrowthHistory || [
+      { month: 'Jan', newUsers: 45 },
+      { month: 'Feb', newUsers: 52 },
+      { month: 'Mar', newUsers: 38 },
+      { month: 'Apr', newUsers: 67 },
+      { month: 'May', newUsers: 58 },
+      { month: 'Jun', newUsers: 75 }
+    ];
+
+    const labels = userGrowthData.map((item: UserGrowthHistoryItem) => item.month);
+    const data = userGrowthData.map((item: UserGrowthHistoryItem) => item.newUsers);
+
+    const config: ChartConfiguration = {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'New Users',
+          data: data,
+          backgroundColor: '#43e97b',
+          borderColor: '#38f9d7',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    };
+
+    this.userGrowthChart = new Chart(ctx, config);
+  }
+
+  private createOrderStatusChart(): void {
+    if (!this.orderStatusChartRef?.nativeElement) return;
+
+    const ctx = this.orderStatusChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    // Ensure the canvas is properly sized and positioned
+    const canvas = this.orderStatusChartRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    
+    // Force canvas to match container size
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Use real data from orderStats if available
+    const orderStatusData = this.orderStats?.orderStatusHistory || [
+      { status: 'Pending', count: 12 },
+      { status: 'Accepted', count: 8 },
+      { status: 'Shipped', count: 19 },
+      { status: 'Delivered', count: 8 }
+    ];
+
+    const labels = orderStatusData.map((item: OrderStatusHistoryItem) => item.status);
+    const data = orderStatusData.map((item: OrderStatusHistoryItem) => item.count);
+
+    const config: ChartConfiguration = {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: data,
+          backgroundColor: [
+            '#ffa726', // Orange for Pending
+            '#42a5f5', // Blue for Accepted
+            '#7e57c2', // Purple for Shipped
+            '#66bb6a'  // Light Green for Delivered
+          ],
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    };
+
+    this.orderStatusChart = new Chart(ctx, config);
+  }
+
+  private createTopStoresChart(): void {
+    if (!this.topStoresChartRef?.nativeElement) return;
+
+    const ctx = this.topStoresChartRef.nativeElement.getContext('2d');
+    if (!ctx) return;
+    
+    // Ensure the canvas is properly sized and positioned
+    const canvas = this.topStoresChartRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    
+    // Force canvas to match container size
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Use real store data to calculate revenue
+    const storeRevenue = this.stores.map(store => {
+      // Calculate revenue based on store's products and their prices
+      const revenue = store.products?.reduce((total: number, product: Product) => {
+        return total + product.price;
+      }, 0) || 0;
+      
+      return {
+        name: store.name,
+        revenue: revenue
+      };
+    });
+
+    // Sort by revenue and take top 5
+    const topStores = storeRevenue
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    // If no real data, use sample data
+    const labels = topStores.length > 0 
+      ? topStores.map(store => store.name)
+      : ['Store A', 'Store B', 'Store C', 'Store D', 'Store E'];
+    
+    const data = topStores.length > 0
+      ? topStores.map(store => store.revenue)
+      : [15000, 12000, 9000, 7500, 6000];
+
+    const chartData = {
+      labels: labels,
+      datasets: [{
+        label: 'Revenue',
+        data: data,
+        backgroundColor: [
+          '#667eea',
+          '#f093fb',
+          '#4facfe',
+          '#43e97b',
+          '#fa709a'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff'
+      }]
+    };
+
+    const config: ChartConfiguration = {
+      type: 'bar',
+      data: chartData,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 10,
+            right: 10
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    };
+
+    this.topStoresChart = new Chart(ctx, config);
   }
 } 

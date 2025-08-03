@@ -11,7 +11,7 @@ export interface Order {
   id: number;
   orderNumber: string;
   orderDate: string;
-  status: 'Pending' | 'Accepted' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: 'Pending' | 'Accepted' | 'Shipped' | 'Delivered';
   totalAmount: number;
   items: OrderItem[];
   shippingAddress: string;
@@ -134,7 +134,6 @@ export class OrderTrackingComponent implements OnInit {
       case 'Accepted': return '#42A5F5';
       case 'Shipped': return '#7E57C2';
       case 'Delivered': return '#66BB6A';
-      case 'Cancelled': return '#EF5350';
       default: return '#757575';
     }
   }
@@ -145,7 +144,6 @@ export class OrderTrackingComponent implements OnInit {
       case 'Accepted': return 'check_circle_outline';
       case 'Shipped': return 'local_shipping';
       case 'Delivered': return 'check_circle';
-      case 'Cancelled': return 'cancel';
       default: return 'help';
     }
   }
@@ -156,7 +154,6 @@ export class OrderTrackingComponent implements OnInit {
       case 'Accepted': return 50;
       case 'Shipped': return 75;
       case 'Delivered': return 100;
-      case 'Cancelled': return 0;
       default: return 0;
     }
   }

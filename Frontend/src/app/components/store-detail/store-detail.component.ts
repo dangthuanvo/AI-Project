@@ -20,6 +20,7 @@ export class StoreDetailComponent implements OnInit {
   sortOrder = 'none';
   firstAppear: boolean[] = [];
   flyDirections: string[] = [];
+  previouslyVisibleProductIds: Set<number> = new Set();
 
   constructor(
     private route: ActivatedRoute, 
@@ -115,9 +116,20 @@ export class StoreDetailComponent implements OnInit {
       });
     }
 
-    this.filteredProducts = filtered;
-    this.firstAppear = filtered.map(() => true);
+    // Track which products are currently visible
+    const currentVisibleProductIds = new Set(filtered.map(p => p.id));
+    
+    // Only animate products that weren't visible before
+    this.firstAppear = filtered.map(product => {
+      const wasPreviouslyVisible = this.previouslyVisibleProductIds.has(product.id);
+      return !wasPreviouslyVisible; // Only animate if not previously visible
+    });
+    
     this.flyDirections = filtered.map(() => this.getRandomDirection());
+    this.filteredProducts = filtered;
+    
+    // Update the set of previously visible products for next filter
+    this.previouslyVisibleProductIds = currentVisibleProductIds;
   }
 
   getImageUrl(imageUrl: string | null | undefined): string {

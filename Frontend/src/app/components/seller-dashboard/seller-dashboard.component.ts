@@ -463,11 +463,10 @@ export class SellerDashboardComponent implements OnInit {
 
   getOrderStatusColor(status: string): string {
     switch (status.toLowerCase()) {
-      case 'pending': return '#ff9800';
-      case 'processing': return '#2196f3';
-      case 'shipped': return '#4caf50';
-      case 'delivered': return '#4caf50';
-      case 'cancelled': return '#f44336';
+      case 'pending': return '#ffa726';
+      case 'accepted': return '#42a5f5';
+      case 'shipped': return '#7e57c2';
+      case 'delivered': return '#66bb6a';
       default: return '#666';
     }
   }

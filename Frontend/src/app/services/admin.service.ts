@@ -3,7 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
-export interface UserStats {
+export interface UserGrowthHistoryItem {
+  month: string;
+  newUsers: number;
+}
+
+  export interface UserStats {
   totalUsers: number;
   activeUsers: number;
   inactiveUsers: number;
@@ -11,6 +16,7 @@ export interface UserStats {
   sellers: number;
   admins: number;
   newUsersThisMonth: number;
+  userGrowthHistory?: UserGrowthHistoryItem[];
 }
 
 export interface StoreStats {
@@ -22,15 +28,21 @@ export interface StoreStats {
   newStoresThisMonth: number;
 }
 
+export interface OrderStatusHistoryItem {
+  status: string;
+  count: number;
+}
+
 export interface OrderStats {
   totalOrders: number;
   pendingOrders: number;
+  acceptedOrders: number;
   shippedOrders: number;
   deliveredOrders: number;
-  cancelledOrders: number;
   totalRevenue: number;
   averageOrderValue: number;
   ordersThisMonth: number;
+  orderStatusHistory?: OrderStatusHistoryItem[];
 }
 
 export interface ProductStats {
@@ -43,6 +55,11 @@ export interface ProductStats {
   newProductsThisMonth: number;
 }
 
+export interface RevenueHistoryItem {
+  month: string;
+  revenue: number;
+}
+
 export interface SystemStats {
   totalUsers: number;
   totalStores: number;
@@ -52,6 +69,7 @@ export interface SystemStats {
   systemUptime: string;
   lastBackup: string;
   activeSessions: number;
+  revenueHistory?: RevenueHistoryItem[];
 }
 
 export interface User {
@@ -83,6 +101,7 @@ export interface Store {
   ownerId: string;
   ownerName: string;
   productCount: number;
+  products?: Product[];
 }
 
 export interface Product {
@@ -99,8 +118,8 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   storeId: number;
-  storeName: string;
-  imageUrls: string[];
+  storeName?: string;
+  imageUrls?: string[];
 }
 
 export interface Order {
@@ -109,10 +128,12 @@ export interface Order {
   userId: string;
   customerName: string;
   customerEmail: string;
+  customerPhone?: string;
   shippingAddress: string;
   orderDate: string;
   status: string;
   totalAmount: number;
+  trackingNumber?: string;
   payPalTransactionId?: string;
   payPalOrderId?: string;
   shippedDate?: string;
@@ -128,6 +149,8 @@ export interface OrderItem {
   unitPrice: number;
   productName: string;
   productImageUrl?: string;
+  storeId: number;
+  storeName: string;
 }
 
 @Injectable({

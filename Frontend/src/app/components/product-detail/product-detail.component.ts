@@ -54,6 +54,11 @@ export class ProductDetailComponent implements OnInit {
   isRatingImageFullScreen = false;
   ratingImageFullScreenUrl: string | null = null;
 
+  // Related products properties
+  relatedProducts: Product[] = [];
+  relatedProductsLoading = false;
+  relatedProductsError: string | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -82,7 +87,16 @@ export class ProductDetailComponent implements OnInit {
       this.showMainImage = false;
       setTimeout(() => this.tryFlyInAnimation(state), 0);
     }
-    this.loadProduct();
+    
+    // Subscribe to route parameter changes
+    this.route.params.subscribe(params => {
+      const productId = params['id'];
+      if (productId) {
+        this.loading = true;
+        this.error = null;
+        this.loadProduct();
+      }
+    });
   }
 
   private tryFlyInAnimation(state: FlyImageAnimationState) {
@@ -123,23 +137,41 @@ export class ProductDetailComponent implements OnInit {
   }
 
   loadProduct(): void {
-    const productId = Number(this.route.snapshot.paramMap.get('id'));
+    const productId = this.route.snapshot.paramMap.get('id');
     if (!productId) {
       this.error = 'Product ID is required';
       this.loading = false;
       return;
     }
 
-    this.storeService.getProduct(productId).subscribe({
+    this.storeService.getProduct(+productId).subscribe({
       next: (product) => {
         this.product = product;
-        this.loading = false;
         this.loadRatings(product.id);
+        this.loadRelatedProducts(product.id);
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error loading product:', error);
-        this.error = 'Failed to load product';
+        this.error = 'Failed to load product details';
         this.loading = false;
+      }
+    });
+  }
+
+  loadRelatedProducts(productId: number): void {
+    this.relatedProductsLoading = true;
+    this.relatedProductsError = null;
+    
+    this.storeService.getRelatedProducts(productId, 8).subscribe({
+      next: (products) => {
+        this.relatedProducts = products.filter(p => p.id !== productId); // Exclude current product
+        this.relatedProductsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading related products:', error);
+        this.relatedProductsError = 'Failed to load related products';
+        this.relatedProductsLoading = false;
       }
     });
   }
@@ -420,7 +452,10 @@ export class ProductDetailComponent implements OnInit {
 
   onChatInitiated(): void {
     // Handle chat initiation if needed
-    console.log('Chat initiated for product:', this.product?.name);
+  }
+
+  navigateToRelatedProduct(product: Product): void {
+    this.router.navigate(['/product', product.id]);
   }
 
   flyToCart() {

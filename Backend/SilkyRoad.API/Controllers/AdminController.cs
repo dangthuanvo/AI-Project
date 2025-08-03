@@ -40,6 +40,23 @@ namespace SilkyRoad.API.Controllers
                 .Where(o => o.Status == "Delivered" || o.Status == "Paid")
                 .SumAsync(o => o.TotalAmount);
 
+            // Generate revenue history for the last 6 months
+            var revenueHistory = new List<object>();
+            for (int i = 5; i >= 0; i--)
+            {
+                var month = DateTime.UtcNow.AddMonths(-i);
+                var monthRevenue = await _context.Orders
+                    .Where(o => o.Status == "Delivered" || o.Status == "Paid")
+                    .Where(o => o.OrderDate.Month == month.Month && o.OrderDate.Year == month.Year)
+                    .SumAsync(o => o.TotalAmount);
+                
+                revenueHistory.Add(new
+                {
+                    month = month.ToString("MMM"),
+                    revenue = monthRevenue
+                });
+            }
+
             return Ok(new
             {
                 totalUsers,
@@ -49,7 +66,8 @@ namespace SilkyRoad.API.Controllers
                 totalRevenue,
                 systemUptime = "99.9%",
                 lastBackup = DateTime.UtcNow.AddHours(-2).ToString("yyyy-MM-dd HH:mm:ss"),
-                activeSessions = totalUsers // Simplified for demo
+                activeSessions = totalUsers, // Simplified for demo
+                revenueHistory
             });
         }
 
@@ -68,6 +86,20 @@ namespace SilkyRoad.API.Controllers
             var thisMonth = DateTime.UtcNow.AddMonths(-1);
             var newUsersThisMonth = users.Count(u => u.CreatedAt >= thisMonth);
 
+            // Generate user growth history for the last 6 months
+            var userGrowthHistory = new List<object>();
+            for (int i = 5; i >= 0; i--)
+            {
+                var month = DateTime.UtcNow.AddMonths(-i);
+                var newUsersInMonth = users.Count(u => u.CreatedAt.Month == month.Month && u.CreatedAt.Year == month.Year);
+                
+                userGrowthHistory.Add(new
+                {
+                    month = month.ToString("MMM"),
+                    newUsers = newUsersInMonth
+                });
+            }
+
             return Ok(new
             {
                 totalUsers,
@@ -76,7 +108,8 @@ namespace SilkyRoad.API.Controllers
                 customers = customers.Count,
                 sellers = sellers.Count,
                 admins = admins.Count,
-                newUsersThisMonth
+                newUsersThisMonth,
+                userGrowthHistory
             });
         }
 
@@ -110,9 +143,9 @@ namespace SilkyRoad.API.Controllers
             var orders = await _context.Orders.ToListAsync();
             var totalOrders = orders.Count;
             var pendingOrders = orders.Count(o => o.Status == "Pending");
+            var acceptedOrders = orders.Count(o => o.Status == "Accepted");
             var shippedOrders = orders.Count(o => o.Status == "Shipped");
             var deliveredOrders = orders.Count(o => o.Status == "Delivered");
-            var cancelledOrders = orders.Count(o => o.Status == "Cancelled");
             var totalRevenue = orders
                 .Where(o => o.Status == "Delivered" || o.Status == "Paid")
                 .Sum(o => o.TotalAmount);
@@ -121,16 +154,26 @@ namespace SilkyRoad.API.Controllers
             var thisMonth = DateTime.UtcNow.AddMonths(-1);
             var ordersThisMonth = orders.Count(o => o.OrderDate >= thisMonth);
 
+            // Generate order status history
+            var orderStatusHistory = new List<object>
+            {
+                new { status = "Pending", count = pendingOrders },
+                new { status = "Accepted", count = acceptedOrders },
+                new { status = "Shipped", count = shippedOrders },
+                new { status = "Delivered", count = deliveredOrders }
+            };
+
             return Ok(new
             {
                 totalOrders,
                 pendingOrders,
+                acceptedOrders,
                 shippedOrders,
                 deliveredOrders,
-                cancelledOrders,
                 totalRevenue,
                 averageOrderValue,
-                ordersThisMonth
+                ordersThisMonth,
+                orderStatusHistory
             });
         }
 
@@ -367,7 +410,23 @@ namespace SilkyRoad.API.Controllers
                 s.UpdatedAt,
                 OwnerId = s.OwnerId,
                 OwnerName = $"{s.Owner.FirstName} {s.Owner.LastName}",
-                ProductCount = s.Products.Count(p => p.IsActive)
+                ProductCount = s.Products.Count(p => p.IsActive),
+                Products = s.Products.Where(p => p.IsActive).Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description,
+                    p.Price,
+                    p.StockQuantity,
+                    p.Category,
+                    p.Brand,
+                    p.Size,
+                    p.Color,
+                    p.IsActive,
+                    p.CreatedAt,
+                    p.UpdatedAt,
+                    p.StoreId
+                }).ToList()
             }).ToList();
 
             return Ok(storeList);
@@ -399,7 +458,23 @@ namespace SilkyRoad.API.Controllers
                 store.UpdatedAt,
                 OwnerId = store.OwnerId,
                 OwnerName = $"{store.Owner.FirstName} {store.Owner.LastName}",
-                ProductCount = store.Products.Count(p => p.IsActive)
+                ProductCount = store.Products.Count(p => p.IsActive),
+                Products = store.Products.Where(p => p.IsActive).Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description,
+                    p.Price,
+                    p.StockQuantity,
+                    p.Category,
+                    p.Brand,
+                    p.Size,
+                    p.Color,
+                    p.IsActive,
+                    p.CreatedAt,
+                    p.UpdatedAt,
+                    p.StoreId
+                }).ToList()
             });
         }
 
@@ -548,6 +623,7 @@ namespace SilkyRoad.API.Controllers
             var orders = await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.Store)
                 .ToListAsync();
 
             var orderList = orders.Select(o => new
@@ -572,7 +648,9 @@ namespace SilkyRoad.API.Controllers
                     oi.Quantity,
                     oi.UnitPrice,
                     oi.ProductName,
-                    oi.ProductImageUrl
+                    oi.ProductImageUrl,
+                    StoreId = oi.Product.StoreId,
+                    StoreName = oi.Product.Store.Name
                 }).ToList()
             }).ToList();
 
@@ -585,6 +663,7 @@ namespace SilkyRoad.API.Controllers
             var order = await _context.Orders
                 .Include(o => o.Items)
                 .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.Store)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
 
             if (order == null)
@@ -612,7 +691,9 @@ namespace SilkyRoad.API.Controllers
                     oi.Quantity,
                     oi.UnitPrice,
                     oi.ProductName,
-                    oi.ProductImageUrl
+                    oi.ProductImageUrl,
+                    StoreId = oi.Product.StoreId,
+                    StoreName = oi.Product.Store.Name
                 }).ToList()
             });
         }

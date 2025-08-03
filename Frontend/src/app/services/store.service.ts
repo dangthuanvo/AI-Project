@@ -89,6 +89,10 @@ export class StoreService {
     return this.http.get<Product>(`${this.API_URL}/product/${id}`);
   }
 
+  getRelatedProducts(productId: number, limit: number = 8): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.API_URL}/product/${productId}/related?limit=${limit}`);
+  }
+
   getStoreProducts(storeId: number): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.API_URL}/stores/${storeId}/products`);
   }

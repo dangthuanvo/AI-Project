@@ -59,8 +59,8 @@
             <div class="progress-container">
               <mat-progress-bar 
                 mode="determinate" 
-                [value]="getProgressPercentage(order.status)"
-                [color]="order.status === 'Cancelled' ? 'warn' : 'primary'"
+                            [value]="getProgressPercentage(order.status)"
+            [color]="'primary'"
               ></mat-progress-bar>
               <div class="progress-labels">
                 <span>Ordered</span>
