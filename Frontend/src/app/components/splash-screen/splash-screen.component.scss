@@ -1,13 +1,27 @@
 // Splash Screen Styles
 .splash-container {
+  overflow: hidden !important;
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overscroll-behavior: none;
+}
+
+.splash-container * {
+  overscroll-behavior: none;
+}
+
+.splash-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
   overflow: hidden;
-  z-index: 10000;
+  z-index: 1;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -230,7 +244,7 @@
         
         .user-name {
           font-weight: 600;
-          color: #4a90e2;
+          color: linear-gradient(45deg, #42e9f5, #7cf7c7)
         }
       }
       
