@@ -57,6 +57,7 @@ import { ShippingAddressCardComponent } from './components/checkout/shipping-add
 import { ShippingAddressDialogComponent } from './components/checkout/shipping-address-dialog.component';
 import { ChatRequestDialogComponent } from './components/chat-request-dialog/chat-request-dialog.component';
 import { ForgotPasswordComponent } from './components/auth/forgot-password/forgot-password.component';
+import { AnimatedBackgroundComponent } from './components/animated-background/animated-background.component';
 import { MinigameDialogComponent } from './components/minigame-dialog/minigame-dialog.component';
 import { MemoryMatchComponent } from './components/memory-match/memory-match.component';
 import { ColorRushComponent } from './components/color-rush/color-rush.component';
@@ -81,6 +82,7 @@ import { RoleGuard } from './guards/role.guard';
 @NgModule({
   declarations: [
     AppComponent,
+    AnimatedBackgroundComponent,
     LoginComponent,
     RegisterComponent,
     VirtualStreetComponent,

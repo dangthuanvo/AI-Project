@@ -14,11 +14,14 @@ import { ChatComponent } from './components/chat/chat.component';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
+  // Properties
   title = 'Silky Road';
   isAuthenticated = false;
   user: any = null;
   cartItemCount = 0;
   unreadCount = 0;
+  hideNavbar = false;
+  showAnimatedBackground = false;
 
   constructor(
     private authService: AuthService,
@@ -29,6 +32,15 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Listen to route changes to hide navbar on auth pages
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
+      const navEnd = event as NavigationEnd;
+      const authRoutes = ['/login', '/register', '/forgot-password'];
+      const splashRoutes = ['/splash'];
+      this.hideNavbar = [...authRoutes, ...splashRoutes].some(route => navEnd.url.startsWith(route));
+      this.showAnimatedBackground = [...authRoutes, ...splashRoutes].some(route => navEnd.url.startsWith(route));
+    });
+
     this.authService.isAuthenticated$.subscribe(
       isAuth => this.isAuthenticated = isAuth
     );

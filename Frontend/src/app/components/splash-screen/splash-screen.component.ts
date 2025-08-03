@@ -60,6 +60,8 @@ export class SplashScreenComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     const user = this.authService.getCurrentUser();
     if (!user) {
       this.router.navigate(['/login']);

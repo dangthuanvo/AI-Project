@@ -1,4 +1,4 @@
-<mat-toolbar color="primary" class="app-toolbar">
+<mat-toolbar *ngIf="!hideNavbar" color="primary" class="app-toolbar">
   <span class="app-title" routerLink="/virtual-street">{{ title }}</span>
   
   <span class="spacer"></span>
@@ -66,7 +66,8 @@
 </mat-toolbar>
 
 <main class="app-content">
-  <router-outlet></router-outlet>
+  <app-animated-background *ngIf="showAnimatedBackground"></app-animated-background>
+<router-outlet></router-outlet>
 </main>
 
-<app-chat-button *ngIf="isAuthenticated && !hasRole('Admin')"></app-chat-button> 
+<app-chat-button *ngIf="isAuthenticated && !hasRole('Admin') && !hideNavbar"></app-chat-button> 

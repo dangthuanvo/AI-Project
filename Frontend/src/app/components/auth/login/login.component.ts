@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
@@ -8,7 +8,8 @@ import { AuthService } from '../../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
+  hidePassword: boolean = true;
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
@@ -25,8 +26,15 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     this.authService.logout(); // Always log out when visiting login page
     // No redirect here! Always show the login form.
+  }
+
+  ngOnDestroy(): void {
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   }
 
   onSubmit(): void {
