@@ -74,20 +74,23 @@ namespace SilkyRoad.API.Controllers
         [HttpGet("stats/top-stores-revenue")]
     public async Task<ActionResult<IEnumerable<object>>> GetTopStoresByRevenue(int top = 5)
     {
-        var topStores = await _context.OrderItems
-            .Where(oi => oi.Order.Status == "Delivered" || oi.Order.Status == "Paid")
-            .Include(oi => oi.Product)
-            .ThenInclude(p => p.Store)
-            .GroupBy(oi => new { oi.Product.Store.Id, oi.Product.Store.Name })
-            .Select(g => new
+        var topStores = await (
+            from oi in _context.OrderItems
+            join o in _context.Orders on oi.OrderId equals o.Id
+            join p in _context.Products on oi.ProductId equals p.Id
+            join s in _context.Stores on p.StoreId equals s.Id
+            where o.Status == "Delivered" || o.Status == "Paid"
+            group oi by new { s.Id, s.Name } into g
+            select new
             {
                 StoreId = g.Key.Id,
                 StoreName = g.Key.Name,
-                Revenue = g.Sum(oi => oi.TotalPrice)
-            })
-            .OrderByDescending(x => x.Revenue)
-            .Take(top)
-            .ToListAsync();
+                Revenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
+            }
+        )
+        .OrderByDescending(x => x.Revenue)
+        .Take(top)
+        .ToListAsync();
 
         return Ok(topStores);
     }
