@@ -74,25 +74,33 @@ namespace SilkyRoad.API.Controllers
         [HttpGet("stats/top-stores-revenue")]
     public async Task<ActionResult<IEnumerable<object>>> GetTopStoresByRevenue(int top = 5)
     {
-        var topStores = await (
-            from oi in _context.OrderItems
-            join o in _context.Orders on oi.OrderId equals o.Id
-            join p in _context.Products on oi.ProductId equals p.Id
-            join s in _context.Stores on p.StoreId equals s.Id
-            where o.Status == "Delivered" || o.Status == "Paid"
-            group oi by new { s.Id, s.Name } into g
-            select new
-            {
-                StoreId = g.Key.Id,
-                StoreName = g.Key.Name,
-                Revenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
-            }
-        )
-        .OrderByDescending(x => x.Revenue)
-        .Take(top)
-        .ToListAsync();
+        var topStores = (
+        from oi in _context.OrderItems
+        join o in _context.Orders on oi.OrderId equals o.Id
+        join p in _context.Products on oi.ProductId equals p.Id
+        join s in _context.Stores on p.StoreId equals s.Id
+        where o.Status == "Delivered" || o.Status == "Paid"
+        select new
+        {
+            StoreId = s.Id,
+            StoreName = s.Name,
+            Quantity = oi.Quantity,
+            UnitPrice = oi.UnitPrice
+        }
+    )
+    .AsEnumerable()
+    .GroupBy(x => new { x.StoreId, x.StoreName })
+    .Select(g => new
+    {
+        StoreId = g.Key.StoreId,
+        StoreName = g.Key.StoreName,
+        Revenue = g.Sum(x => x.Quantity * x.UnitPrice)
+    })
+    .OrderByDescending(x => x.Revenue)
+    .Take(top)
+    .ToList();
 
-        return Ok(topStores);
+    return Ok(topStores);
     }
 
     [HttpGet("stats/users")]
