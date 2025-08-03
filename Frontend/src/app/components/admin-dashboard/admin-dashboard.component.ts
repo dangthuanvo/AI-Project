@@ -386,46 +386,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
     const labels = orderStatusData.map((item: OrderStatusHistoryItem) => item.status);
     const data = orderStatusData.map((item: OrderStatusHistoryItem) => item.count);
     
-    this.orderStatusChart.data.labels = labels;
-    this.orderStatusChart.data.datasets[0].data = data;
-    this.orderStatusChart.update();
-  }
-
-  private updateTopStoresChart(): void {
-    if (!this.topStoresChart || !this.stores.length) return;
-    
-    // Recalculate store revenue with real data
-    const storeRevenue = this.stores.map(store => {
-      const revenue = store.products?.reduce((total: number, product: Product) => {
-        return total + product.price;
-      }, 0) || 0;
-      
-      return {
-        name: store.name,
-        revenue: revenue
-      };
-    });
-
-    const topStores = storeRevenue
-      .sort((a, b) => b.revenue - a.revenue)
-      .slice(0, 5);
-
-    const labels = topStores.map(store => store.name);
-    const data = topStores.map(store => store.revenue);
-    
-    this.topStoresChart.data.labels = labels;
-    this.topStoresChart.data.datasets[0].data = data;
-    this.topStoresChart.update();
-  }
-
-  private startAutoRefresh(): void {
-    // Refresh data every 30 seconds
-    this.refreshInterval = setInterval(() => {
-      this.loadDashboardData();
-    }, 30000);
-  }
-
-  // Tab Management
   setActiveTab(tabIndex: number): void {
     this.activeTab = tabIndex;
     this.searchTerm = ''; // Reset search when switching tabs
