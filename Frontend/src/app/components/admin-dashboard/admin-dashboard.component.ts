@@ -30,10 +30,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
   private orderStatusChart: Chart | null = null;
   private topStoresChart: Chart | null = null;
   
-  // Chart initialization state
-  private isInitializingCharts = false;
-  private resizeTimeout: any = null;
-  
   // Dashboard state
   activeTab = 0; // Changed to number for mat-tab-group
   loading = false;
@@ -77,7 +73,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'desc';
   
-  // Real-time updates - removed auto-refresh
+  // Real-time updates
+  private refreshInterval: any;
 
   // Order detail state
   selectedOrder: Order | null = null;
@@ -116,12 +113,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.initializeForms();
-    
-    // Load data with a slight delay to ensure proper initialization order
-    setTimeout(() => {
-      this.loadDashboardData();
-      this.loadStores(); // Ensure stores are loaded for minimap
-    }, 100);
+    this.loadDashboardData();
+    this.loadStores(); // Ensure stores are loaded for minimap
+    this.startAutoRefresh();
     
     // Subscribe to player states for monitor
     this.presenceService.allPlayerStates$.pipe(takeUntil(this.destroy$)).subscribe(states => {
@@ -141,15 +135,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
   private handleWindowResize(): void {
     // Resize charts when window is resized to prevent positioning issues
     if (this.activeTab === 0) {
-      // Debounce the resize to prevent multiple rapid calls
-      clearTimeout(this.resizeTimeout);
-      this.resizeTimeout = setTimeout(() => {
+      this.resizeCharts();
+      // Force another resize after a delay to ensure proper positioning
+      setTimeout(() => {
         this.resizeCharts();
-        // Force another resize after a delay to ensure proper positioning
-        setTimeout(() => {
-          this.resizeCharts();
-        }, 100);
-      }, 150);
+      }, 100);
     }
   }
 
@@ -181,39 +171,19 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
     // Check if charts exist and reinitialize if needed
     if (!this.revenueChart || !this.userGrowthChart || !this.orderStatusChart || !this.topStoresChart) {
       this.initializeChartsWithRetry();
-    } else {
-      // If charts exist, just resize them to ensure proper positioning
-      // Use a longer delay to ensure DOM is stable
-      setTimeout(() => {
-        this.resizeCharts();
-        // Force another resize after a delay to ensure proper positioning
-        setTimeout(() => {
-          this.resizeCharts();
-        }, 100);
-      }, 100);
     }
   }
 
   ngAfterViewInit(): void {
     // Initialize charts after view is initialized with better timing
-    // Use the same robust timing as setActiveTab to prevent floating chart issues
-    setTimeout(() => {
-      this.ensureChartsInitialized();
-      this.resizeCharts();
-      // Force another resize after a longer delay to ensure proper positioning
-      setTimeout(() => {
-        this.resizeCharts();
-      }, 300);
-    }, 200);
+    this.initializeChartsWithRetry();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    
-    // Clear resize timeout
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
     }
     
     // Remove event listeners
@@ -247,37 +217,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
     // Destroy existing charts first
     this.destroyCharts();
     
-    // Wait a bit then recreate with better timing
+    // Wait a bit then recreate
     setTimeout(() => {
       this.initializeChartsWithRetry();
-    }, 200);
-  }
-
-  private forceRecreateCharts(): void {
-    // Force complete recreation of charts for persistent floating issues
-    this.destroyCharts();
-    
-    // Use longer delays to ensure DOM is completely stable
-    setTimeout(() => {
-      this.initializeChartsWithRetry();
-      // Force multiple resizes to ensure proper positioning
-      setTimeout(() => {
-        this.resizeCharts();
-        setTimeout(() => {
-          this.resizeCharts();
-        }, 200);
-      }, 300);
-    }, 500);
+    }, 100);
   }
 
   private initializeChartsWithRetry(): void {
-    // Prevent multiple simultaneous initialization attempts
-    if (this.isInitializingCharts) {
-      return;
-    }
-    
-    this.isInitializingCharts = true;
-    
     // Use requestAnimationFrame for better timing
     requestAnimationFrame(() => {
       // Check if all chart elements are available and have proper dimensions
@@ -300,39 +246,31 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
           });
           
           if (hasDimensions) {
-            // Force a longer delay to ensure DOM is fully rendered and stable
+            // Force a small delay to ensure DOM is fully rendered
             setTimeout(() => {
               this.initializeCharts();
-              // Force chart resize after initialization with proper timing
+              // Force chart resize after initialization
               setTimeout(() => {
                 this.resizeCharts();
-                // Force another resize after a longer delay to ensure proper positioning
-                setTimeout(() => {
-                  this.resizeCharts();
-                  this.isInitializingCharts = false;
-                }, 200);
-              }, 100);
-            }, 100);
+              }, 50);
+            }, 10);
           } else {
-            // Retry after a longer delay if containers don't have proper dimensions
+            // Retry after a short delay if containers don't have proper dimensions
             setTimeout(() => {
-              this.isInitializingCharts = false;
               this.initializeChartsWithRetry();
-            }, 300);
+            }, 100);
           }
         } else {
-          // Retry after a longer delay if containers aren't ready
+          // Retry after a short delay if containers aren't ready
           setTimeout(() => {
-            this.isInitializingCharts = false;
             this.initializeChartsWithRetry();
-          }, 100);
+          }, 50);
         }
       } else {
-        // Retry after a longer delay if elements aren't ready
+        // Retry after a short delay if elements aren't ready
         setTimeout(() => {
-          this.isInitializingCharts = false;
           this.initializeChartsWithRetry();
-        }, 100);
+        }, 50);
       }
     });
   }
@@ -408,12 +346,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
       // Force resize after data update to ensure proper positioning
       setTimeout(() => {
         this.resizeCharts();
-      }, 100);
+      }, 50);
       
       // Force another resize after a longer delay to ensure proper positioning
       setTimeout(() => {
         this.resizeCharts();
-      }, 300);
+      }, 200);
     }
   }
 
@@ -480,7 +418,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
     this.topStoresChart.update();
   }
 
-
+  private startAutoRefresh(): void {
+    // Refresh data every 30 seconds
+    this.refreshInterval = setInterval(() => {
+      this.loadDashboardData();
+    }, 30000);
+  }
 
   // Tab Management
   setActiveTab(tabIndex: number): void {
@@ -501,7 +444,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
         setTimeout(() => {
           this.resizeCharts();
         }, 300);
-      }, 200);
+      }, 150);
     }
   }
 
@@ -963,15 +906,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
 
     const ctx = this.revenueChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
-    
-    // Ensure the canvas is properly sized and positioned
-    const canvas = this.revenueChartRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    
-    // Force canvas to match container size
-    canvas.width = rect.width;
-    canvas.height = rect.height;
 
     // Use real data from systemStats if available
     const revenueData = this.systemStats?.revenueHistory || [
@@ -1036,15 +970,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
 
     const ctx = this.userGrowthChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
-    
-    // Ensure the canvas is properly sized and positioned
-    const canvas = this.userGrowthChartRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    
-    // Force canvas to match container size
-    canvas.width = rect.width;
-    canvas.height = rect.height;
 
     // Use real data from userStats if available
     const userGrowthData = this.userStats?.userGrowthHistory || [
@@ -1103,15 +1028,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
 
     const ctx = this.orderStatusChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
-    
-    // Ensure the canvas is properly sized and positioned
-    const canvas = this.orderStatusChartRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    
-    // Force canvas to match container size
-    canvas.width = rect.width;
-    canvas.height = rect.height;
 
     // Use real data from orderStats if available
     const orderStatusData = this.orderStats?.orderStatusHistory || [
@@ -1167,15 +1083,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy, AfterViewInit
 
     const ctx = this.topStoresChartRef.nativeElement.getContext('2d');
     if (!ctx) return;
-    
-    // Ensure the canvas is properly sized and positioned
-    const canvas = this.topStoresChartRef.nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    
-    // Force canvas to match container size
-    canvas.width = rect.width;
-    canvas.height = rect.height;
 
     // Use real store data to calculate revenue
     const storeRevenue = this.stores.map(store => {

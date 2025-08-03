@@ -4,21 +4,32 @@
 
   <ng-container *ngIf="!loading && !error && store">
     <div class="store-header">
-      <button mat-button class="back-button" (click)="goBackToVirtualStreet()">
-        <mat-icon>arrow_back</mat-icon>
-        Back to Virtual Street
-      </button>
-      <img *ngIf="store.bannerUrl" [src]="getImageUrl(store.bannerUrl)" class="store-banner" alt="Banner">
-      <div class="store-info">
-        <img *ngIf="store.logoUrl" [src]="getImageUrl(store.logoUrl)" class="store-logo" alt="Logo">
-        <div>
-          <h2>{{ store.name }}</h2>
-          <p>{{ store.description }}</p>
-          <p>Owner: {{ store.ownerName }}</p>
-          <p>Products: {{ store.productCount }}</p>
+      <div class="header-background">
+        <img *ngIf="store.bannerUrl" [src]="getImageUrl(store.bannerUrl)" class="store-banner" alt="Banner">
+      </div>
+    
+      <div class="header-content">
+        <button mat-button class="back-button" (click)="goBackToVirtualStreet()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Virtual Street
+        </button>
+    
+        <div class="store-info">
+          <div class="logo-container">
+            <img *ngIf="store.logoUrl" [src]="getImageUrl(store.logoUrl)" class="store-logo" alt="Logo">
+          </div>
+          <div class="store-details">
+            <h2 class="store-name">{{ store.name }}</h2>
+            <p class="store-description">{{ store.description }}</p>
+            <div class="store-meta">
+              <div class="meta-item"><mat-icon>person</mat-icon> Owner: {{ store.ownerName }}</div>
+              <div class="meta-item"><mat-icon>shopping_bag</mat-icon> Products: {{ store.productCount }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    
 
     <div class="products-section">
       <div class="section-header">
