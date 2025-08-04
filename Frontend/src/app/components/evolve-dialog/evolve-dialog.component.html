@@ -1,0 +1,19 @@
+<ng-container>
+  <div class="evolve-dialog-container">
+    <h2>{{ data.from }} is evolving!</h2>
+
+    <div class="evolve-animation">
+      <img [src]="getPetImage(data.from)" class="evolve-pet old" alt="{{ data.from }}">
+      <div class="evolve-flash"></div>
+      <img [src]="getPetImage(data.to)" class="evolve-pet new" alt="{{ data.to }}">
+    </div>
+
+    <div class="evolve-message">
+      <span *ngIf="data.evolutionThreshold">
+        Congratulations! You reached the state of ${{ data.evolutionThreshold | number:'1.0-2' }} spent! Your {{ data.from }} evolved into <b>{{ data.to }}</b>!
+      </span>
+    </div>
+
+    <button mat-raised-button color="primary" (click)="close()">OK</button>
+  </div>
+</ng-container>

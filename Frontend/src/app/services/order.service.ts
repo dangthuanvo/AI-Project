@@ -40,4 +40,11 @@ export class OrderService {
   submitProductRating(rating: any): Observable<any> {
     return this.http.post(`${this.API_URL}/product/${rating.productId}/ratings`, rating);
   }
-} 
+
+  /**
+   * Get user's total spent and current pet
+   */
+  getUserTotalSpentAndPet(): Observable<{ totalSpent: number, pet: string }> {
+    return this.http.get<{ totalSpent: number, pet: string }>(`${this.API_URL}/order/my-total-spent`);
+  }
+}
