@@ -13,6 +13,7 @@ export interface User {
   roles: string[];
   avatar?: string;
   color?: string;
+  pet?: string;
 }
 
 export interface AuthResponse {
@@ -181,11 +182,26 @@ export class AuthService {
           lastName: profile.lastName,
           roles: profile.roles,
           avatar: profile.avatar,
-          color: profile.color
+          color: profile.color,
+          pet: profile.pet
         };
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUserSubject.next(user);
         return user;
+      })
+    );
+  }
+
+  updatePet(pet: string): Observable<any> {
+    return this.http.put(`${this.API_URL}/auth/profile`, { pet }).pipe(
+      map((updated: any) => {
+        const user = this.currentUserSubject.value;
+        if (user) {
+          (user as any).pet = pet;
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+        }
+        return updated;
       })
     );
   }

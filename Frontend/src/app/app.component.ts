@@ -48,10 +48,7 @@ export class AppComponent implements OnInit {
     this.authService.currentUser$.subscribe(
       user => {
         this.user = user;
-        // Redirect admin users to admin dashboard
-        if (user && this.hasRole('Admin') && this.router.url === '/virtual-street') {
-          this.router.navigate(['/admin-dashboard']);
-        }
+
       }
     );
 
