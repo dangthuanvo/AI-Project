@@ -53,6 +53,23 @@ namespace SilkyRoad.API.Controllers
             return Ok(orders);
         }
 
+        // --- New Endpoint: Get total spent and pet evolution stage ---
+        [HttpGet("my-total-spent")]
+        public async Task<ActionResult<object>> GetUserTotalSpent()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return Unauthorized();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return Unauthorized();
+
+            var totalSpent = await _context.Orders.Where(o => o.UserId == userId).SumAsync(o => o.TotalAmount);
+            return Ok(new { totalSpent, pet = user.Pet });
+        }
+
+
         [HttpGet("number/{orderNumber}")]
         public async Task<ActionResult<Order>> GetOrderByNumber(string orderNumber)
         {

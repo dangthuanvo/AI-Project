@@ -24,6 +24,8 @@ namespace SilkyRoad.API.Models
 
         public string? Avatar { get; set; } // URL or path to avatar image
 
+        public string? Pet { get; set; } // User's pet name or type
+
         // Navigation properties
         public virtual Store? Store { get; set; }
         public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
