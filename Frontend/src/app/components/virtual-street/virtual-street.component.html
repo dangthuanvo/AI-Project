@@ -190,6 +190,49 @@
         </svg>
       </div>
 
+      <!-- Current Player's Pet -->
+      <div *ngIf="player.pet" 
+        class="pet-character"
+        [style.left]="player.pet.x + 'px'"
+        [style.top]="player.pet.y + 'px'"
+        [style.zIndex]="9997"
+        [ngClass]="'pet-facing-' + player.pet.facing"
+        [class.walking]="player.pet.isWalking">
+        <div class="pet-name-tag">{{ player.pet.name }}</div>
+        
+        <!-- Bulbasaur sprite -->
+        <div *ngIf="player.pet.type === 'bulbasaur'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="bulbasaur-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="bulbasaur-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/bulbasaur-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Ivysaur sprite -->
+        <div *ngIf="player.pet.type === 'ivysaur'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="ivysaur-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="ivysaur-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/ivysaur-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Venusaur sprite -->
+        <div *ngIf="player.pet.type === 'venusaur'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="venusaur-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="venusaur-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/venusaur-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+
+      </div>
+
       <!-- Other players -->
       <div *ngFor="let other of otherPlayers | keyvalue"
         class="other-player-character"
@@ -244,6 +287,51 @@
           <ellipse cx="29" cy="16" rx="2" ry="3" fill="#333"/>
           <path d="M20 22 Q24 26 28 22" stroke="#b8860b" stroke-width="2" fill="none"/>
         </svg>
+      </div>
+      
+      <!-- Other Players' Pets -->
+      <div *ngFor="let other of otherPlayers | keyvalue">
+        <div *ngIf="other.value.pet" 
+          class="pet-character"
+          [style.left]="other.value.pet.x + 'px'"
+          [style.top]="other.value.pet.y + 'px'"
+          [style.zIndex]="9996"
+          [ngClass]="'pet-facing-' + other.value.pet.facing"
+          [class.walking]="other.value.pet.isWalking">
+          
+          <div class="pet-name-tag">{{ other.value.pet.name }}</div>
+          <div class="pet-name-tag">{{ other.value.pet.name }}</div>
+          <!-- Bulbasaur sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'bulbasaur'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="bulbasaur-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="bulbasaur-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/bulbasaur-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Ivysaur sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'ivysaur'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="ivysaur-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="ivysaur-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/ivysaur-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Venusaur sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'venusaur'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="venusaur-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="venusaur-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/venusaur-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- NPCs -->
@@ -569,4 +657,3 @@
       <div class="enter-text">Entering Store...</div>
     </div>
   </div>
-</div> 

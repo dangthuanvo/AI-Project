@@ -3,6 +3,21 @@ import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface Pet {
+  type: string;
+  name: string;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  facing: string;
+  isFollowing: boolean;
+  isWalking: boolean;
+  color: string;
+  size: number;
+  scale?: number; // Dynamic scale for sprite-based pets
+}
+
 export interface PlayerState {
   userId: string;
   name: string;
@@ -12,6 +27,7 @@ export interface PlayerState {
   y: number;
   facing: string;
   isWalking: boolean;
+  pet?: Pet;
 }
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected';

@@ -17,6 +17,25 @@ import { ColorRushComponent } from '../color-rush/color-rush.component';
 import { NumberPuzzleComponent } from '../number-puzzle/number-puzzle.component';
 import { WordScrambleComponent } from '../word-scramble/word-scramble.component';
 
+interface Pet {
+  type: string;
+  name: string;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  facing: string;
+  isFollowing: boolean;
+  isWalking: boolean;
+  color: string;
+  size: number;
+  spriteX: number;
+  spriteY: number;
+  spriteWidth: number;
+  spriteHeight: number;
+  scale?: number; // Dynamic scale for sprite-based pets
+}
+
 interface Player {
   name: string;
   avatar: string;
@@ -25,6 +44,7 @@ interface Player {
   facing: string;
   isWalking: boolean;
   color?: string;
+  pet?: Pet;
 }
 
 interface NPC {
@@ -67,6 +87,63 @@ interface Decoration {
   styleUrls: ['./virtual-street.component.scss']
 })
 export class VirtualStreetComponent implements OnInit, OnDestroy {
+  // Settings for each pet, keyed by pet name (e.g., 'Bulbasaur', 'Ivysaur')
+  // Default settings for each pet type (keyed by lowercase pet name)
+  petSettings: { [petName: string]: Partial<Pet> } = {
+    "bulbasaur": { scale: 1.75},
+    "ivysaur":   { scale: 2},
+    "venusaur":   { scale: 2.75},
+  };
+
+
+  /**
+   * Set settings for a pet by name.
+   * @param petName The pet's name (case-insensitive)
+   * @param settings Partial Pet object with settings to override
+   */
+  setPetSetting(petName: string, settings: Partial<Pet>) {
+    this.petSettings[petName.toLowerCase()] = {
+      ...this.petSettings[petName.toLowerCase()],
+      ...settings
+    };
+  }
+
+  /**
+   * Get settings for a pet by name.
+   * @param petName The pet's name (case-insensitive)
+   * @returns Partial Pet object of settings
+   */
+  getPetSetting(petName: string): Partial<Pet> {
+    return this.petSettings[petName.toLowerCase()] || {};
+  }
+
+  /**
+   * Change the player's pet type by name. Applies settings from petSettings.
+   * @param newType The new pet type (e.g., 'ivysaur', 'bulbasaur')
+   */
+  changePetType(newType: string) {
+    const defaultPet = {
+      type: newType.toLowerCase(),
+      name: `${this.player.name}'s Pet`,
+      x: this.player.x - 20,
+      y: this.player.y + 10,
+      targetX: this.player.x - 20,
+      targetY: this.player.y + 10,
+      facing: 'down',
+      isFollowing: true,
+      isWalking: false,
+      color: '#78C850', // Default, will be overridden by settings
+      size: 22,
+      spriteX: 0,
+      spriteY: 0,
+      spriteWidth: 22,
+      spriteHeight: 18,
+      scale: 1.5 // Default, will be overridden by settings
+    };
+    const settings = this.getPetSetting(newType);
+    this.player.pet = { ...defaultPet, ...settings };
+  }
+
   // Voice search fields
   isListening = false;
   private recognition: any = null;
@@ -94,6 +171,10 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   private keys: { [key: string]: boolean } = {};
   private animationFrame: number | null = null;
   private previousWalkingState = false;
+  private lastPetUpdateTime = 0;
+  petAnimationFrame = 1; // Tracks current animation frame (1 or 2)
+  private lastFrameChangeTime = 0;
+  private readonly PET_ANIMATION_FRAME_DURATION = 200; // ms per frames every 80ms (12.5fps) for faster updates
   private lastNetworkUpdate = 0;
   private networkUpdateInterval = 200; // Send updates every 80ms (12.5fps) for faster updates
   profileDialogOpen = false;
@@ -203,6 +284,29 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     }
   }
 
+  private initializePet(type: string = 'venusaur'): void {
+  const defaultPet = {
+    type: type.toLowerCase(),
+    name: `${this.player.name}'s Pet`,
+    x: this.player.x - 20,
+    y: this.player.y + 10,
+    targetX: this.player.x - 20,
+    targetY: this.player.y + 10,
+    facing: 'down',
+    isFollowing: true,
+    isWalking: false,
+    color: '#78C850', // Default, will be overridden by settings
+    size: 22,
+    spriteX: 0,
+    spriteY: 0,
+    spriteWidth: 22,
+    spriteHeight: 18,
+    scale: 1.5 // Default, will be overridden by settings
+  };
+  const settings = this.getPetSetting(type);
+  this.player.pet = { ...defaultPet, ...settings };
+}
+
   ngOnInit(): void {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
@@ -213,6 +317,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     this.player.x = Math.floor((this.roadLength - playerWidth) / 2);
     this.player.y = Math.floor((400 - playerHeight) / 2); // 400px is the street height
     // this.restorePlayerPosition(); // Disabled: always spawn at center
+    
     this.loadStores();
     this.loadPlayerData();
     this.startGameLoop();
@@ -226,6 +331,9 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         this.player.avatar = (user as any).avatar ? (user as any).avatar : '/uploads/images/user-avatar.png';
         this.myUserId = user.id;
         this.previousWalkingState = this.player.isWalking;
+        
+        // Initialize pet after player name is set
+        this.initializePet();
         // Send initial state to the hub with delay to avoid spam
         setTimeout(() => {
           if (this.myUserId) {
@@ -297,6 +405,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     });
     this.presenceService.playerStateUpdated$.subscribe(state => {
       if (state.userId !== this.myUserId) {
+        // Debug log for pet data
+        if (state.pet) {
+          console.log(`Received pet data for ${state.name}:`, state.pet);
+        }
+        
         // Buffer the update for smoother processing
         if (!this.updateBuffer[state.userId]) {
           this.updateBuffer[state.userId] = [];
@@ -346,7 +459,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         if (distance < 1) {
           const stoppedState = {
             ...state,
-            isWalking: false
+            isWalking: false,
+            pet: state.pet ? {
+              ...state.pet,
+              isWalking: false
+            } : undefined
           };
           const updatedOtherPlayers = { ...this.otherPlayers };
           updatedOtherPlayers[state.userId] = stoppedState;
@@ -399,6 +516,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
           }
         
         // Update other players with interpolated state
+        // Ensure pet walking state matches player walking state
+        if (interpolatedState.pet) {
+          interpolatedState.pet.isWalking = interpolatedState.isWalking;
+        }
+        
         const updatedOtherPlayers = { ...this.otherPlayers };
         updatedOtherPlayers[state.userId] = interpolatedState;
         this.otherPlayers = updatedOtherPlayers;
@@ -412,7 +534,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
               if (currentPlayer && currentPlayer.isWalking) {
                 const stoppedState = {
                   ...currentPlayer,
-                  isWalking: false
+                  isWalking: false,
+                  pet: currentPlayer.pet ? {
+                    ...currentPlayer.pet,
+                    isWalking: false
+                  } : undefined
                 };
                 const updatedOtherPlayers = { ...this.otherPlayers };
                 updatedOtherPlayers[state.userId] = stoppedState;
@@ -691,6 +817,12 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
       } else {
         // Still update camera for smooth following
         this.updateCamera();
+        // Always update pet even when player is not moving
+        const petMoved = this.updatePetFollow(false);
+        // Send network update if pet moved
+        if (petMoved) {
+          this.sendNetworkUpdate();
+        }
       }
       
       // Check and stop stationary animations
@@ -753,6 +885,17 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         }
       }
       
+      // Enforce local pet scale for all other players' pets
+      Object.values(this.otherPlayers).forEach(player => {
+        if (player.pet && player.pet.type) {
+          const petType = player.pet.type.toLowerCase();
+          const settings = this.petSettings[petType];
+          if (settings && settings.scale !== undefined) {
+            player.pet.scale = settings.scale;
+          }
+        }
+      });
+      
       // Process buffered updates for smoother movement
       this.processBufferedUpdates();
     };
@@ -785,12 +928,14 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     if (this.keys['a'] || this.keys['arrowleft']) {
       this.player.x -= this.moveSpeed;
       this.player.facing = 'left';
+      if (this.player.pet) this.player.pet.facing = 'left';
       this.player.isWalking = true;
       moved = true;
     }
     if (this.keys['d'] || this.keys['arrowright']) {
       this.player.x += this.moveSpeed;
       this.player.facing = 'right';
+      if (this.player.pet) this.player.pet.facing = 'right';
       this.player.isWalking = true;
       moved = true;
     }
@@ -821,8 +966,112 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     this.player.x = Math.max(minX, Math.min(this.player.x, maxX));
     this.player.y = Math.max(minY, Math.min(this.player.y, maxY));
 
+    // Update pet position and animation
+    const petMoved = this.updatePetFollow(moved);
+    this.updatePetAnimationFrame();
+
     // Send network updates at a consistent rate when moving
     this.sendNetworkUpdateIfNeeded(moved, oldX, oldY, oldFacing);
+  }
+
+  private updatePetAnimationFrame(): void {
+    if (!this.player.pet) return;
+    
+    const now = Date.now();
+    if (now - this.lastFrameChangeTime >= this.PET_ANIMATION_FRAME_DURATION) {
+      // Toggle between frame 1 and 2 when walking
+      if (this.player.pet.isWalking) {
+        this.petAnimationFrame = this.petAnimationFrame === 1 ? 2 : 1;
+      } else {
+        // Reset to frame 1 when not walking
+        this.petAnimationFrame = 1;
+      }
+      this.lastFrameChangeTime = now;
+    }
+  }
+
+  private updatePetFollow(moved: boolean): boolean {
+    if (!this.player.pet || !this.player.pet.isFollowing) return false;
+
+    const pet = this.player.pet;
+    const followDistance = 40; // Distance to maintain from player
+    const petSpeed = 4; // Pet movement speed
+    const catchUpSpeed = 8; // Faster speed when pet is far behind
+
+    // Calculate desired position behind the player based on player's facing direction
+    let targetX = this.player.x;
+    let targetY = this.player.y;
+
+    switch (this.player.facing) {
+      case 'up':
+        targetX = this.player.x;
+        targetY = this.player.y + followDistance;
+        break;
+      case 'down':
+        targetX = this.player.x;
+        targetY = this.player.y - followDistance;
+        break;
+      case 'left':
+        targetX = this.player.x + followDistance;
+        targetY = this.player.y + 10;
+        break;
+      case 'right':
+        targetX = this.player.x - followDistance;
+        targetY = this.player.y + 10;
+        break;
+    }
+
+    // Update pet's target position
+    pet.targetX = targetX;
+    pet.targetY = targetY;
+
+    // Calculate distance to target
+    const dx = pet.targetX - pet.x;
+    const dy = pet.targetY - pet.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Only move if distance is significant
+    if (distance > 5) {
+      // Use faster speed if pet is far behind
+      const currentSpeed = distance > 80 ? catchUpSpeed : petSpeed;
+      
+      // Normalize direction and apply speed
+      const moveX = (dx / distance) * currentSpeed;
+      const moveY = (dy / distance) * currentSpeed;
+
+      // Update pet position
+      pet.x += moveX;
+      pet.y += moveY;
+
+      // Update pet facing direction based on movement
+      if (this.player.facing === 'left' || this.player.facing === 'right') {
+        pet.facing = this.player.facing;
+      } else if (Math.abs(moveX) > Math.abs(moveY)) {
+        pet.facing = moveX > 0 ? 'right' : 'left';
+      } else {
+        pet.facing = moveY > 0 ? 'down' : 'up';
+      }
+      
+      // Set pet as walking when moving
+      pet.isWalking = true;
+      
+      // Keep pet within boundaries
+      const petSize = pet.size;
+      const minX = 0;
+      const maxX = this.roadLength - petSize;
+      const minY = 0;
+      const maxY = 400 - petSize;
+
+      pet.x = Math.max(minX, Math.min(pet.x, maxX));
+      pet.y = Math.max(minY, Math.min(pet.y, maxY));
+      
+      return true; // Pet moved
+    } else {
+      // Set pet as not walking when stationary
+      pet.isWalking = false;
+    }
+
+    return false; // Pet didn't move
   }
 
   private triggerFalling(direction: 'left' | 'right' | 'down' = 'down'): void {
@@ -901,7 +1150,20 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         x: this.player.x,
         y: this.player.y,
         facing: this.player.facing,
-        isWalking: this.player.isWalking
+        isWalking: this.player.isWalking,
+        pet: this.player.pet ? {
+          type: this.player.pet.type,
+          name: this.player.pet.name,
+          x: this.player.pet.x,
+          y: this.player.pet.y,
+          targetX: this.player.pet.targetX,
+          targetY: this.player.pet.targetY,
+          facing: this.player.pet.facing,
+          isFollowing: this.player.pet.isFollowing,
+          isWalking: this.player.pet.isWalking,
+          color: this.player.pet.color,
+          size: this.player.pet.size
+        } : undefined
       });
   }
 
@@ -1402,10 +1664,11 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     if (isStationary) {
       // Player is stationary, use exact position and force walking to false
       interpolatedState = {
-      ...newState,
+        ...newState,
         x: newState.x,
         y: newState.y,
-        isWalking: false
+        isWalking: false,
+        pet: newState.pet // Always include pet data
       };
       
       // Clear velocity when stationary
@@ -1436,7 +1699,8 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         x: predictedX,
         y: predictedY,
         facing: newState.facing,
-        isWalking: newState.isWalking && distance > 1.5 // Lower threshold for smoother transitions
+        isWalking: newState.isWalking && distance > 1.5, // Lower threshold for smoother transitions
+        pet: newState.pet // Always include pet data
       };
       
       console.log(`Player ${newState.name} is moving (distance: ${distance.toFixed(2)}, speed: ${speed.toFixed(2)}, walking: ${interpolatedState.isWalking})`);
@@ -1545,6 +1809,14 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
             }
           }
           
+          // Patch pet scale for other players according to local petSettings
+          if (interpolatedState.pet && interpolatedState.pet.type) {
+            const petType = interpolatedState.pet.type.toLowerCase();
+            const settings = this.petSettings[petType];
+            if (settings && settings.scale !== undefined) {
+              interpolatedState.pet.scale = settings.scale;
+            }
+          }
           // Update the player state
           const updatedOtherPlayers = { ...this.otherPlayers };
           updatedOtherPlayers[userId] = interpolatedState;
