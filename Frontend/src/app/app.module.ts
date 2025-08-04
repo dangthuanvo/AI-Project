@@ -49,6 +49,7 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { StoreCardComponent } from './components/store-card/store-card.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { PetSelectionDialogComponent } from './components/pet-selection-dialog/pet-selection-dialog.component';
 import { ProfileDialogComponent } from './components/profile-dialog/profile-dialog.component';
 import { OrderTrackingComponent } from './components/order-tracking/order-tracking.component';
 import { ChatComponent } from './components/chat/chat.component';
@@ -65,6 +66,7 @@ import { NumberPuzzleComponent } from './components/number-puzzle/number-puzzle.
 import { WordScrambleComponent } from './components/word-scramble/word-scramble.component';
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { RatingDialogComponent } from './components/rating-dialog/rating-dialog.component';
+import { EvolveDialogComponent } from './components/evolve-dialog/evolve-dialog.component';
 
 // Services
 import { AuthService } from './services/auth.service';
@@ -94,6 +96,7 @@ import { RoleGuard } from './guards/role.guard';
     ProductCardComponent,
     StoreCardComponent,
     ProductDetailComponent,
+    PetSelectionDialogComponent,
     ProfileDialogComponent,
     OrderTrackingComponent,
     ChatComponent,
@@ -108,7 +111,9 @@ import { RoleGuard } from './guards/role.guard';
     NumberPuzzleComponent,
     WordScrambleComponent,
     SplashScreenComponent,
-    RatingDialogComponent
+    RatingDialogComponent,
+    // Pet Evolution Dialog
+    EvolveDialogComponent
   ],
   imports: [
     BrowserModule,

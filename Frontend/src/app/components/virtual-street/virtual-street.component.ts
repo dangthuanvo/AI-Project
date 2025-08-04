@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { OrderService } from '../../services/order.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { StoreService } from '../../services/store.service';
 import { AuthService } from '../../services/auth.service';
@@ -16,6 +17,8 @@ import { MemoryMatchComponent } from '../memory-match/memory-match.component';
 import { ColorRushComponent } from '../color-rush/color-rush.component';
 import { NumberPuzzleComponent } from '../number-puzzle/number-puzzle.component';
 import { WordScrambleComponent } from '../word-scramble/word-scramble.component';
+import { PetSelectionDialogComponent } from '../pet-selection-dialog/pet-selection-dialog.component';
+import { EvolveDialogComponent } from '../evolve-dialog/evolve-dialog.component';
 
 interface Pet {
   type: string;
@@ -88,11 +91,73 @@ interface Decoration {
 })
 export class VirtualStreetComponent implements OnInit, OnDestroy {
   // Settings for each pet, keyed by pet name (e.g., 'Bulbasaur', 'Ivysaur')
+
+  /**
+   * Use OrderService to get user's total spent and current pet
+   */
+
+  /**
+   * Trigger the pet evolution animation from oldPet to newPet
+   * @param oldPet previous pet stage
+   * @param newPet new pet stage
+   */
+  async handleMultiStageEvolution(chain: string[], fromIdx: number, toIdx: number) {
+    console.log('[EVOLVE] handleMultiStageEvolution', { chain, fromIdx, toIdx });
+    try {
+      for (let i = fromIdx; i < toIdx; i++) {
+        console.log(`[EVOLVE] Step: ${chain[i]} -> ${chain[i+1]}`);
+        await this.triggerPetEvolutionAnimation(chain[i], chain[i+1]);
+        console.log('[EVOLVE] Animation complete for', chain[i], '->', chain[i+1]);
+        this.changePetType(chain[i+1]);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Small buffer between evolutions
+      }
+      console.log('[EVOLVE] handleMultiStageEvolution complete');
+    } catch (e) {
+      console.error('[EVOLVE] Error in handleMultiStageEvolution:', e);
+    }
+  }
+
+  triggerPetEvolutionAnimation(oldPet: string, newPet: string): Promise<void> {
+    console.log('[EVOLVE] triggerPetEvolutionAnimation', { oldPet, newPet });
+    try {
+      return new Promise<void>(resolve => {
+        // Determine evolution threshold for newPet
+        let evolutionThreshold = 0;
+        if (newPet === 'ivysaur' || newPet === 'wartortle' || newPet === 'charmeleon' || newPet === 'dragonair') {
+          evolutionThreshold = 500;
+        } else if (newPet === 'venusaur' || newPet === 'blastoise' || newPet === 'charizard' || newPet === 'dragonite') {
+          evolutionThreshold = 1500;
+        }
+        const dialogRef = this.dialog.open(EvolveDialogComponent, {
+          width: '420px',
+          panelClass: 'evolve-dialog-panel',
+          disableClose: true,
+          data: { from: oldPet, to: newPet, evolutionThreshold }
+        });
+        dialogRef.afterClosed().subscribe(() => {
+          console.log('[EVOLVE] Dialog closed');
+          resolve();
+        });
+      });
+    } catch (e) {
+      console.error('[EVOLVE] Error in triggerPetEvolutionAnimation:', e);
+      return Promise.resolve();
+    }
+  }
   // Default settings for each pet type (keyed by lowercase pet name)
   petSettings: { [petName: string]: Partial<Pet> } = {
     "bulbasaur": { scale: 1.75},
     "ivysaur":   { scale: 2},
     "venusaur":   { scale: 2.75},
+    "charmander": { scale: 1.75},
+    "charmeleon":   { scale: 2},
+    "charizard":   { scale: 2.75},
+    "squirtle":   { scale: 1.75},
+    "wartortle":   { scale: 2},
+    "blastoise":   { scale: 2.75},
+    "dratini":   { scale: 1.75},
+    "dragonair":   { scale: 2},
+    "dragonite":   { scale: 2.75},
   };
 
 
@@ -256,7 +321,8 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     private presenceService: PresenceService,
     private snackBar: MatSnackBar,
     private chatService: ChatService,
-    private musicService: MusicService
+    private musicService: MusicService,
+    private orderService: OrderService
   ) {
     // Initialize Web Speech API
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -308,6 +374,54 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
 }
 
   ngOnInit(): void {
+    console.log('VirtualStreetComponent ngOnInit');
+    // --- Pet Evolution Logic on Virtual Street Entry ---
+    const evolutionMap: { [key: string]: string[] } = {
+      Bulbasaur: ['bulbasaur', 'ivysaur', 'venusaur'],
+      Squirtle: ['squirtle', 'wartortle', 'blastoise'],
+      Charmander: ['charmander', 'charmeleon', 'charizard'],
+      Dratini: ['dratini', 'dragonair', 'dragonite']
+    };
+    this.orderService.getUserTotalSpentAndPet().subscribe(({ totalSpent, pet }: { totalSpent: number; pet: string }) => {
+      console.log('API response', { totalSpent, pet });
+      if (!pet) {
+        console.log('[EVOLVE] No pet, skipping evolution logic');
+        return;
+      }
+      console.log('[EVOLVE] Checking evolution chain for pet:', pet);
+      // Find the base pet chain
+      let basePet: string | null = null;
+      for (const key of Object.keys(evolutionMap)) {
+        if (evolutionMap[key].includes(pet)) {
+          basePet = key;
+          break;
+        }
+      }
+      if (basePet) {
+        console.log('[EVOLVE] Found basePet:', basePet, 'Chain:', evolutionMap[basePet]);
+        // Determine current stage index
+        const currentStageIndex = evolutionMap[basePet].indexOf(pet);
+        let targetStageIndex = 0;
+        if (totalSpent >= 1500) targetStageIndex = 2;
+        else if (totalSpent >= 500) targetStageIndex = 1;
+        else targetStageIndex = 0;
+
+        console.log('[EVOLVE] Evolution check', { pet, totalSpent, basePet, currentStageIndex, targetStageIndex });
+        if (targetStageIndex > currentStageIndex) {
+          console.log('[EVOLVE] Will evolve from', currentStageIndex, 'to', targetStageIndex);
+          // Animate each evolution step in sequence
+          this.handleMultiStageEvolution(evolutionMap[basePet], currentStageIndex, targetStageIndex);
+          console.log('[EVOLVE] Called handleMultiStageEvolution');
+        } else {
+          console.log('[EVOLVE] No evolution needed, setting pet type to', evolutionMap[basePet][targetStageIndex]);
+          this.changePetType(evolutionMap[basePet][targetStageIndex]);
+        }
+      } else {
+        console.log('[EVOLVE] No evolution chain found for pet:', pet);
+      }
+    });
+    // --- End Pet Evolution Logic ---
+
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
     this.fallCount = 0; // Reset on page load/login
@@ -317,40 +431,95 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     this.player.x = Math.floor((this.roadLength - playerWidth) / 2);
     this.player.y = Math.floor((400 - playerHeight) / 2); // 400px is the street height
     // this.restorePlayerPosition(); // Disabled: always spawn at center
-    
+
     this.loadStores();
     this.loadPlayerData();
     this.startGameLoop();
     this.generateStars();
     this.generateDecorations();
     this.animateBirds();
-    this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.player.name = user.firstName || user.email || 'Player';
-        this.player.color = (user as any).color;
-        this.player.avatar = (user as any).avatar ? (user as any).avatar : '/uploads/images/user-avatar.png';
-        this.myUserId = user.id;
-        this.previousWalkingState = this.player.isWalking;
-        
-        // Initialize pet after player name is set
-        this.initializePet();
-        // Send initial state to the hub with delay to avoid spam
-        setTimeout(() => {
-          if (this.myUserId) {
-            this.presenceService.updatePlayerState({
-              userId: this.myUserId,
-              name: this.player.name,
-              avatar: this.player.avatar,
-              color: this.player.color || '#1976d2',
-              x: this.player.x,
-              y: this.player.y,
-              facing: this.player.facing,
-              isWalking: this.player.isWalking
-            });
-          }
-        }, 1000);
+
+    // Always fetch latest profile from backend on Virtual Street load
+    this.authService.getProfile().subscribe(user => {
+      this.player.name = user.firstName || user.email || 'Player';
+      this.player.color = (user as any).color;
+      this.player.avatar = (user as any).avatar ? (user as any).avatar : '/uploads/images/user-avatar.png';
+      this.myUserId = user.id;
+      this.previousWalkingState = this.player.isWalking;
+
+      // Only allow pet selection and pet for normal users (not seller/admin)
+      const isSellerOrAdmin = user.roles?.includes('Seller') || user.roles?.includes('Admin');
+      if (!isSellerOrAdmin) {
+        if (!(user as any).pet) {
+          const dialogRef = this.dialog.open(PetSelectionDialogComponent, {
+            width: '480px',
+            disableClose: true
+          });
+          dialogRef.afterClosed().subscribe((selectedPet: string) => {
+            if (selectedPet) {
+              this.authService.updatePet(selectedPet).subscribe(() => {
+                this.initializePet(selectedPet);
+                // Fetch total spent and check for evolution
+                this.orderService.getUserTotalSpentAndPet().subscribe(({ totalSpent, pet }: { totalSpent: number; pet: string }) => {
+                  // Evolution map and thresholds
+                  const evolutionMap: { [key: string]: string[] } = {
+                    Bulbasaur: ['bulbasaur', 'ivysaur', 'venusaur'],
+                    Squirtle: ['squirtle', 'wartortle', 'blastoise'],
+                    Charmander: ['charmander', 'charmeleon', 'charizard'],
+                    Dratini: ['dratini', 'dragonair', 'dragonite']
+                  };
+                  // Find starter name (case-insensitive)
+                  let starter = Object.keys(evolutionMap).find(k => k.toLowerCase() === selectedPet.toLowerCase());
+                  if (!starter) return;
+                  const chain = evolutionMap[starter];
+                  // Find current stage index
+                  let currentIdx = 0;
+                  // If pet is not base form, find its index
+                  if (pet) {
+                    const idx = chain.indexOf(pet.toLowerCase());
+                    if (idx >= 0) currentIdx = idx;
+                  }
+                  // Determine target stage based on totalSpent
+                  let targetIdx = 0;
+                  if (totalSpent >= 1500) targetIdx = 2;
+                  else if (totalSpent >= 500) targetIdx = 1;
+                  // If eligible for evolution(s)
+                  if (targetIdx > currentIdx) {
+                    this.handleMultiStageEvolution(chain, currentIdx, targetIdx).then(() => {
+                      // Save evolved pet to backend
+                      const evolvedPet = chain[targetIdx];
+                      this.authService.updatePet(evolvedPet).subscribe(() => {
+                        this.initializePet(evolvedPet);
+                        this.snackBar.open('Your pet evolved successfully!', 'Close', { duration: 4000 });
+                      });
+                    });
+                  }
+                });
+              });
+            }
+          });
+        }
+      } else {
+        // Seller or admin: do not show dialog or initialize pet
+        this.player.pet = undefined;
       }
+      // Send initial state to the hub with delay to avoid spam
+      setTimeout(() => {
+        if (this.myUserId) {
+          this.presenceService.updatePlayerState({
+            userId: this.myUserId,
+            name: this.player.name,
+            avatar: this.player.avatar,
+            color: this.player.color || '#1976d2',
+            x: this.player.x,
+            y: this.player.y,
+            facing: this.player.facing,
+            isWalking: this.player.isWalking
+          });
+        }
+      }, 1000);
     });
+
     // Add a hardcoded test user for rendering debug (only in development)
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     this.otherPlayers = {
@@ -1012,12 +1181,12 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         targetY = this.player.y - followDistance;
         break;
       case 'left':
-        targetX = this.player.x + followDistance;
-        targetY = this.player.y + 10;
+        targetX = this.player.x + followDistance + 50;
+        targetY = this.player.y ;
         break;
       case 'right':
         targetX = this.player.x - followDistance;
-        targetY = this.player.y + 10;
+        targetY = this.player.y ;
         break;
     }
 

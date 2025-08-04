@@ -1,0 +1,19 @@
+<div class="pet-selection-dialog">
+  <h2 class="dialog-title">Select Your Pet</h2>
+  <div class="pet-list-wrapper">
+    <div class="pet-list">
+      <div
+        class="pet-card"
+        *ngFor="let pet of pets"
+        [class.selected]="selectedPet === pet.value"
+        (click)="selectPet(pet.value)"
+      >
+        <img [src]="pet.image" [alt]="pet.name" class="pet-image" />
+        <div class="pet-name">{{ pet.name }}</div>
+      </div>
+    </div>
+  </div>
+  <button mat-flat-button color="primary" class="confirm-btn" (click)="confirmSelection()" [disabled]="!selectedPet">
+    Confirm
+  </button>
+</div>

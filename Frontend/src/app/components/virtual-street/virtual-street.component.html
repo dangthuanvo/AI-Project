@@ -230,6 +230,96 @@
             </div>
           </div>
         </div>
+        <!-- Charmander sprite -->
+        <div *ngIf="player.pet.type === 'charmander'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="charmander-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="charmander-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/charmander-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Charmeleon sprite -->
+        <div *ngIf="player.pet.type === 'charmeleon'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="charmeleon-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="charmeleon-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/charmeleon-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Charizard sprite -->
+        <div *ngIf="player.pet.type === 'charizard'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="charizard-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="charizard-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/charizard-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Squirtle sprite -->
+        <div *ngIf="player.pet.type === 'squirtle'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="squirtle-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="squirtle-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/squirtle-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Wartoise sprite -->
+        <div *ngIf="player.pet.type === 'wartortle'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="wartoise-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="wartoise-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/wartortle-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Blastoise sprite -->
+        <div *ngIf="player.pet.type === 'blastoise'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="blastoise-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="blastoise-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/blastoise-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Dratini sprite -->
+        <div *ngIf="player.pet.type === 'dratini'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="dratini-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="dratini-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/dratini-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Dragonair sprite -->
+        <div *ngIf="player.pet.type === 'dragonair'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="dragonair-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="dragonair-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/dragonair-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
+        <!-- Dragonite sprite -->
+        <div *ngIf="player.pet.type === 'dragonite'"
+          [ngClass]="{'pet-flip': player.pet.facing === 'right'}">
+          <div class="dragonite-pet-sprite-scale" [style.transform]="'scale(' + player.pet.scale + ')'">
+            <div class="dragonite-pet-sprite" [ngClass]="{ 'walking': player.pet.isWalking, 'idle': !player.pet.isWalking }"
+              [style.backgroundImage]="'url(assets/dragonite-' + petAnimationFrame + '.png)'"
+              [style.backgroundSize]="'contain'">
+            </div>
+          </div>
+        </div>
 
       </div>
 
@@ -327,6 +417,96 @@
             <div class="venusaur-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
               <div class="venusaur-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
                 [style.backgroundImage]="'url(assets/venusaur-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Charmander sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'charmander'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="charmander-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="charmander-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/charmander-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Charmeleon sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'charmeleon'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="charmeleon-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="charmeleon-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/charmeleon-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Charizard sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'charizard'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="charizard-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="charizard-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/charizard-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Squirtle sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'squirtle'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="squirtle-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="squirtle-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/squirtle-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Wartortle sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'wartortle'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="wartortle-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="wartortle-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/wartortle-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Blastoise sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'blastoise'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="blastoise-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="blastoise-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/blastoise-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Dratini sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'dratini'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="dratini-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="dratini-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/dratini-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Dragonair sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'dragonair'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="dragonair-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="dragonair-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/dragonair-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
+                [style.backgroundSize]="'contain'">
+              </div>
+            </div>
+          </div>
+          <!-- Dragonite sprite for other players -->
+          <div *ngIf="other.value.pet.type === 'dragonite'"
+            [ngClass]="{'pet-flip': other.value.pet.facing === 'right'}">
+            <div class="dragonite-pet-sprite-scale" [style.transform]="'scale(' + other.value.pet.scale + ')'">
+              <div class="dragonite-pet-sprite" [ngClass]="{ 'walking': other.value.pet.isWalking, 'idle': !other.value.pet.isWalking }"
+                [style.backgroundImage]="'url(assets/dragonite-' + (other.value.pet.isWalking ? '2' : '1') + '.png)'"
                 [style.backgroundSize]="'contain'">
               </div>
             </div>
