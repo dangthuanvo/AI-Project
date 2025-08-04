@@ -151,7 +151,8 @@ namespace SilkyRoad.API.Controllers
                 user.IsActive,
                 Roles = roles.ToList(),
                 Avatar = string.IsNullOrEmpty(user.Avatar) ? "/user-avatar.png" : user.Avatar,
-                Color = user.Color
+                Color = user.Color,
+                Pet = user.Pet
             });
         }
 
@@ -175,6 +176,7 @@ namespace SilkyRoad.API.Controllers
             user.LastName = request.LastName ?? user.LastName;
             user.Color = request.Color ?? user.Color;
             user.Avatar = request.Avatar ?? user.Avatar;
+            user.Pet = request.Pet ?? user.Pet;
 
             await _userManager.UpdateAsync(user);
 
@@ -192,7 +194,8 @@ namespace SilkyRoad.API.Controllers
                 user.IsActive,
                 Roles = roles.ToList(),
                 Avatar = string.IsNullOrEmpty(user.Avatar) ? "/user-avatar.png" : user.Avatar,
-                Color = user.Color
+                Color = user.Color,
+                Pet = user.Pet
             });
         }
 
@@ -288,5 +291,6 @@ namespace SilkyRoad.API.Controllers
         public string? LastName { get; set; }
         public string? Color { get; set; }
         public string? Avatar { get; set; }
+        public string? Pet { get; set; }
     }
 } 
