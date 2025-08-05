@@ -90,6 +90,8 @@ interface Decoration {
   styleUrls: ['./virtual-street.component.scss']
 })
 export class VirtualStreetComponent implements OnInit, OnDestroy {
+  private profileSubscription: any; // To hold the subscription for cleanup
+
   // Settings for each pet, keyed by pet name (e.g., 'Bulbasaur', 'Ivysaur')
 
   /**
@@ -243,7 +245,10 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
   private lastPetUpdateTime = 0;
   petAnimationFrame = 1; // Tracks current animation frame (1 or 2)
   private lastFrameChangeTime = 0;
-  private readonly PET_ANIMATION_FRAME_DURATION = 200; // ms per frames every 80ms (12.5fps) for faster updates
+  // Track animation frame and last frame change time for each other player's pet
+  otherPetAnimationFrames: { [userId: string]: number } = {};
+  otherPetLastFrameChange: { [userId: string]: number } = {};
+  private readonly PET_ANIMATION_FRAME_DURATION = 300; // ms per frames every 80ms (12.5fps) for faster updates
   private lastNetworkUpdate = 0;
   private networkUpdateInterval = 200; // Send updates every 80ms (12.5fps) for faster updates
   profileDialogOpen = false;
@@ -378,6 +383,25 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
 }
 
   ngOnInit(): void {
+    // Subscribe to profile changes
+    this.profileSubscription = this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        // Update player info reactively
+        if (!this.player) {
+          this.player = { name: '', avatar: '', x: 0, y: 0, facing: 'down', isWalking: false };
+        }
+        this.player.name = (user.firstName || '') + (user.lastName ? ' ' + user.lastName : '');
+        this.player.avatar = user.avatar || '/uploads/images/user-avatar.png';
+        this.player.color = user.color || undefined;
+        if (user.pet) {
+          // Set pet name as last name + "'s Pet"
+          const petName = (user.firstName ? user.firstName + "'s Pet" : "Pet");
+          this.player.pet = { ...this.player.pet, type: user.pet, name: petName, x: this.player.pet?.x || 0, y: this.player.pet?.y || 0, targetX: this.player.pet?.targetX || 0, targetY: this.player.pet?.targetY || 0, facing: this.player.pet?.facing || 'down', isFollowing: this.player.pet?.isFollowing || false, isWalking: this.player.pet?.isWalking || false, color: this.player.pet?.color || '', size: this.player.pet?.size || 1, spriteX: this.player.pet?.spriteX || 0, spriteY: this.player.pet?.spriteY || 0, spriteWidth: this.player.pet?.spriteWidth || 0, spriteHeight: this.player.pet?.spriteHeight || 0, scale: this.player.pet?.scale };
+        }
+        // If you use player info elsewhere, ensure it uses this.player
+      }
+    });
+
     console.log('VirtualStreetComponent ngOnInit');
     // --- Pet Evolution Logic on Virtual Street Entry ---
     const evolutionMap: { [key: string]: string[] } = {
@@ -557,20 +581,49 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
               Math.pow(state.x - currentState.x, 2) + 
               Math.pow(state.y - currentState.y, 2)
             );
-            
+            // Calculate pet walking state based on pet movement
+            let pet = state.pet;
+            if (pet) {
+              const petDistance = Math.sqrt(
+                Math.pow((pet.targetX ?? pet.x) - pet.x, 2) +
+                Math.pow((pet.targetY ?? pet.y) - pet.y, 2)
+              );
+              pet = {
+                ...pet,
+                isWalking: petDistance > 2
+              };
+            }
             // If position hasn't changed significantly, force walking to false
             if (distance < 1) {
               updatedOtherPlayers[state.userId] = {
                 ...state,
-                isWalking: false
+                isWalking: false,
+                pet
               };
               console.log(`Player ${state.name} is stationary in allPlayerStates (distance: ${distance.toFixed(2)})`);
             } else {
-          updatedOtherPlayers[state.userId] = state;
+              updatedOtherPlayers[state.userId] = {
+                ...state,
+                pet
+              };
             }
           } else {
             // New player, use state as-is
-          updatedOtherPlayers[state.userId] = state;
+            let pet = state.pet;
+            if (pet) {
+              const petDistance = Math.sqrt(
+                Math.pow((pet.targetX ?? pet.x) - pet.x, 2) +
+                Math.pow((pet.targetY ?? pet.y) - pet.y, 2)
+              );
+              pet = {
+                ...pet,
+                isWalking: petDistance > 2
+              };
+            }
+            updatedOtherPlayers[state.userId] = {
+              ...state,
+              pet
+            };
           }
         }
       }
@@ -689,9 +742,14 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
           }
         
         // Update other players with interpolated state
-        // Ensure pet walking state matches player walking state
+        // Decouple pet walking state: set based on pet movement, not player
         if (interpolatedState.pet) {
-          interpolatedState.pet.isWalking = interpolatedState.isWalking;
+          const pet = interpolatedState.pet;
+          const petDistance = Math.sqrt(
+            Math.pow((pet.targetX ?? pet.x) - pet.x, 2) +
+            Math.pow((pet.targetY ?? pet.y) - pet.y, 2)
+          );
+          interpolatedState.pet.isWalking = petDistance > 2;
         }
         
         const updatedOtherPlayers = { ...this.otherPlayers };
@@ -992,6 +1050,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         this.updateCamera();
         // Always update pet even when player is not moving
         const petMoved = this.updatePetFollow(false);
+        this.updatePetAnimationFrame();
         // Send network update if pet moved
         if (petMoved) {
           this.sendNetworkUpdate();
@@ -1071,6 +1130,9 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
       
       // Process buffered updates for smoother movement
       this.processBufferedUpdates();
+      
+      // Update animation frames for all other players' pets
+      this.updateOtherPetsAnimationFrames();
     };
     gameLoop(0);
   }
@@ -1142,6 +1204,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
     // Update pet position and animation
     const petMoved = this.updatePetFollow(moved);
     this.updatePetAnimationFrame();
+    this.updateOtherPetsAnimationFrames();
 
     // Send network updates at a consistent rate when moving
     this.sendNetworkUpdateIfNeeded(moved, oldX, oldY, oldFacing);
@@ -1161,6 +1224,27 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
       }
       this.lastFrameChangeTime = now;
     }
+  }
+
+  // Update animation frames for all other players' pets
+  private updateOtherPetsAnimationFrames(): void {
+    const now = Date.now();
+    Object.keys(this.otherPlayers).forEach(userId => {
+      const other = this.otherPlayers[userId];
+      if (!other.pet) return;
+      if (!this.otherPetAnimationFrames[userId]) {
+        this.otherPetAnimationFrames[userId] = 1;
+        this.otherPetLastFrameChange[userId] = now;
+      }
+      if (now - (this.otherPetLastFrameChange[userId] || 0) >= this.PET_ANIMATION_FRAME_DURATION) {
+        if (other.isWalking && other.pet.isWalking) {
+          this.otherPetAnimationFrames[userId] = this.otherPetAnimationFrames[userId] === 1 ? 2 : 1;
+        } else {
+          this.otherPetAnimationFrames[userId] = 1;
+        }
+        this.otherPetLastFrameChange[userId] = now;
+      }
+    });
   }
 
   private updatePetFollow(moved: boolean): boolean {
@@ -1217,9 +1301,8 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
       pet.y += moveY;
 
       // Update pet facing direction based on movement
-      if (this.player.facing === 'left' || this.player.facing === 'right') {
-        pet.facing = this.player.facing;
-      } else if (Math.abs(moveX) > Math.abs(moveY)) {
+
+      if (Math.abs(moveX) > Math.abs(moveY)) {
         pet.facing = moveX > 0 ? 'right' : 'left';
       } else {
         pet.facing = moveY > 0 ? 'down' : 'up';
