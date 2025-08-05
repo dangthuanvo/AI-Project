@@ -2855,43 +2855,15 @@
 }
 
 // Pet Styling
-.bulbasaur-pet-sprite-scale {
+.pkm-pet {
   position: absolute;
   left: 50%;
   top: 0;
   transform-origin: center;
+  &.pet-flip { transform: scaleX(-1); }
 }
 
-.bulbasaur-pet-sprite {
-  width: 22px;
-  height: 18px;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  // Walking animation - switch between two images
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation - subtle breathing effect
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.ivysaur-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-
-.ivysaur-pet-sprite {
+.pkm-pet-sprite {
   width: 28px;
   height: 22px;
   image-rendering: pixelated;
@@ -2907,325 +2879,16 @@
   background-size: contain;
   transition: transform 0.15s ease-out;
 
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
+  // Walking animation
+  .pkm-pet.walking & {
     animation: pet-walk 0.4s steps(2) infinite;
   }
   // Idle animation
-  .pet-character:not(.walking) & {
+  .pkm-pet.idle & {
     animation: pet-idle 2s infinite ease-in-out;
   }
 }
-.venusaur-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.venusaur-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
 
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.charmander-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.charmander-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.charmeleon-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.charmeleon-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.charizard-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.charizard-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.squirtle-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.squirtle-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.wartortle-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.wartortle-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.blastoise-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.blastoise-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.dragonite-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.dragonite-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.dragonair-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.dragonair-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
-.dratini-pet-sprite-scale {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-}
-.dratini-pet-sprite {
-  width: 28px;
-  height: 22px;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 2px 4px #3338);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform-origin: center;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  transition: transform 0.15s ease-out;
-  
-  // Walking animation - steady (no bounce)
-  .pet-character.walking & {
-    animation: pet-walk 0.4s steps(2) infinite;
-  }
-  // Idle animation
-  .pet-character:not(.walking) & {
-    animation: pet-idle 2s infinite ease-in-out;
-  }
-}
 // Ensure pet name tag is positioned correctly above the scaled sprite
 .pet-character {
   position: absolute;
@@ -3240,11 +2903,7 @@
   // }
   
   // Pet movement animations based on facing direction
-  &.pet-facing-left .pet-svg.pet-flip {
-    transform: scaleX(-1);
-  }
-  
-  &.pet-facing-left .pet-svg {
+  &.pet-facing-left .pet-svg .pet-flip {
     transform: scaleX(-1);
   }
   
@@ -3272,13 +2931,13 @@
 }
 
 // Flip pet horizontally when facing right
-.pet-flip {
-  transform: scaleX(-1) !important;
-  // Different styling for other players' pets
-  &.other-pet {
-    opacity: 0.9;
-  }
-}
+// .pet-flip {
+//   transform: scaleX(-1) !important;
+//   // Different styling for other players' pets
+//   &.other-pet {
+//     opacity: 1;
+//   }
+// }
 
 @keyframes pet-idle {
   0%, 100% {
@@ -3296,15 +2955,4 @@
   50% {
     transform: translateX(-50%) translateY(-4px);
   }
-}
-
-// Pet walking animations
-.pet-character.walking .bulbasaur-pet-sprite, .pet-character.walking .ivysaur-pet-sprite, .pet-character.walking .venusaur-pet-sprite {
-  animation: pet-walk 0.4s steps(2) infinite;
-  transform-origin: 50% 100%;
-}
-
-.pet-character:not(.walking) .bulbasaur-pet-sprite, .pet-character:not(.walking) .ivysaur-pet-sprite, .pet-character:not(.walking) .venusaur-pet-sprite {
-  animation: pet-idle 2s infinite ease-in-out;
-  transform-origin: 50% 100%;
 }
