@@ -390,7 +390,7 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         if (!this.player) {
           this.player = { name: '', avatar: '', x: 0, y: 0, facing: 'down', isWalking: false };
         }
-        this.player.name = (user.firstName || '') + (user.lastName ? ' ' + user.lastName : '');
+        this.player.name = user.firstName;
         this.player.avatar = user.avatar || '/uploads/images/user-avatar.png';
         this.player.color = user.color || undefined;
         if (user.pet) {

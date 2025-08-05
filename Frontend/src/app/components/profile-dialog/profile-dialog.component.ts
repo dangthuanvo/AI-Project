@@ -43,8 +43,8 @@ export class ProfileDialogComponent {
     console.log('Avatar value:', this.avatar);
     this.avatarUrl = this.imageService.getImageUrl(this.avatar);
     this.profileForm = this.fb.group({
-      firstName: [data.firstName],
-      lastName: [data.lastName],
+      firstName: [data.firstName, Validators.required],
+      lastName: [data.lastName, Validators.required],
       color: [data.color != null ? data.color : '#1976d2']
     });
     this.changePasswordForm = this.fb.group({
@@ -55,6 +55,10 @@ export class ProfileDialogComponent {
   }
 
   save(): void {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
     const profileData = { ...this.profileForm.value, avatar: this.avatar };
     this.authService.updateProfile(profileData).subscribe({
       next: (updated) => {
