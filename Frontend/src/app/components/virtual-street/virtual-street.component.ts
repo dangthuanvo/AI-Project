@@ -109,9 +109,13 @@ export class VirtualStreetComponent implements OnInit, OnDestroy {
         await this.triggerPetEvolutionAnimation(chain[i], chain[i+1]);
         console.log('[EVOLVE] Animation complete for', chain[i], '->', chain[i+1]);
         this.changePetType(chain[i+1]);
+        this.authService.updateProfile({ pet: this.player.pet?.type }).subscribe(
+          () => console.log('Pet updated in DB!'),
+          err => console.error('Failed to save pet to DB:', err)
+        );
         await new Promise(resolve => setTimeout(resolve, 500)); // Small buffer between evolutions
       }
-      console.log('[EVOLVE] handleMultiStageEvolution complete');
+    console.log('[EVOLVE] handleMultiStageEvolution complete');
     } catch (e) {
       console.error('[EVOLVE] Error in handleMultiStageEvolution:', e);
     }
