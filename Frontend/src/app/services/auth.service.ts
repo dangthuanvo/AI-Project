@@ -155,7 +155,7 @@ export class AuthService {
     }
   }
 
-  updateProfile(profile: { firstName?: string; lastName?: string; color?: string; avatar?: string }): Observable<any> {
+  updateProfile(profile: { firstName?: string; lastName?: string; color?: string; avatar?: string; pet?: string }): Observable<any> {
     return this.http.put(`${this.API_URL}/auth/profile`, profile).pipe(
       map((updated: any) => {
         const user = this.currentUserSubject.value;
@@ -164,6 +164,9 @@ export class AuthService {
           user.lastName = updated.lastName ?? user.lastName;
           (user as any).color = updated.color ?? (user as any).color;
           (user as any).avatar = updated.avatar ?? (user as any).avatar;
+          if ('pet' in updated) {
+            (user as any).pet = updated.pet;
+          }
           localStorage.setItem('user', JSON.stringify(user));
           this.currentUserSubject.next(user);
         }
