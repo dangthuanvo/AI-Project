@@ -437,7 +437,7 @@
     filter: brightness(1.15) drop-shadow(0 0 15px #4CAF50);
     transform: scale(1.02);
     
-    .house {
+  .house {
       box-shadow: 
         0 16px 40px rgba(0,0,0,0.2),
         0 6px 12px rgba(0,0,0,0.15),
@@ -1212,17 +1212,30 @@
 .player-svg .arm-left, .player-svg .arm-right, .player-svg .leg-left, .player-svg .leg-right {
   /* Remove transition to prevent conflicts with animations */
 }
-.player-character.walking .player-svg .arm-left {
+.player-character.walking.facing-left .player-svg .arm-left {
   animation: walk-arm-left 0.5s infinite alternate;
 }
-.player-character.walking .player-svg .arm-right {
+.player-character.walking.facing-left .player-svg .arm-right {
   animation: walk-arm-right 0.5s infinite alternate;
 }
-.player-character.walking .player-svg .leg-left {
+.player-character.walking.facing-left .player-svg .leg-left {
   animation: walk-leg-left 0.5s infinite alternate;
 }
-.player-character.walking .player-svg .leg-right {
+.player-character.walking.facing-left .player-svg .leg-right {
   animation: walk-leg-right 0.5s infinite alternate;
+}
+
+.player-character.walking.facing-right .player-svg .arm-left {
+  animation: walk-arm-right-facing 0.5s infinite alternate;
+}
+.player-character.walking.facing-right .player-svg .arm-right {
+  animation: walk-arm-left-facing 0.5s infinite alternate;
+}
+.player-character.walking.facing-right .player-svg .leg-left {
+  animation: walk-leg-right-facing 0.5s infinite alternate;
+}
+.player-character.walking.facing-right .player-svg .leg-right {
+  animation: walk-leg-left-facing 0.5s infinite alternate;
 }
 .player-character:not(.walking) .player-svg {
   animation: idle-bounce 1.2s infinite alternate;
@@ -2380,6 +2393,25 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(-20deg); }
 }
+
+// --- Distinct right-facing walk keyframes ---
+@keyframes walk-arm-left-facing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(30deg); }
+}
+@keyframes walk-arm-right-facing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-30deg); }
+}
+@keyframes walk-leg-left-facing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-20deg); }
+}
+@keyframes walk-leg-right-facing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(20deg); }
+}
+
 @keyframes idle-bounce {
   0% { transform: translateY(0); }
   100% { transform: translateY(-4px); }
@@ -2953,6 +2985,6 @@
     transform: translateX(-50%) translateY(0);
   }
   50% {
-    transform: translateX(-50%) translateY(-4px);
+    transform: translateX(-50%) translateY(-0px);
   }
 }

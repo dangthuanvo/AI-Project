@@ -455,7 +455,9 @@ export class ProductDetailComponent implements OnInit {
   }
 
   navigateToRelatedProduct(product: Product): void {
-    this.router.navigate(['/product', product.id]);
+    this.router.navigate(['/product', product.id]).then(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    });
   }
 
   flyToCart() {
