@@ -1,0 +1,99 @@
+<div *ngIf="visible" class="modal-overlay">
+  <div class="modal-content order-detail-modal">
+    <div class="modal-header">
+      <h2>Offer Details</h2>
+      <button mat-icon-button (click)="onClose()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="order-detail-content" *ngIf="offer">
+      <!-- Offer Header -->
+      <div class="order-detail-header">
+        <div class="order-info">
+          <h3>Offer #{{ offer.offerNumber || offer.id }}</h3>
+          <span class="status-badge" [style.background-color]="getOfferStatusColor(offer.status)">
+            {{ getStatusLabel(offer.status) }}
+          </span>
+        </div>
+        <div class="order-date">
+          <mat-icon>schedule</mat-icon>
+          <span>{{ offer.createdAt | date:'medium' }}</span>
+        </div>
+      </div>
+
+      <!-- Buyer Information -->
+      <div class="customer-section">
+        <h4>Buyer Information</h4>
+        <div class="customer-details">
+          <div class="detail-row">
+            <span class="label">Name:</span>
+            <span class="value">{{ offer.buyer?.firstName }} {{ offer.buyer?.lastName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ offer.buyer?.email }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="order-items-section">
+        <h4>Product</h4>
+        <div class="order-items-list">
+          <div class="order-item">
+            <div class="item-info">
+              <div class="item-name">{{ offer.product?.name }}</div>
+              <div class="item-details">
+                <span class="unit-price">
+  {{ offer.productName }}
+  <span *ngIf="offer.product?.price !== undefined; else fallbackPrice">
+    Default Price: ${{ offer.product.price | number:'1.2-2' }}
+  </span>
+  <ng-template #fallbackPrice>
+    <span *ngIf="offer.product.price !== undefined">Default Price: ${{ offer.product.price | number:'1.2-2' }}</span>
+    <span *ngIf="offer.product.price === undefined">Default Price: &ndash;</span>
+  </ng-template>
+</span>
+              </div>
+            </div>
+            <div class="item-total">
+              <!-- Optionally show product total or leave blank -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Offer Summary -->
+      <div class="order-summary">
+        <div class="summary-row">
+          <span class="label">Offered Price:</span>
+          <span class="value">${{ offer.offeredPrice | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-row" *ngIf="offer.counterOfferPrice">
+          <span class="label">Counter Price:</span>
+          <span class="value">${{ offer.counterOfferPrice | number:'1.2-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Note:</span>
+          <span class="value">{{ offer.note }}</span>
+        </div>
+      </div>
+
+      <!-- Offer Actions -->
+      <div class="order-actions-section">
+        <h4>Respond to Offer</h4>
+        <div class="status-actions">
+          <button mat-raised-button color="primary"
+                  (click)="onApprove()"
+                  [disabled]="offer.status !== 'CounterBySeller' && offer.status !== 'Pending'">Approve</button>
+          <button mat-raised-button color="warn"
+                  (click)="onReject()"
+                  [disabled]="offer.status !== 'CounterBySeller' && offer.status !== 'Pending'">Reject</button>
+          <button mat-raised-button color="accent"
+                  (click)="openCounterDialog()"
+                  [disabled]="offer.status !== 'CounteredBySeller' && offer.status !== 'Pending'">Counter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

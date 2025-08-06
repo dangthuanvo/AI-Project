@@ -199,18 +199,54 @@ namespace SilkyRoad.API.Controllers
                     Console.WriteLine($"Created order for store {store.Name}: {newOrder.Id}");
 
                     // Create order items for this store
-                    var orderItems = storeItems.Select(ci => new OrderItem
+                    // Get all accepted offers for this user and these products
+                    var productIds = storeItems.Select(ci => ci.ProductId).ToList();
+                    var acceptedOffers = await _context.BargainOffers
+                        .Where(o =>
+                            o.BuyerId == userId &&
+                            productIds.Contains(o.ProductId) &&
+                            (o.Status == BargainOfferStatus.AcceptedByCustomer || o.Status == BargainOfferStatus.AcceptedBySeller)
+                        )
+                        .ToListAsync();
+
+                    var orderItems = storeItems.Select(ci =>
                     {
-                        OrderId = newOrder.Id,
-                        ProductId = ci.ProductId,
-                        Quantity = ci.Quantity,
-                        UnitPrice = ci.UnitPrice,
-                        ProductName = ci.Product.Name,
-                        ProductImageUrl = GetImageUrl(ci.Product.ProductImages.FirstOrDefault()?.ImageUrl)
+                        var offer = acceptedOffers.FirstOrDefault(o => o.ProductId == ci.ProductId);
+                        decimal? offeredPrice = null;
+                        decimal unitPrice = ci.UnitPrice;
+                        if (offer != null)
+                        {
+                            // Use the correct price field depending on who accepted
+                            if (offer.Status == BargainOfferStatus.AcceptedByCustomer && offer.CounterOfferPrice.HasValue)
+                                offeredPrice = offer.CounterOfferPrice.Value;
+                            else
+                                offeredPrice = offer.OfferedPrice;
+
+                            unitPrice = offeredPrice.Value;
+                        }
+                        return new OrderItem
+                        {
+                            OrderId = newOrder.Id,
+                            ProductId = ci.ProductId,
+                            Quantity = offer != null ? 1 : ci.Quantity, // Offer-locked items always 1
+                            UnitPrice = unitPrice,
+                            OfferedPrice = offeredPrice,
+                            ProductName = ci.Product.Name,
+                            ProductImageUrl = GetImageUrl(ci.Product.ProductImages.FirstOrDefault()?.ImageUrl)
+                        };
                     }).ToList();
 
                     allOrderItems.AddRange(orderItems);
                     createdOrders.Add(newOrder);
+
+                    // Set status of accepted offers to Closed
+                    foreach (var offer in acceptedOffers)
+                    {
+                        offer.Status = BargainOfferStatus.Closed;
+                        offer.UpdatedAt = DateTime.UtcNow;
+                        _context.BargainOffers.Update(offer);
+                    }
+                    await _context.SaveChangesAsync();
 
                     // Reduce stock for products in this store
                     foreach (var item in storeItems)

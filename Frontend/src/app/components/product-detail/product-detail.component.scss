@@ -390,7 +390,7 @@
     }
   }
   .add-to-cart-section {
-    margin-bottom: 32px;
+    margin-bottom: 20px;
     .quantity-selector {
       margin-bottom: 18px;
       label {
@@ -404,34 +404,34 @@
         width: 120px;
       }
     }
-    .cart-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      align-items: center;
-      button {
-        width: 100%;
-        padding: 15px;
-        font-size: 1.18rem;
-        border-radius: 10px;
-        font-weight: 700;
-        background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(33,150,243,0.10);
-        transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
-        mat-icon {
-          margin-right: 10px;
-        }
-        &:hover, &:focus {
-          background: linear-gradient(90deg, #1976d2 0%, #2196f3 100%);
-          box-shadow: 0 4px 16px rgba(33,150,243,0.18);
-          transform: translateY(-2px) scale(1.01);
-        }
-        &:active {
-          background: #1565c0;
-        }
-      }
-    }
+    // .cart-actions {
+    //   display: flex;
+    //   flex-direction: column;
+    //   gap: 16px;
+    //   align-items: center;
+    //   button {
+    //     width: 100%;
+    //     padding: 15px;
+    //     font-size: 1.18rem;
+    //     border-radius: 10px;
+    //     font-weight: 700;
+    //     background: linear-gradient(90deg, #2196f3 0%, #1976d2 100%);
+    //     color: #fff;
+    //     box-shadow: 0 2px 8px rgba(33,150,243,0.10);
+    //     transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    //     mat-icon {
+    //       margin-right: 10px;
+    //     }
+    //     &:hover, &:focus {
+    //       background: linear-gradient(90deg, #1976d2 0%, #2196f3 100%);
+    //       box-shadow: 0 4px 16px rgba(33,150,243,0.18);
+    //       transform: translateY(-2px) scale(1.01);
+    //     }
+    //     &:active {
+    //       background: #1565c0;
+    //     }
+    //   }
+    // }
   }
   .cannot-add-to-cart {
     margin-bottom: 32px;
@@ -494,6 +494,7 @@
   .cart-actions {
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
     gap: 16px;
     align-items: center;
     // Apply style to all direct child buttons, not just those in add-to-cart-section

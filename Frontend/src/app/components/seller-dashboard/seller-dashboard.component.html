@@ -55,6 +55,19 @@
           (click)="setActiveTab('orders')">
           Orders
         </button>
+        <button 
+          [class.active]="activeTab === 'offers'"
+          (click)="setActiveTab('offers')">
+          Offers
+        </button>
+      </div>
+
+      <!-- Offers Tab -->
+      <div *ngIf="activeTab === 'offers'" class="tab-content">
+        <div class="section-header">
+          <h2>Offers</h2>
+        </div>
+        <app-seller-offer-tab [storeId]="selectedStore?.id"></app-seller-offer-tab>
       </div>
 
       <!-- Overview Tab -->
@@ -137,11 +150,13 @@
 
       <!-- Orders Tab -->
       <div *ngIf="activeTab === 'orders'" class="tab-content">
-        <h2>Orders</h2>
+        <div class="section-header">
+          <h2>Orders</h2>
+        </div>
         <div class="orders-list">
           <div *ngFor="let order of orders" class="order-card">
             <div class="order-header">
-              <h3>Order #{{ order.id }}</h3>
+              <h3>Order #{{ order.orderNumber }}</h3>
               <span 
                 class="status-badge"
                 [style.background-color]="getOrderStatusColor(order.status)">

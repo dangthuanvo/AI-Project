@@ -1,0 +1,78 @@
+.offers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.offer-card {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 25px;
+  transition: all 0.3s ease;
+  &:hover {
+    border-color: #4a90e2;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.1);
+  }
+  .offer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+  }
+  .offer-details {
+    margin-bottom: 15px;
+    p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #6c757d;
+    }
+  }
+  .offer-actions {
+    display: flex;
+    gap: 10px;
+    button {
+      font-size: 12px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      &:hover {
+        transform: translateY(-1px);
+      }
+    }
+  }
+}
+
+.no-offers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6c757d;
+  margin-top: 30px;
+  font-size: 16px;
+  justify-content: center;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 30px;
+  color: #6c757d;
+}

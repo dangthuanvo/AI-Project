@@ -251,7 +251,13 @@
               </div>
               <div class="item-details">
                 <h5>{{ item.productName }}</h5>
-                <p class="item-price">${{ item.unitPrice | number:'1.2-2' }} x {{ item.quantity }}</p>
+                <div class="quantity-controls" *ngIf="!activeOffers[item.productId]">
+    <span>Qty: {{ item.quantity }}</span>
+</div>
+
+<p class="item-price" *ngIf="!activeOffers[item.productId]">${{ item.unitPrice | number:'1.2-2' }} x {{ item.quantity }}</p>
+<p class="item-price" *ngIf="activeOffers[item.productId]">${{ activeOffers[item.productId].status === 'AcceptedByCustomer' ? activeOffers[item.productId].counterOfferPrice : activeOffers[item.productId].offeredPrice | number:'1.2-2' }} <span class="offer-note">(Offer Price)</span> x 1</p>
+<div *ngIf="activeOffers[item.productId]" class="offer-price-note">Offer price applied due to accepted offer.</div>
               </div>
               <div class="item-total">
                 ${{ item.totalPrice | number:'1.2-2' }}

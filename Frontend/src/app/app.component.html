@@ -33,6 +33,10 @@
       <mat-icon>local_shipping</mat-icon>
       Track Order
     </button>
+    <button mat-button *ngIf="isAuthenticated && !hasRole('Admin') && !hasRole('Seller')" routerLink="/my-offer">
+      <mat-icon>local_offer</mat-icon>
+      My Offer
+    </button>
     
     <button mat-button [matMenuTriggerFor]="userMenu">
       <mat-icon>account_circle</mat-icon>

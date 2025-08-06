@@ -5,6 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { ImageService } from '../../services/image.service';
 import { StoreService } from '../../services/store.service';
+import { OfferService } from '../../services/offer.service';
 
 @Component({
   selector: 'app-shopping-cart',
@@ -19,6 +20,8 @@ export class ShoppingCartComponent implements OnInit {
   tax = 0;
   total = 0;
   itemStock: { [productId: number]: number } = {};
+  activeOffers: { [productId: number]: any } = {}; // Offer lookup by productId
+
 
   constructor(
     private cartService: CartService,
@@ -26,7 +29,8 @@ export class ShoppingCartComponent implements OnInit {
     private router: Router,
     private snackBar: MatSnackBar,
     private imageService: ImageService,
-    private storeService: StoreService
+    private storeService: StoreService,
+    private offerService: OfferService
   ) {}
 
   ngOnInit(): void {
@@ -34,35 +38,62 @@ export class ShoppingCartComponent implements OnInit {
   }
 
   loadCart(): void {
+    // Fetch offers first
+    this.activeOffers = {};
     this.cartService.getCart().subscribe(cart => {
       this.cartItems = cart.items || [];
-      // Group items by store
-      this.groupedCartItems = {};
-      const storeIds: Set<number> = new Set();
-      this.cartItems.forEach(item => {
-        if (!this.groupedCartItems[item.storeId]) {
-          this.groupedCartItems[item.storeId] = { storeName: item.storeName, items: [] };
-        }
-        this.groupedCartItems[item.storeId].items.push(item);
-        storeIds.add(item.storeId);
-      });
-      // Fetch store logos for each store
-      storeIds.forEach(storeId => {
-        this.storeService.getStore(storeId).subscribe(store => {
-          this.storeLogos[storeId] = store.logoUrl || '';
+      this.offerService.getMyOffers().subscribe((offers: any[]) => {
+        // Build lookup of active offers
+        offers.forEach((offer: any) => {
+          if (
+            (offer.status === 'AcceptedByCustomer' || offer.status === 'AcceptedBySeller') &&
+            offer.productId != null
+          ) {
+            this.activeOffers[offer.productId] = offer;
+          }
         });
-      });
-      // Fetch stock for each item
-      this.cartItems.forEach(item => {
-        this.storeService.getProduct(item.productId).subscribe(product => {
-          this.itemStock[item.productId] = product.stockQuantity;
+        // Enforce quantity and price for cart items with active offer
+        this.cartItems.forEach(item => {
+          const offer = this.activeOffers[item.productId];
+          if (offer) {
+            item.quantity = 1;
+            item.unitPrice = offer.status === 'AcceptedByCustomer' ? offer.counterOfferPrice : offer.offeredPrice;
+            item.totalPrice = item.unitPrice;
+          }
         });
+        // Group items by store
+        this.groupedCartItems = {};
+        const storeIds: Set<number> = new Set();
+        this.cartItems.forEach(item => {
+          if (!this.groupedCartItems[item.storeId]) {
+            this.groupedCartItems[item.storeId] = { storeName: item.storeName, items: [] };
+          }
+          this.groupedCartItems[item.storeId].items.push(item);
+          storeIds.add(item.storeId);
+        });
+        // Fetch store logos for each store
+        storeIds.forEach(storeId => {
+          this.storeService.getStore(storeId).subscribe(store => {
+            this.storeLogos[storeId] = store.logoUrl || '';
+          });
+        });
+        // Fetch stock for each item
+        this.cartItems.forEach(item => {
+          this.storeService.getProduct(item.productId).subscribe(product => {
+            this.itemStock[item.productId] = product.stockQuantity;
+          });
+        });
+        this.calculateTotals();
       });
-      this.calculateTotals();
     });
   }
 
   updateQuantity(item: CartItem, change: number): void {
+    // Prevent quantity change if item has active offer
+    if (this.activeOffers[item.productId]) {
+      this.snackBar.open('Quantity cannot be changed for items with an accepted offer.', 'Close', { duration: 3000 });
+      return;
+    }
     const maxStock = this.itemStock[item.productId] ?? 99;
     const newQuantity = item.quantity + change;
     if (newQuantity > 0 && newQuantity <= maxStock) {
@@ -75,6 +106,11 @@ export class ShoppingCartComponent implements OnInit {
   }
 
   onQuantityInputChange(item: CartItem): void {
+    // Prevent manual input if item has active offer
+    if (this.activeOffers[item.productId]) {
+      this.snackBar.open('Quantity cannot be changed for items with an accepted offer.', 'Close', { duration: 3000 });
+      return;
+    }
     const maxStock = this.itemStock[item.productId] ?? 99;
     if (item.quantity < 1) {
       item.quantity = 1;

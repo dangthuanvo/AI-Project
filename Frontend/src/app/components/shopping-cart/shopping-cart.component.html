@@ -39,13 +39,19 @@
                   </div>
                   <div class="item-details">
                     <h4>{{ item.productName }}</h4>
-                    <div class="quantity-controls">
+                    <div class="quantity-controls" *ngIf="!activeOffers[item.productId]">
                       <button mat-mini-button color="primary" (click)="updateQuantity(item, -1)">-</button>
                       <input type="number" min="1" [max]="itemStock[item.productId] || 99" [(ngModel)]="item.quantity" (change)="onQuantityInputChange(item)" style="width: 48px; text-align: center; margin: 0 4px;" />
                       <button mat-mini-button color="primary" (click)="updateQuantity(item, 1)">+</button>
                       <span class="stock-warning" *ngIf="itemStock[item.productId] !== undefined && item.quantity > itemStock[item.productId]">(Only {{ itemStock[item.productId] }} left)</span>
                     </div>
-                    <p class="item-price">${{ item.unitPrice | number:'1.2-2' }}</p>
+                    <div class="quantity-controls" *ngIf="activeOffers[item.productId]">
+                      <button mat-mini-button color="primary" disabled>-</button>
+                      <input type="number" value="1" min="1" max="1" readonly disabled style="width: 48px; text-align: center; margin: 0 4px; background: #f9f9f9; color: #222;" />
+                      <button mat-mini-button color="primary" disabled>+</button>
+                    </div>
+                    <p class="item-price" *ngIf="!activeOffers[item.productId]">${{ item.unitPrice | number:'1.2-2' }}</p>
+                    <p class="item-price" *ngIf="activeOffers[item.productId]">${{ activeOffers[item.productId].status === 'AcceptedByCustomer' ? activeOffers[item.productId].counterOfferPrice : activeOffers[item.productId].offeredPrice | number:'1.2-2' }} <span class="offer-note">(Offer Price)</span></p>
                   </div>
                   <div class="item-total">
                     ${{ item.totalPrice | number:'1.2-2' }}

@@ -13,6 +13,24 @@ import { ChangeDetectorRef } from '@angular/core';
   styleUrls: ['./profile-dialog.component.scss']
 })
 export class ProfileDialogComponent {
+  // Helper to convert base64 dataURL to File
+  dataURLtoFile(dataurl: string, filename: string): File {
+    const arr = dataurl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+    const bstr = atob(arr[1]);
+    const n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  cameraActive = false;
+  mediaStream: MediaStream | null = null;
+  videoElem!: HTMLVideoElement;
+
   hideCurrentPassword: boolean = true;
   hideNewPassword: boolean = true;
   hideConfirmNewPassword: boolean = true;
@@ -52,6 +70,78 @@ export class ProfileDialogComponent {
       newPassword: ['', [Validators.required, Validators.minLength(6), this.passwordStrengthValidator]],
       confirmNewPassword: ['', Validators.required]
     }, { validators: this.passwordsMatchValidator });
+  }
+
+  toggleCamera(): void {
+    if (this.cameraActive) {
+      this.stopCamera();
+      this.cameraActive = false;
+      return;
+    }
+    this.cameraActive = true;
+    setTimeout(() => {
+      // Find the video element rendered by *ngIf
+      const video = document.querySelector('video.avatar-video') as HTMLVideoElement;
+      if (video) {
+        this.videoElem = video;
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then((stream) => {
+            this.mediaStream = stream;
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch(() => {
+            alert('Unable to access camera.');
+            this.cameraActive = false;
+          });
+      }
+    }, 100);
+  }
+
+  stopCamera(): void {
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream = null;
+    }
+    this.cameraActive = false;
+  }
+
+  captureFromCamera(): void {
+    if (!this.videoElem) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = this.videoElem.videoWidth;
+    canvas.height = this.videoElem.videoHeight;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.drawImage(this.videoElem, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/png');
+      this.avatarPreview = dataUrl;
+      // Convert base64 dataUrl to File
+      const file = this.dataURLtoFile(dataUrl, 'avatar.png');
+      // Upload the captured image file to backend
+      this.fileUploadService.uploadImage(file).subscribe({
+        next: (imageUrl: string) => {
+          this.avatar = imageUrl;
+          this.avatarUrl = this.imageService.getImageUrl(this.avatar);
+          this.avatarPreview = null;
+          // Immediately update profile so virtual street updates right away
+          this.authService.updateProfile({
+            firstName: this.profileForm.value.firstName,
+            lastName: this.profileForm.value.lastName,
+            color: this.profileForm.value.color,
+            avatar: imageUrl
+          }).subscribe();
+        },
+        error: () => {
+          alert('Error uploading captured image.');
+        }
+      });
+    }
+    this.stopCamera();
+  }
+
+  ngOnDestroy(): void {
+    this.stopCamera();
   }
 
   save(): void {
