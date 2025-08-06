@@ -42,9 +42,9 @@ export class SellerOfferDetailDialogComponent {
   getStatusLabel(status: string): string {
     switch (status) {
       case 'CounteredBySeller':
-        return 'Countered';
-      case 'CounteredByCustomer':
         return 'Counter Sent';
+      case 'CounteredByCustomer':
+        return 'Countered';
       case 'RejectedBySeller':
         return 'Rejected';
       case 'RejectedByCustomer':
