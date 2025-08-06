@@ -85,13 +85,13 @@
         <div class="status-actions">
           <button mat-raised-button color="primary"
                   (click)="onApprove()"
-                  [disabled]="offer.status !== 'CounterBySeller' && offer.status !== 'Pending'">Approve</button>
+                  [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Approve</button>
           <button mat-raised-button color="warn"
                   (click)="onReject()"
-                  [disabled]="offer.status !== 'CounterBySeller' && offer.status !== 'Pending'">Reject</button>
+                  [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Reject</button>
           <button mat-raised-button color="accent"
                   (click)="openCounterDialog()"
-                  [disabled]="offer.status !== 'CounteredBySeller' && offer.status !== 'Pending'">Counter</button>
+                  [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Counter</button>
         </div>
       </div>
     </div>
