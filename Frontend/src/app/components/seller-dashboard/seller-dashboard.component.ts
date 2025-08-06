@@ -5,12 +5,13 @@ import { StoreService, Store, Product, MonthlyStats } from '../../services/store
 import { AuthService } from '../../services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FileUploadService } from '../../services/file-upload.service';
-import { ImageService } from '../../services/image.service';
+import {ImageService} from '../../services/image.service';
+import { SellerOfferTabComponent } from '../seller-offer-tab/seller-offer-tab.component';
 
 @Component({
   selector: 'app-seller-dashboard',
   templateUrl: './seller-dashboard.component.html',
-  styleUrls: ['./seller-dashboard.component.scss']
+  styleUrls: ['./seller-dashboard.component.scss']  
 })
 export class SellerDashboardComponent implements OnInit {
   currentUser: any;
@@ -20,6 +21,7 @@ export class SellerDashboardComponent implements OnInit {
   selectedStore: any = null;
   products: any[] = [];
   orders: any[] = [];
+  offers: any[] = []; // Offers tab
   loading = false;
   activeTab = 'overview';
   
@@ -467,6 +469,16 @@ export class SellerDashboardComponent implements OnInit {
       case 'accepted': return '#42a5f5';
       case 'shipped': return '#7e57c2';
       case 'delivered': return '#66bb6a';
+      default: return '#666';
+    }
+  }
+
+  getOfferStatusColor(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'pending': return '#ffa726';
+      case 'accepted': return '#42a5f5';
+      case 'rejected': return '#ef5350';
+      case 'completed': return '#66bb6a';
       default: return '#666';
     }
   }

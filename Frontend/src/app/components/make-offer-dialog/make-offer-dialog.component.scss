@@ -1,0 +1,12 @@
+.make-offer-form {
+  .full-width {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  mat-dialog-content {
+    padding-bottom: 0;
+  }
+  mat-dialog-actions {
+    margin-top: 8px;
+  }
+}

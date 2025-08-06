@@ -67,6 +67,9 @@ import { WordScrambleComponent } from './components/word-scramble/word-scramble.
 import { SplashScreenComponent } from './components/splash-screen/splash-screen.component';
 import { RatingDialogComponent } from './components/rating-dialog/rating-dialog.component';
 import { EvolveDialogComponent } from './components/evolve-dialog/evolve-dialog.component';
+import { MakeOfferDialogComponent } from './components/make-offer-dialog/make-offer-dialog.component';
+import { SellerOfferTabModule } from './components/seller-offer-tab/seller-offer-tab.module';
+import { MyOfferComponent } from './components/my-offer/my-offer.component';
 
 // Services
 import { AuthService } from './services/auth.service';
@@ -113,7 +116,9 @@ import { RoleGuard } from './guards/role.guard';
     SplashScreenComponent,
     RatingDialogComponent,
     // Pet Evolution Dialog
-    EvolveDialogComponent
+    EvolveDialogComponent,
+    MakeOfferDialogComponent,
+    MyOfferComponent
   ],
   imports: [
     BrowserModule,
@@ -136,6 +141,7 @@ import { RoleGuard } from './guards/role.guard';
       { path: 'admin-dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard, RoleGuard], data: { role: 'Admin' } },
       { path: 'product/:id', component: ProductDetailComponent, canActivate: [AuthGuard] },
       { path: 'order-tracking', component: OrderTrackingComponent, canActivate: [AuthGuard] },
+      { path: 'my-offer', component: MyOfferComponent, canActivate: [AuthGuard] },
       { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] }
     ]),
     MatToolbarModule,
@@ -165,7 +171,8 @@ import { RoleGuard } from './guards/role.guard';
     MatGridListModule,
     NgChartsModule,
     LeafletModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    SellerOfferTabModule
   ],
   providers: [
     AuthService,

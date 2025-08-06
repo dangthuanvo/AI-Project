@@ -11,10 +11,28 @@
 }
 
 .avatar-section {
+  .avatar-action-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.avatar-img, .avatar-video {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+  margin-bottom: 8px;
 }
 
 .avatar-img {

@@ -12,6 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { VoucherService } from '../../services/voucher.service';
 import { UserVoucher } from '../../models/voucher.model';
 import { ShippingAddressDialogComponent } from './shipping-address-dialog.component';
+import { OfferService } from '../../services/offer.service';
 
 // Leaflet imports
 import { latLng, tileLayer, Marker, marker, icon } from 'leaflet';
@@ -68,7 +69,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     private imageService: ImageService,
     private shippingInfoService: ShippingInfoService,
     private dialog: MatDialog,
-    private voucherService: VoucherService
+    private voucherService: VoucherService,
+    private offerService: OfferService
   ) {
     this.checkoutForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -145,11 +147,32 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
     await this.initializePayPal();
   }
 
+  activeOffers: { [productId: number]: any } = {};
   loadCart(): void {
+    this.activeOffers = {};
     this.cartService.getCart().subscribe(cart => {
       this.cartItems = cart.items || [];
-      this.calculateTotals();
-      this.groupItemsByStore();
+      this.offerService.getMyOffers().subscribe((offers: any[]) => {
+        offers.forEach((offer: any) => {
+          if (
+            (offer.status === 'AcceptedByCustomer' || offer.status === 'AcceptedBySeller') &&
+            offer.productId != null
+          ) {
+            this.activeOffers[offer.productId] = offer;
+          }
+        });
+        // Enforce quantity and price for cart items with active offer
+        this.cartItems.forEach(item => {
+          const offer = this.activeOffers[item.productId];
+          if (offer) {
+            item.quantity = 1;
+            item.unitPrice = offer.status === 'AcceptedByCustomer' ? offer.counterOfferPrice : offer.offeredPrice;
+            item.totalPrice = item.unitPrice;
+          }
+        });
+        this.calculateTotals();
+        this.groupItemsByStore();
+      });
     });
   }
 

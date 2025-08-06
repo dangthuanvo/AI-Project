@@ -1,0 +1,157 @@
+<div class="my-offer-container">
+  <div class="header">
+    <h1>My Offers</h1>
+    <p>Track your offers and view offer history</p>
+  </div>
+
+  <div class="content">
+    <!-- Offers List -->
+    <div class="offers-list">
+      <div class="section-header">
+        <h2>My Offers</h2>
+        <button mat-raised-button color="primary" (click)="loadOffers()" [disabled]="loading">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+
+      <div class="loading-container" *ngIf="loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading offers...</p>
+      </div>
+
+      <div class="no-offers" *ngIf="!loading && offers.length === 0">
+        <mat-icon>search_off</mat-icon>
+        <h3>No offers found</h3>
+        <p>You have not made any offers yet.</p>
+        <button mat-raised-button color="primary" routerLink="/virtual-street">
+          Browse Products
+        </button>
+      </div>
+
+      <div class="offers-grid" *ngIf="!loading && offers.length > 0">
+        <mat-card 
+          *ngFor="let offer of offers" 
+          class="offer-card"
+          [class.selected]="selectedOffer?.id === offer.id"
+          (click)="selectOffer(offer)">
+          <mat-card-header>
+            <mat-card-title>Offer #{{ offer.offerNumber }}</mat-card-title>
+            <mat-card-subtitle>{{ formatDate(offer.createdAt) }}</mat-card-subtitle>
+            <div class="status-badge" [style.background-color]="getStatusColor(offer.status)">
+              <mat-icon>{{ getStatusIcon(offer.status) }}</mat-icon>
+              {{ getStatusLabel(offer.status) }}
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="offer-summary">
+              <div class="offered-price">
+                <mat-icon>attach_money</mat-icon>
+                {{ formatCurrency(offer.offeredPrice) }}
+              </div>
+              <div class="note" *ngIf="offer.note">
+                <mat-icon>notes</mat-icon>
+                {{ offer.note }}
+              </div>
+            </div>
+            <mat-progress-bar
+              mode="determinate"
+              [value]="getOfferProgressPercentage(offer.counterRounds)"
+              [color]="'primary'"
+              class="offer-progress-bar"
+            ></mat-progress-bar>
+            <div class="progress-labels">
+              <span>Rounds: {{ offer.counterRounds || 1 }}</span>
+            </div>
+            <div class="seller-info">
+              <mat-icon>storefront</mat-icon>
+              <span>{{ offer.store.name }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Offer Details -->
+    <div class="offer-details" *ngIf="selectedOffer">
+      <div class="details-header">
+        <h2>Offer Details</h2>
+        <button mat-icon-button (click)="selectedOffer = null">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="offer-info">
+        <div class="info-section">
+          <h3>Offer Information</h3>
+          <div class="info-grid">
+
+
+            <div class="info-item">
+              <label>Offer Number:</label>
+              <span>{{ selectedOffer.offerNumber }}</span>
+            </div>
+            <div class="info-item product-image">
+              <label>Product Image:</label>
+              <img [src]="getProductImageUrl(selectedOffer)" alt="Product Image" style="max-width: 80px; max-height: 80px; border-radius: 8px; margin-right: 8px;" />
+            </div>
+            <div class="info-item">
+              <label>Product:</label>
+              <span>{{ selectedOffer.product.name }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOffer.product?.price !== undefined">
+              <label>Default Price:</label>
+              <span>{{ formatCurrency(selectedOffer.product.price) }}</span>
+            </div>
+
+            <div class="info-item">
+              <label>Status:</label>
+              <span class="status-text" [style.color]="getStatusColor(selectedOffer.status)">
+                {{ getStatusLabel(selectedOffer.status) }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Seller:</label>
+              <span>{{ selectedOffer.seller.firstName }} {{ selectedOffer.seller.lastName }}</span>
+            </div>
+            <div class="info-item">
+              <label>Created:</label>
+              <span>{{ formatDate(selectedOffer.createdAt) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOffer.note">
+              <label>Note:</label>
+              <span>{{ selectedOffer.note }}</span>
+            </div>
+            <div class="info-item">
+              <label>Offered Price:</label>
+              <span>{{ formatCurrency(selectedOffer.offeredPrice) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOffer.counterOfferPrice">
+              <label>Counter Offer Price:</label>
+              <span>{{ formatCurrency(selectedOffer.counterOfferPrice) }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOffer.counterRounds">
+              <label>Counter Rounds:</label>
+              <span>{{ selectedOffer.counterRounds }}</span>
+            </div>
+            <div class="info-item" *ngIf="selectedOffer.expiresAt">
+              <label>Expires At:</label>
+              <span>{{ formatDate(selectedOffer.expiresAt) }}</span>
+            </div>
+          </div>
+        </div>
+        <!-- Add more info-sections here for extensibility, e.g., product image, future items -->
+      </div>
+      <div class="action-buttons" style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center;" *ngIf="selectedOffer.status === 'CounteredBySeller' || selectedOffer.status === 'CounteredByCustomer'">
+        <button mat-raised-button color="primary" *ngIf="selectedOffer.status === 'CounteredBySeller'" (click)="acceptCounter(selectedOffer)">
+          Accept Counter
+        </button>
+        <button mat-raised-button color="primary" *ngIf="selectedOffer.status === 'CounteredBySeller' && selectedOffer.counterRounds !== 3" (click)="openCounterDialog(selectedOffer)">
+          Counter Again
+        </button>
+        <button mat-raised-button color="warn" *ngIf="selectedOffer.status === 'CounteredBySeller' && selectedOffer.counterRounds === 3" (click)="rejectCounterOffer(selectedOffer)">
+          Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

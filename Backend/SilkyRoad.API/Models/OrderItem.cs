@@ -15,6 +15,9 @@ namespace SilkyRoad.API.Models
         [Range(0, double.MaxValue)]
         public decimal UnitPrice { get; set; }
 
+        // The price agreed by offer, if any
+        public decimal? OfferedPrice { get; set; }
+
         [Required]
         [MaxLength(200)]
         public string ProductName { get; set; } = string.Empty;

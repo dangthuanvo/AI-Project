@@ -12,6 +12,8 @@ import { ChatService } from '../../services/chat.service';
 import { HttpClient } from '@angular/common/http';
 import { RatingService } from '../../services/rating.service';
 import { AnimationService, FlyImageAnimationState } from '../services/animation.service';
+import { MakeOfferDialogComponent } from '../make-offer-dialog/make-offer-dialog.component';
+import { OfferService } from '../../services/offer.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -19,8 +21,35 @@ import { AnimationService, FlyImageAnimationState } from '../services/animation.
   styleUrls: ['./product-detail.component.scss']
 })
 export class ProductDetailComponent implements OnInit {
+  // ...existing properties...
+
+  openMakeOfferDialog(): void {
+    if (!this.product) return;
+    const dialogRef = this.dialog.open(MakeOfferDialogComponent, {
+      width: '400px',
+      data: { basePrice: this.product.price }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.offerService.makeOffer(this.product!.id, result.offeredPrice, result.note)
+          .subscribe({
+            next: () => {
+              this.snackBar.open('Offer submitted successfully!', 'Close', { duration: 3000 });
+              this.checkActiveOffer();
+            },
+            error: (err) => {
+              console.error('Error submitting offer:', err);
+              this.snackBar.open('Failed to submit offer', 'Close', { duration: 3000 });
+            }
+          });
+      }
+    });
+  }
   @ViewChild('mainProductImg') mainProductImg!: ElementRef<HTMLImageElement>;
   product: Product | null = null;
+  hasActiveOffer: boolean = false;
+  activeOfferStatus: string | null = null;
+  activeOffer: any = null; // Store the full offer object for price override
   loading = true;
   error: string | null = null;
   addToCartForm: FormGroup;
@@ -72,7 +101,8 @@ export class ProductDetailComponent implements OnInit {
     private chatService: ChatService,
     private http: HttpClient,
     private ratingService: RatingService,
-    private animationService: AnimationService // <-- Injected
+    private animationService: AnimationService, // <-- Injected
+    private offerService: OfferService
   ) {
     this.addToCartForm = this.fb.group({
       quantity: [1, [Validators.required, Validators.min(1)]]
@@ -150,6 +180,9 @@ export class ProductDetailComponent implements OnInit {
         this.loadRatings(product.id);
         this.loadRelatedProducts(product.id);
         this.loading = false;
+
+        // Check for active offer for this product and user
+        this.checkActiveOffer();
       },
       error: (error) => {
         console.error('Error loading product:', error);
@@ -157,6 +190,25 @@ export class ProductDetailComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+  checkActiveOffer(): void {
+    if (this.currentUser && this.product) {
+      this.offerService.getMyOffers().subscribe(offers => {
+        const active = offers.find(o =>
+          o.productId === this.product!.id &&
+          !['Closed', 'RejectedByCustomer', 'RejectedBySeller'].includes(o.status)
+        );
+        if (active) {
+          this.hasActiveOffer = true;
+          this.activeOfferStatus = active.status;
+          this.activeOffer = active;
+        } else {
+          this.hasActiveOffer = false;
+          this.activeOfferStatus = null;
+          this.activeOffer = null;
+        }
+      });
+    }
   }
 
   loadRelatedProducts(productId: number): void {
@@ -257,13 +309,30 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    const quantity = this.addToCartForm.get('quantity')?.value;
+    let quantity = this.addToCartForm.get('quantity')?.value;
 
     // Get current quantity in cart for this product
     const cartItems = (this.cartService as any).cartItemsSubject?.value || [];
     const cartItem = cartItems.find((item: any) => item.productId === this.product!.id);
     const currentCartQty = cartItem ? cartItem.quantity : 0;
     const totalRequested = currentCartQty + quantity;
+
+    // If there is an active offer, enforce only 1 in cart
+    if (this.hasActiveOffer) {
+      if (currentCartQty > 1) {
+        // Update cart to 1
+        this.cartService.updateCartItem(cartItem.id, { quantity: 1 }).subscribe(() => {
+          this.snackBar.open('Quantity limited to 1 due to active offer.', 'Close', { duration: 4000 });
+        });
+        return;
+      } else if (currentCartQty === 1) {
+        this.snackBar.open('You can only have 1 of this product in your cart with an active offer.', 'Close', { duration: 4000 });
+        return;
+      } else {
+        // Not in cart, force add 1
+        quantity = 1;
+      }
+    }
 
     if (totalRequested > this.product.stockQuantity) {
       this.snackBar.open('You cannot add more than the available stock to your cart.', 'Close', { duration: 4000 });

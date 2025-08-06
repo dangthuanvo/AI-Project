@@ -2,25 +2,39 @@
 <div class="profile-dialog-scrollable" style="padding: 20px;">
   <form [formGroup]="profileForm" (ngSubmit)="save()" class="profile-form">
     <div class="avatar-section">
-      <img [src]="avatarPreview || avatarUrl" alt="Avatar" class="avatar-img"
-           (error)="avatarUrl = imageService.getImageUrl('/uploads/images/user-avatar.png')">
-      <input id="avatar-upload" type="file" accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" (change)="onAvatarUpload($event)" hidden>
-      <button mat-button type="button" (click)="triggerFileInput()">Upload</button>
+      <div class="avatar-preview-container">
+        <video #videoElem *ngIf="cameraActive" autoplay playsinline class="avatar-video"></video>
+        <img *ngIf="!cameraActive" [src]="avatarPreview || avatarUrl" alt="Avatar" class="avatar-img"
+             (error)="avatarUrl = imageService.getImageUrl('/uploads/images/user-avatar.png')">
+
+      </div>
+      <div class="avatar-action-row">
+        <input id="avatar-upload" type="file" accept="image/*,.jfif,.bmp,.tiff,.svg,.ico" (change)="onAvatarUpload($event)" hidden>
+        <ng-container *ngIf="!cameraActive">
+          <button mat-button type="button" (click)="triggerFileInput()">Upload</button>
+          <button mat-button type="button" (click)="toggleCamera()">Camera</button>
+        </ng-container>
+        <ng-container *ngIf="cameraActive">
+          <button mat-button type="button" (click)="captureFromCamera()">Capture</button>
+          <button mat-button type="button" (click)="toggleCamera()">Cancel</button>
+        </ng-container>
+      </div>
     </div>
     <mat-form-field appearance="outline">
-  <mat-label>First Name</mat-label>
-  <input matInput formControlName="firstName">
-  <mat-error *ngIf="profileForm.get('firstName')?.hasError('required') && (profileForm.get('firstName')?.touched || profileForm.get('firstName')?.dirty)">
-    First name is required
-  </mat-error>
-</mat-form-field>
-<mat-form-field appearance="outline">
-  <mat-label>Last Name</mat-label>
-  <input matInput formControlName="lastName">
-  <mat-error *ngIf="profileForm.get('lastName')?.hasError('required') && (profileForm.get('lastName')?.touched || profileForm.get('lastName')?.dirty)">
-    Last name is required
-  </mat-error>
-</mat-form-field>
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="firstName">
+      <mat-error *ngIf="profileForm.get('firstName')?.hasError('required') && (profileForm.get('firstName')?.touched || profileForm.get('firstName')?.dirty)">
+        First name is required
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="lastName">
+      <mat-error *ngIf="profileForm.get('lastName')?.hasError('required') && (profileForm.get('lastName')?.touched || profileForm.get('lastName')?.dirty)">
+        Last name is required
+      </mat-error>
+    </mat-form-field>
+
     <mat-form-field appearance="outline">
       <mat-label>Color</mat-label>
       <input matInput type="color" formControlName="color">

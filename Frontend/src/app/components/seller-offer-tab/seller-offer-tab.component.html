@@ -1,0 +1,37 @@
+<div class="offers-list" *ngIf="!loading && offers.length">
+  <div *ngFor="let offer of offers" class="offer-card">
+    <div class="offer-header">
+      <h3>Offer #{{ offer.offerNumber || offer.id }}</h3>
+      <span class="status-badge" [style.background-color]="getOfferStatusColor(offer.status)">
+        {{ getStatusLabel(offer.status) }}
+      </span>
+    </div>
+    <div class="offer-details">
+      <p><strong>Product:</strong> {{ offer.productName }}</p>
+      <p><strong>Buyer:</strong> {{ offer.buyer.firstName }} {{ offer.buyer.lastName }}</p>
+      <p><strong>Offered Price:</strong> ${{ offer.offeredPrice | number:'1.2-2' }}</p>
+      <p><strong>Note:</strong> {{ offer.note }}</p>
+    </div>
+    <div class="offer-actions">
+      <button mat-button color="primary" (click)="viewOfferDetails(offer)">
+        <mat-icon>visibility</mat-icon>View Details
+      </button>
+      <!-- Add accept/reject actions if needed -->
+    </div>
+  </div>
+</div>
+<div *ngIf="!loading && !offers.length" class="no-offers">
+  <mat-icon>info</mat-icon>
+  <span>No offers found for this store.</span>
+</div>
+<div *ngIf="loading" class="loading">
+  <mat-spinner></mat-spinner>
+  <span>Loading offers...</span>
+</div>
+
+<app-seller-offer-detail-dialog
+  [visible]="showOfferDetail"
+  [offer]="selectedOffer"
+  (close)="handleOfferDialogClose()"
+  (action)="handleOfferAction($event)">
+</app-seller-offer-detail-dialog>

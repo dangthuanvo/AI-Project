@@ -65,7 +65,24 @@
         <div class="product-header">
           <h1>{{ product.name }}</h1>
           <div class="product-price">
-            <span class="price">${{ product.price | number:'1.2-2' }}</span>
+            <span class="price">
+              <ng-container *ngIf="activeOffer && activeOffer.status === 'AcceptedByCustomer'; else checkSellerAccepted">
+                ${{ activeOffer.counterOfferPrice | number:'1.2-2' }}
+              </ng-container>
+              <ng-template #checkSellerAccepted>
+                <ng-container *ngIf="activeOffer && activeOffer.status === 'AcceptedBySeller'; else showNormalPrice">
+                  ${{ activeOffer.offeredPrice | number:'1.2-2' }}
+                </ng-container>
+              </ng-template>
+              <ng-template #showNormalPrice>
+                ${{ product.price | number:'1.2-2' }}
+              </ng-template>
+            </span>
+            <div class="price-offer-note" *ngIf="activeOffer && (activeOffer.status === 'AcceptedByCustomer' || activeOffer.status === 'AcceptedBySeller')">
+              <mat-icon color="accent" style="font-size: 18px; vertical-align: middle;">local_offer</mat-icon>
+              <span *ngIf="activeOffer.status === 'AcceptedByCustomer'">Price modified by your accepted counter offer.</span>
+              <span *ngIf="activeOffer.status === 'AcceptedBySeller'">Price modified by seller's accepted offer.</span>
+            </div>
             <span class="stock" [ngClass]="{'low-stock': product.stockQuantity <= 5, 'out-stock': product.stockQuantity === 0}" [attr.aria-label]="product.stockQuantity > 0 ? 'In Stock' : 'Out of Stock'">
               <ng-container *ngIf="product.stockQuantity > 0">
                 <mat-icon *ngIf="product.stockQuantity <= 5" color="warn">warning</mat-icon>
@@ -78,6 +95,7 @@
               </ng-container>
             </span>
           </div>
+
         </div>
 
         <div class="product-description">
@@ -163,7 +181,20 @@
             Ask about this product
           </button>
         </div>
-
+        <!-- Make an Offer Button -->
+        <div class="cart-actions" *ngIf="product.stockQuantity > 0 && !isSeller() && !isAdmin()">
+          <button
+            mat-raised-button
+            [color]="hasActiveOffer ? 'basic' : 'accent'"
+            [ngClass]="{'make-offer-grey': hasActiveOffer}"
+            type="button"
+            (click)="openMakeOfferDialog()"
+            [disabled]="hasActiveOffer"
+            aria-label="Make an Offer">
+            <mat-icon>local_offer</mat-icon>
+            {{ hasActiveOffer ? 'You already have a Pending Offer' : 'Make an Offer' }}
+          </button>
+        </div>
         <!-- Cannot Add to Cart Messages -->
         <div class="cannot-add-to-cart" *ngIf="product.stockQuantity > 0 && !canAddToCart()">
           <mat-icon>block</mat-icon>
