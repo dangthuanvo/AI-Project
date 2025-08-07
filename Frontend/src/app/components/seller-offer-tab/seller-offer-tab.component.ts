@@ -22,6 +22,10 @@ export class SellerOfferTabComponent implements OnInit {
     }
   }
 
+  public reloadOffers(): void {
+    this.loadOffers();
+  }
+
   loadOffers(): void {
     this.loading = true;
     this.offerService.getOffersForSeller().subscribe({
@@ -83,9 +87,9 @@ export class SellerOfferTabComponent implements OnInit {
     }
   }
 
-  handleOfferAction(event: { action: string, counterOfferPrice?: number }): void {
+  handleOfferAction(event: { action: string, counterOfferPrice?: number, note?: string }): void {
     if (!this.selectedOffer) return;
-    this.offerService.respondToOffer(this.selectedOffer.id, event.action, event.counterOfferPrice).subscribe({
+    this.offerService.respondToOffer(this.selectedOffer.id, event.action, event.counterOfferPrice, event.note).subscribe({
       next: () => {
         this.loadOffers();
         this.handleOfferDialogClose();

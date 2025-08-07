@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { SellerOfferTabComponent } from '../seller-offer-tab/seller-offer-tab.component';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { StoreService, Store, Product, MonthlyStats } from '../../services/store.service';
@@ -6,7 +7,6 @@ import { AuthService } from '../../services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { FileUploadService } from '../../services/file-upload.service';
 import {ImageService} from '../../services/image.service';
-import { SellerOfferTabComponent } from '../seller-offer-tab/seller-offer-tab.component';
 
 @Component({
   selector: 'app-seller-dashboard',
@@ -14,6 +14,7 @@ import { SellerOfferTabComponent } from '../seller-offer-tab/seller-offer-tab.co
   styleUrls: ['./seller-dashboard.component.scss']  
 })
 export class SellerDashboardComponent implements OnInit {
+  @ViewChild(SellerOfferTabComponent) offerTabComponent?: SellerOfferTabComponent;
   currentUser: any;
   userStores: Store[] = [];
   userProducts: Product[] = [];
@@ -484,7 +485,24 @@ export class SellerDashboardComponent implements OnInit {
   }
 
   setActiveTab(tab: string): void {
+    if (this.activeTab === tab) return; // Prevent reload if already on tab
     this.activeTab = tab;
+    // Refresh data for each tab
+    if (tab === 'overview') {
+      this.loadMonthlyStats();
+    } else if (tab === 'products') {
+      if (this.selectedStore) {
+        this.loadProducts(this.selectedStore.id);
+      }
+    } else if (tab === 'orders') {
+      if (this.selectedStore) {
+        this.loadOrders(this.selectedStore.id);
+      }
+    } else if (tab === 'offers') {
+      if (this.offerTabComponent) {
+        this.offerTabComponent.reloadOffers();
+      }
+    }
   }
 
   get totalProducts(): number {

@@ -146,6 +146,10 @@ export class MyOfferComponent implements OnInit {
     this.offerService.getMyOffers().subscribe({
       next: (offers) => {
         this.offers = offers;
+        // Update selectedOffer to reflect the latest data
+        if (this.selectedOffer) {
+          this.selectedOffer = offers.find(o => o.id === this.selectedOffer!.id) || null;
+        }
         this.loading = false;
       },
       error: (error) => {
@@ -175,7 +179,7 @@ export class MyOfferComponent implements OnInit {
 
   getProductImageUrl(offer: Offer): string {
     if (offer.productImageUrl) {
-      return this.imageService.getImageUrl(offer.product.imageUrl);
+      return this.imageService.getImageUrl(offer.productImageUrl);
     }
     return this.imageService.getPlaceholderUrl();
   }
@@ -201,7 +205,7 @@ export class MyOfferComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.offeredPrice) {
-        this.offerService.respondToOffer(offer.id, 'counter_by_customer', result.offeredPrice).subscribe({
+        this.offerService.respondToOffer(offer.id, 'counter_by_customer', result.offeredPrice, result.note).subscribe({
           next: () => {
             // If offer is CounteredByCustomer, do not refresh detail
             if (this.selectedOffer && this.selectedOffer.status === 'CounteredByCustomer') {

@@ -27,7 +27,7 @@ export class ProductDetailComponent implements OnInit {
     if (!this.product) return;
     const dialogRef = this.dialog.open(MakeOfferDialogComponent, {
       width: '400px',
-      data: { basePrice: this.product.price }
+      data: { minPrice: 0, maxPrice: this.product.price }
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {

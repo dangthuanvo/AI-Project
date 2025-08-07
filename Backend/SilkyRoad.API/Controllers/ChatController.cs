@@ -227,8 +227,7 @@ namespace SilkyRoad.API.Controllers
                 .Include(c => c.Store)
                 .FirstOrDefaultAsync(c =>
                     ((c.User1Id == request.UserId1 && c.User2Id == request.UserId2) ||
-                     (c.User1Id == request.UserId2 && c.User2Id == request.UserId1)) &&
-                    c.StoreId == request.StoreId);
+                     (c.User1Id == request.UserId2 && c.User2Id == request.UserId1)));
 
             if (conversation == null)
             {

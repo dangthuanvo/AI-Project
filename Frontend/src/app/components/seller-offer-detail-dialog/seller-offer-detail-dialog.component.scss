@@ -1,3 +1,45 @@
 @import '../seller-dashboard/seller-dashboard.component.scss';
 
 // Only override if needed, otherwise inherit seller-dashboard styles
+.accept-button {
+    background-color: #43A047; // green
+    color: white;
+  
+    &:hover {
+      background-color: #388E3C; // darker green on hover
+    }
+  
+    &:disabled {
+      background-color: #A5D6A7; // light green when disabled
+      color: white;
+    }
+  }
+  
+  .reject-button {
+    background-color: #E53935; // red
+    color: white;
+  
+    &:hover {
+      background-color: #D32F2F; // darker red on hover
+    }
+  
+    &:disabled {
+      background-color: #EF9A9A; // light red when disabled
+      color: white;
+    }
+  }
+  
+  .counter-button {
+    background-color: #1976D2; // blue
+    color: white;
+  
+    &:hover {
+      background-color: #1565C0; // darker blue on hover
+    }
+  
+    &:disabled {
+      background-color: #90CAF9; // light blue when disabled
+      color: white;
+    }
+  }
+  

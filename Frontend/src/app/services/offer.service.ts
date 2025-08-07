@@ -32,11 +32,12 @@ export class OfferService {
     return this.http.get<Offer[]>(`${this.API_URL}/bargainoffer/for-seller`);
   }
 
-  respondToOffer(offerId: number, action: string, counterOfferPrice?: number): Observable<any> {
+  respondToOffer(offerId: number, action: string, counterOfferPrice?: number, note?: string): Observable<any> {
     return this.http.post(`${this.API_URL}/bargainoffer/respond`, {
       offerId,
       action,
-      counterOfferPrice
+      counterOfferPrice,
+      note
     });
   }
 }

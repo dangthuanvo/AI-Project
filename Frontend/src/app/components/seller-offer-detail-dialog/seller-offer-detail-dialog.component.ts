@@ -2,14 +2,18 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Offer } from '../my-offer/my-offer.component';
 import { MatDialog } from '@angular/material/dialog';
 import { MakeOfferDialogComponent } from '../make-offer-dialog/make-offer-dialog.component';
-
+import { ImageService } from 'src/app/services/image.service';
 @Component({
   selector: 'app-seller-offer-detail-dialog',
   templateUrl: './seller-offer-detail-dialog.component.html',
   styleUrls: ['./seller-offer-detail-dialog.component.scss']
 })
 export class SellerOfferDetailDialogComponent {
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private imageService: ImageService ) {}
+
+  getImageUrl(imageUrl: string | null | undefined): string {
+    return this.imageService.getImageUrl(imageUrl);
+  }
   // ...
   getOfferStatusColor(status: string | undefined): string {
     switch (status) {
@@ -62,7 +66,7 @@ export class SellerOfferDetailDialogComponent {
   @Input() offer: Offer | null = null;
   @Input() visible: boolean = false;
   @Output() close = new EventEmitter<void>();
-  @Output() action = new EventEmitter<{ action: string, counterOfferPrice?: number }>();
+  @Output() action = new EventEmitter<{ action: string, counterOfferPrice?: number, note?: string }>();
 
   // counterOfferPrice removed; now handled by dialog
 
@@ -77,7 +81,7 @@ export class SellerOfferDetailDialogComponent {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.offeredPrice) {
-        this.action.emit({ action: 'counter_by_seller', counterOfferPrice: result.offeredPrice });
+        this.action.emit({ action: 'counter_by_seller', counterOfferPrice: result.offeredPrice, note: result.note });
       }
     });
   }
@@ -86,12 +90,12 @@ export class SellerOfferDetailDialogComponent {
     this.close.emit();
   }
 
-  onApprove() {
-    this.action.emit({ action: 'accept_by_seller' });
+  onApprove(note?: string) {
+    this.action.emit({ action: 'accept_by_seller', note: note || '' });
   }
 
-  onReject() {
-    this.action.emit({ action: 'reject_by_seller' });
+  onReject(note?: string) {
+    this.action.emit({ action: 'reject_by_seller', note: note || '' });
   }
 
 

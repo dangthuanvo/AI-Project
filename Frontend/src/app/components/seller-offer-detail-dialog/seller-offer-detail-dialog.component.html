@@ -23,7 +23,7 @@
 
       <!-- Buyer Information -->
       <div class="customer-section">
-        <h4>Buyer Information</h4>
+        <h4>Customer Information</h4>
         <div class="customer-details">
           <div class="detail-row">
             <span class="label">Name:</span>
@@ -42,18 +42,22 @@
         <div class="order-items-list">
           <div class="order-item">
             <div class="item-info">
+                <img *ngIf="offer.productImageUrl"
+                  [src]="getImageUrl(offer.productImageUrl)"
+                  [alt]="offer.product?.name || 'Product Image'"
+                  class="order-item-image" width="60" height="60"/>
               <div class="item-name">{{ offer.product?.name }}</div>
               <div class="item-details">
                 <span class="unit-price">
-  {{ offer.productName }}
-  <span *ngIf="offer.product?.price !== undefined; else fallbackPrice">
-    Default Price: ${{ offer.product.price | number:'1.2-2' }}
-  </span>
-  <ng-template #fallbackPrice>
-    <span *ngIf="offer.product.price !== undefined">Default Price: ${{ offer.product.price | number:'1.2-2' }}</span>
-    <span *ngIf="offer.product.price === undefined">Default Price: &ndash;</span>
-  </ng-template>
-</span>
+                {{ offer.productName }}
+                <span *ngIf="offer.product?.price !== undefined; else fallbackPrice">
+                  Default Price: ${{ offer.product.price | number:'1.2-2' }}
+                </span>
+                <ng-template #fallbackPrice>
+                  <span *ngIf="offer.product.price !== undefined">Default Price: ${{ offer.product.price | number:'1.2-2' }}</span>
+                  <span *ngIf="offer.product.price === undefined">Default Price: &ndash;</span>
+                </ng-template>
+              </span>
               </div>
             </div>
             <div class="item-total">
@@ -83,13 +87,13 @@
       <div class="order-actions-section">
         <h4>Respond to Offer</h4>
         <div class="status-actions">
-          <button mat-raised-button color="primary"
+          <button mat-raised-button class="accept-button"
                   (click)="onApprove()"
-                  [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Approve</button>
-          <button mat-raised-button color="warn"
+                  [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Accept</button>
+          <button mat-raised-button class="reject-button"
                   (click)="onReject()"
                   [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Reject</button>
-          <button mat-raised-button color="accent"
+          <button mat-raised-button class="counter-button"
                   (click)="openCounterDialog()"
                   [disabled]="offer.status !== 'CounteredByCustomer' && offer.status !== 'Pending'">Counter</button>
         </div>

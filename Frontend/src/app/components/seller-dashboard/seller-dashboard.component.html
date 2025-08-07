@@ -179,6 +179,10 @@
             </div>
           </div>
         </div>
+        <div *ngIf="!loading && !orders.length" class="no-orders">
+          <mat-icon>info</mat-icon>
+          <span>No orders found in this store.</span>
+        </div>
       </div>
     </div>
 
@@ -513,6 +517,10 @@
           <div class="order-items-list">
             <div class="order-item" *ngFor="let item of selectedOrder.items">
               <div class="item-info">
+                <img *ngIf="item.imageUrls?.length > 0"
+                [src]="getImageUrl(item.imageUrls[0])"
+                [alt]="item.name"
+                class="order-item-image" width="60" height="60"/>
                 <div class="item-name">{{ item.name }}</div>
                 <div class="item-details">
                   <span class="quantity">Qty: {{ item.quantity }}</span>

@@ -245,7 +245,8 @@ namespace SilkyRoad.API.Controllers
                         oi.Id,
                         oi.Product.Name,
                         oi.Quantity,
-                        oi.UnitPrice
+                        oi.UnitPrice,
+                        ImageUrls = oi.Product.ProductImages.Select(pi => pi.ImageUrl).ToList(),
                     }).ToList()
                 })
                 .ToListAsync();

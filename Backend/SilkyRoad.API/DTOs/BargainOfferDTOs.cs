@@ -15,10 +15,12 @@ namespace SilkyRoad.API.DTOs
         public int OfferId { get; set; }
         public string Action { get; set; } // Accept, Reject, Counter
         public decimal? CounterOfferPrice { get; set; }
+        public string? Note { get; set; }
     }
 
     public class BargainOfferDTO
     {
+        public string? ProductImageUrl { get; set; }
         public int Id { get; set; }
         public string OfferNumber { get; set; } = string.Empty;
         public int ProductId { get; set; }

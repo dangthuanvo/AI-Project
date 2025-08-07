@@ -83,6 +83,7 @@ namespace SilkyRoad.API.Controllers
                     Buyer = o.Buyer,
                     Seller = o.Seller,
                     Product = o.Product,
+                    ProductImageUrl = o.Product.ProductImages.Select(pi => pi.ImageUrl).FirstOrDefault(),
                 })
                 .ToListAsync();
                 foreach (var offer in offers)
@@ -191,7 +192,8 @@ namespace SilkyRoad.API.Controllers
                 default:
                     return BadRequest("Invalid action");
             }
-            offer.UpdatedAt = DateTime.UtcNow;
+            offer.UpdatedAt = DateTime.UtcNow.AddHours(7);
+            offer.Note = dto.Note;
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -225,6 +227,7 @@ namespace SilkyRoad.API.Controllers
                 Buyer = o.Buyer,
                 Seller = o.Seller,
                 Product = o.Product,
+                ProductImageUrl = o.Product.ProductImages.Select(pi => pi.ImageUrl).FirstOrDefault(),
                 Store = _context.Stores
                     .Where(s => s.OwnerId == o.SellerId)
                     .Select(s => new Store
